@@ -1,0 +1,23 @@
+<?php
+$lang['dashboard'] = 'Dashboard';
+$lang['report'] = 'Report';
+$lang['staff'] = 'Staff';
+$lang['customer'] = 'Customer';
+$lang['product'] = 'Product';
+$lang['documentation'] = 'Documentation';
+$lang['sales-order'] = 'Sales Order';
+$lang['user-management'] = 'User Management';
+$lang['geo-analytic'] = 'Geo analytic';
+$lang['push'] = 'Push';
+$lang['live-tracking'] = 'Live Tracking';
+$lang['logout'] = 'Logout';
+$lang['time-range'] = 'Time Range';
+$lang['attendance'] = 'Attendance';
+$lang['suggestion'] = 'Suggestion';
+$lang['call'] = 'Call';
+$lang['activity-list'] = 'Activity List';
+$lang['attendance-report'] = 'Attendance Report';
+$lang['sales-over-time'] = 'Sales Over Time';
+$lang['customer-overview'] = 'Customer Overview';
+$lang['information-list'] = 'Information List';
+$lang['customer-information'] = 'Customer Information';

@@ -1,0 +1,23 @@
+<?php
+$lang['dashboard'] = 'Dashboard';
+$lang['report'] = 'Laporan';
+$lang['staff'] = 'Staf';
+$lang['customer'] = 'Pelanggan';
+$lang['product'] = 'Produk';
+$lang['documentation'] = 'Dokumentasi';
+$lang['sales-order'] = 'Order Penjualan';
+$lang['user-management'] = 'Manajemen Pengguna';
+$lang['geo-analytic'] = 'Analisis Geografis';
+$lang['push'] = 'Pemberitahuan';
+$lang['live-tracking'] = 'Pelacakan Langsung';
+$lang['logout'] = 'Keluar';
+$lang['time-range'] = 'Rentang waktu';
+$lang['attendance'] = 'Kehadiran';
+$lang['suggestion'] = 'Saran';
+$lang['call'] = 'Call';
+$lang['activity-list'] = 'Daftar Aktivitas';
+$lang['attendance-report'] = 'Laporan Kehadiran';
+$lang['sales-over-time'] = 'Penjualan Seiring Waktu';
+$lang['customer-overview'] = 'Tinjauan Pelanggan';
+$lang['information-list'] = 'Daftar Informasi';
+$lang['customer-information'] = 'Informasi Pelanggan';

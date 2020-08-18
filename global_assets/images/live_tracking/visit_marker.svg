@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 38.4 91.2">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #006838;
+      }
+
+      .cls-2 {
+        fill: #f7f8e2;
+      }
+
+      .cls-3 {
+        fill: #fff;
+        stroke: #ffde04;
+        stroke-width: 3px;
+      }
+
+      .cls-4 {
+        stroke: none;
+      }
+
+      .cls-5 {
+        fill: none;
+      }
+
+      .cls-6 {
+        filter: url(#Store_point_in_map_);
+      }
+    </style>
+    <filter id="Store_point_in_map_" x="0.4" y="53.2" width="38" height="38" filterUnits="userSpaceOnUse">
+      <feOffset dy="5" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.271"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_12509" data-name="Group 12509" transform="translate(9383 -4029)">
+    <g id="Store_pin_in_map_" data-name="Store pin (in map)" transform="translate(-10356.002 3434)">
+      <g id="Group_12508" data-name="Group 12508" transform="translate(973.008 595.007)">
+        <g id="Group_12507" data-name="Group 12507" transform="translate(-0.007 -0.007)">
+          <path id="Path_41946" data-name="Path 41946" class="cls-1" d="M37.869,18.461c.284,10.414-18.462,38.627-18.462,38.627S.284,29.822,0,19.408a18.941,18.941,0,1,1,37.87-.947Z" transform="translate(0.007 0.007)"/>
+        </g>
+        <circle id="Ellipse_2100" data-name="Ellipse 2100" class="cls-2" cx="10.982" cy="10.982" r="10.982" transform="translate(7.952 6.911)"/>
+      </g>
+    </g>
+    <g class="cls-6" transform="matrix(1, 0, 0, 1, -9383, 4029)">
+      <g id="Store_point_in_map_2" data-name="Store point (in map)" class="cls-3" transform="translate(9.4 57.2)">
+        <circle class="cls-4" cx="10" cy="10" r="10"/>
+        <circle class="cls-5" cx="10" cy="10" r="8.5"/>
+      </g>
+    </g>
+  </g>
+</svg>
