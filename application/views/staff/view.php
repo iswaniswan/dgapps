@@ -185,63 +185,7 @@
         </div>
 
       </div>
-      <div class="card card-collapsed">
-        <div class="card-header header-elements-inline">
-          <h5 class="card-title">Journey Plan</h5>
-          <div class="header-elements">
-            <div class="list-icons">
-              <a class="list-icons-item" data-action="collapse"></a>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <div class="row">
-            <div class="col-xl-12">
-
-              <div class="card">
-
-                <div class="card-body">
-
-                  <div class="fullcalendar-event-colors"></div>
-                  <br>
-                  <div class="text-center">
-                    <table border="0" width="100%">
-                      <tr>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                        <td width="4%" bgcolor="#00BCD4"></td>
-                        <td width="1%"></td>
-                        <td width="10%">Journey Plan</td>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                        <td width="4%" bgcolor="#2196F3"></td>
-                        <td width="1%"></td>
-                        <td width="10%">Visited</td>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                        <td width="4%" bgcolor="#4CAF50"></td>
-                        <td width="1%"></td>
-                        <td width="10%">Sales Order</td>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                        <td width="5%"></td>
-                      </tr>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
+      
       <div class="card card-collapsed">
         <div class="card-header header-elements-inline">
           <h5 class="card-title">Tracking In Maps</h5>
@@ -286,4 +230,65 @@
   </div>
   <!-- /inner container -->
 
+  <div class="row">
+      <div class="col-xl-12">
+          <div class="card card-uncollapsed" id="journey_id">
+            <div class="card-header header-elements-inline">
+              <h5 class="card-title">Journey Plan</h5>
+              <div class="header-elements">
+                <div class="list-icons">
+                  <a class="list-icons-item" data-action="collapse"></a>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="row">
+                <div class="col-xl-12">
+
+                  <div class="card">
+
+                    <div class="card-body">
+
+                      <div class="fullcalendar-event-colors"></div>
+                      <br>
+                      <div class="text-center">
+                        <table border="0" width="100%">
+                          <tr>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                            <td width="4%" bgcolor="#00BCD4"></td>
+                            <td width="1%"></td>
+                            <td width="10%">Journey Plan</td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                            <td width="4%" bgcolor="#2196F3"></td>
+                            <td width="1%"></td>
+                            <td width="10%">Visited</td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                            <td width="4%" bgcolor="#4CAF50"></td>
+                            <td width="1%"></td>
+                            <td width="10%">Sales Order</td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+      </div>
+  </div>
 </div>

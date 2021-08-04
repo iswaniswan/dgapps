@@ -15,7 +15,13 @@ class Staff extends CI_Controller
 
     public function index()
     {
+
         $cari=$this->input->post("cari");
+        // $i_company = $this->session->userdata('i_company');
+        // if ($i_company == '6') {
+        //     var_dump($this->M_staff->list_user($cari));
+        //     die();
+        // }
         $data = array(
             'list_user' => $this->M_staff->list_user($cari),
         );
@@ -133,15 +139,40 @@ order by a.createdat asc");
         $dfrom = date("Y-m-d", strtotime($this->input->post('start')));
         $dto = date("Y-m-d", strtotime($this->input->post('end')));
 
+  //       $data_rrkh = $this->db->query("
+		// select b.e_customer_name as title, a.d_rrkh as start, a.d_rrkh as end, '#00BCD4' as color  from tbl_rrkh a, tbl_customer b
+		// where a.i_company = b.i_company
+		// and a.i_customer = b.i_customer
+		// and a.i_area = b.i_area
+		// and a.d_rrkh >= '$dfrom'
+		// and a.d_rrkh <= '$dto'
+		// and a.username = '$id'
+		// and a.i_company = '$i_company'")->result_array();
+
+
         $data_rrkh = $this->db->query("
-		select b.e_customer_name as title, a.d_rrkh as start, a.d_rrkh as end, '#00BCD4' as color  from tbl_rrkh a, tbl_customer b
-		where a.i_company = b.i_company
-		and a.i_customer = b.i_customer
-		and a.i_area = b.i_area
-		and a.d_rrkh >= '$dfrom'
-		and a.d_rrkh <= '$dto'
-		and a.username = '$id'
-		and a.i_company = '$i_company'")->result_array();
+            select b.e_customer_name as title, a.d_rrkh as start, a.d_rrkh as end, 
+            case 
+                when d.d_spb is not null then '#4CAF50'
+                when c.d_checkin is not null then '#2196F3'
+                else '#00BCD4' 
+            end as color  
+            from tbl_rrkh a
+            inner join tbl_customer b on (a.i_company = b.i_company and a.i_customer = b.i_customer and a.i_area = b.i_area)
+            left join ( 
+                select i_company, i_customer, i_area , d_checkin from tbl_customer_checkin where d_checkin between '$dfrom' and '$dto'  and i_company = '$i_company' and username = '$id'
+                group by i_company, i_customer, i_area , d_checkin
+            ) as c on (a.i_company = c.i_company and a.i_customer = c.i_customer and a.d_rrkh = c.d_checkin)
+            left join (
+                select i_company, i_customer, i_area , d_spb from tbl_spb where d_spb between '$dfrom' and '$dto'  and i_company = '$i_company' and username = '$id'
+                group by i_company, i_customer, i_area , d_spb
+            ) as  d on (a.i_company = d.i_company and a.i_customer = d.i_customer and a.d_rrkh = d.d_spb)
+            where 
+            a.d_rrkh >= '$dfrom'
+            and a.d_rrkh <= '$dto'
+            and a.username = '$id'
+            and a.i_company = '$i_company'
+        ")->result_array(); 
         echo json_encode($data_rrkh);
     }
 

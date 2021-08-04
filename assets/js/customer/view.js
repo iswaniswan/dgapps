@@ -186,7 +186,8 @@ var Customer = (function() {
           {
             title: "Change Address",
             text: "Step #1 - Address",
-            inputPlaceholder: "Enter Address"
+            inputPlaceholder: "Enter Address",
+            inputValue: $("#address").val()
           },
           {
             title: "Change Address",

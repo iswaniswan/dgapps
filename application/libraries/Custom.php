@@ -104,6 +104,9 @@ class Custom
             }
             $username = array_merge($username, (array) $CI->custom->cari_username($new_username, $no));
             return $username;
+        }else{
+            $new_username = array();
+            $username = array();
         }
     }
 

@@ -111,7 +111,9 @@
 			                  <td class="text-right"><?= number_format($row->n_order * $row->v_unit_price); ?></td>
 			                  <td><?= $row->e_remark; ?></td>
 			                </tr>
-			                <?php } ?>
+			                <?php 
+			                $no++;
+			            	} ?>
 			                <tr>
 			                  <td colspan="3">Comment</td>
 			                  <td colspan="2">Sales Order Total</td>
