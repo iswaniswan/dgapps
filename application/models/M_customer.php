@@ -13,7 +13,7 @@ class M_customer extends CI_Model
         $i_company = $this->session->userdata('i_company');
 
         $datatables = new Datatables(new CodeigniterAdapter);
-        $datatables->query("select a.i_customer, a.e_customer_name, b.e_company_name, c.e_area_name, a.f_active from
+        $datatables->query("select a.i_customer, a.e_customer_name, b.e_company_name, c.e_area_name, a.f_active, a.i_company from
         tbl_customer a, tbl_company b, tbl_area c
         where
         a.i_company = b.i_company
@@ -24,13 +24,38 @@ class M_customer extends CI_Model
             select i_area from tbl_user_area where username = '$username' and i_company = '$i_company'
         )
         order by a.i_area, a.i_customer");
+        // $datatables->edit('f_active', function ($data) {
+        //     $f_active = $data['f_active'];
+        //     if ($f_active == 't') {
+        //         return '<span class="badge badge-success">Active</span>';
+        //     } else {
+        //         return '<span class="badge badge-danger">Inactive</span>';
+        //     }
+        // });
         $datatables->edit('f_active', function ($data) {
+            $i_customer = $data['i_customer'];
+            $i_company = $data['i_company'];
             $f_active = $data['f_active'];
+
+            $data_return = "";
+            $selected1 = '';
+            $selected2 = '';
+            $isi = "'" . $i_customer . "'," . $i_company . ",this";
+
+            $data_return .= '<select id="f_active" name="f_active" class="form-control"
+            onfocus="this.setAttribute(`PrvSelectedValue`,this.value);"
+            onchange="change_status(' . $isi . ')">';
+
             if ($f_active == 't') {
-                return '<span class="badge badge-success">Active</span>';
+                $selected1 = "selected='true'";
             } else {
-                return '<span class="badge badge-danger">Inactive</span>';
+                $selected2 = "selected='true'";
             }
+            $data_return .= '<option value="t" ' . $selected1 . '>Active</option>';
+            $data_return .= '<option value="f" ' . $selected2 . '>Inactive</option>';
+            $data_return .= '</select>';
+
+            return $data_return;
         });
 
         $datatables->edit('i_customer', function ($data) {

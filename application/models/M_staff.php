@@ -46,7 +46,7 @@ class M_staff extends CI_Model {
                     select a.i_area from tbl_user_area a where a.username = '$username' and a.i_company = '$i_company'
                     )
                     and a.i_company = '$i_company' and b.e_name ilike '%$cari%'
-                    and a.username = b.username and a.i_company = b.i_company and (b.i_role >= '3' or (b.username = 'ganni' or b.username = 'suyadi')   )
+                    and a.username = b.username and a.i_company = b.i_company and (b.i_role >= '3' or (b.username = 'ganni' or b.username = 'suyadi' or b.username = 'admin')   )
                     group by a.username
             )");
         }

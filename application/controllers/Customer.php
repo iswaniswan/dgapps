@@ -18,8 +18,9 @@ class Customer extends CI_Controller
         add_js(
             array(
                 'global_assets/js/plugins/tables/datatables/datatables.min.js',
+                'global_assets/js/plugins/notifications/sweet_alert.min.js',
                 'global_assets/js/plugins/forms/selects/select2.min.js',
-                'assets/js/customer/index.js',
+                'assets/js/customer/index.js?v=1',
             )
         );
         $this->Logger->write(null, null, 'Membuka Menu Customer');
@@ -102,5 +103,28 @@ class Customer extends CI_Controller
         $this->Logger->write(null, null, 'Mengganti Alamat Customer ' . $i_customer);
         echo json_encode($data);
 
+    }
+
+    public function change_status()
+    {
+        $i_customer = $this->input->post('i_customer');
+        $i_company = $this->input->post('i_company', true);
+        $f_status = $this->input->post('val', true);
+
+        $data = array(
+            'f_active' => $f_status,
+            'modifiedat' => current_datetime(),
+        );
+
+        $this->db->where('i_customer', $i_customer);
+        $this->db->where('i_company', $i_company);
+        $this->db->update("tbl_customer", $data);
+
+        $this->Logger->write(null, null, 'Update Status Pelanggan : ' . $i_customer . ' Menjadi : ' . $f_status);
+
+        $data = array(
+            'status' => true,
+        );
+        echo json_encode($data);
     }
 }

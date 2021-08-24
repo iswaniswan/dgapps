@@ -409,7 +409,8 @@ class Report extends CI_Controller
                 left join tbl_customer_saran g on (a.username = g.username and a.i_company = g.i_company and a.d_checkin = g.d_saran and a.i_customer = g.i_customer)
                 left join tbl_saran_type h on (g.i_company = h.i_company and g.i_saran_type = h.i_saran_type)
                 left join tbl_customer i on (a.i_company = i.i_company and a.i_customer = i.i_customer)
-                where a.i_company = '$i_company' and a.d_checkin between '$dfrom' and '$dto' $where
+                where a.i_company = '$i_company' and a.d_checkin between '$dfrom' and '$dto' 
+                and a.i_area in (select i_area from tbl_user_area where username = '$username' and i_company = '$i_company')
                 order by d_checkin, i_area, e_name
 
             ");
@@ -556,6 +557,79 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Customer');
             echo json_encode($response);
+        } elseif ($type == 'lastvisit') {
+
+            $sheet->setCellValue('A1', 'No');
+            $sheet->setCellValue('B1', 'Kode Toko');
+            $sheet->setCellValue('C1', 'Terakhir Kunjungan');
+            // $sheet->setCellValue('I1', 'Efektif Kunjungan');
+            $sheet->getStyle('A1:C1')->applyFromArray($styleArray);
+
+            foreach (range('A', 'C') as $columnID) {
+                $sheet->getColumnDimension($columnID)->setAutoSize(true);
+            }
+
+            $i = 2;
+
+            $query = $this->db->query("
+
+                select i_customer, max(d_checkin) as d_checkin from tbl_customer_checkin  
+                where i_company = '$i_company' and i_area in (select i_area from tbl_user_area where username= '$username' and i_company = '$i_company')
+                group by 1 order by 1
+
+            ");
+
+            if ($query->num_rows() > 0) {
+
+                foreach ($query->result() as $row) {
+
+                    $sheet->setCellValue('A' . $i, $i-1);
+                    $sheet->setCellValue('B' . $i, $row->i_customer);
+                    $sheet->setCellValue('C' . $i, $row->d_checkin);
+                    // $sheet->setCellValue('D' . $i, $row->e_name);
+                    // $sheet->setCellValue('E' . $i, $row->kunjungan);
+                    // $sheet->setCellValue('F' . $i, $row->n_order);
+                    // $sheet->setCellValue('G' . $i, $row->persen);
+                    // $sheet->setCellValue('H' . $i, "");
+                    // $sheet->setCellValue('I' . $i, '=E'.$i.'/'.'H'.$i );
+                    // $sheet->getStyle('I' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('J' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('N' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('O' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('P' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    $i++;
+                }
+            }
+
+            $i = $i + 3;
+            $sheet->setCellValue('A' . $i, 'Start Date');
+            $sheet->setCellValue('B' . $i, 'End Date');
+            $sheet->getStyle('A' . $i . ':B' . $i)->applyFromArray($styleArray);
+
+            $i++;
+            $sheet->setCellValue('A' . $i, '-');
+            $sheet->setCellValue('B' . $i, '-');
+
+            $writer = new Xlsx($spreadsheet);
+
+            $filename = 'KunjunganToko';
+
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+
+            $response = array(
+                'name' => $filename . '.xlsx',
+                'file' => "data:application/vnd.ms-excel;base64," . base64_encode($xlsData),
+            );
+            $this->Logger->write(null, null, 'Download Report Sales Order');
+            echo json_encode($response);
+
         }
     }
 }

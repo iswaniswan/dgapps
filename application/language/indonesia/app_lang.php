@@ -21,3 +21,4 @@ $lang['sales-over-time'] = 'Penjualan Seiring Waktu';
 $lang['customer-overview'] = 'Tinjauan Pelanggan';
 $lang['information-list'] = 'Daftar Informasi';
 $lang['customer-information'] = 'Informasi Pelanggan';
+$lang['lastvisit'] = 'Terakhir Kunjungan Pelanggan ';

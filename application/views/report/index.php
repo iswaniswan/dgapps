@@ -103,6 +103,16 @@
 			                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
 			                </button>
 			              </div>
+
+			              <div class="mb-4">
+			                <h6 class="font-weight-semibold"><?=$this->lang->line('lastvisit');?></h6>
+			                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="lastvisit"
+			                  data-style="zoom-out">
+			                  <span class="ladda-label">Download <?=$this->lang->line('lastvisit');?>
+			                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+			                </button>
+			              </div>
+
 			            </div>
 			          </div>
 			        </div>

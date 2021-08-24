@@ -1839,7 +1839,7 @@ class Api extends REST_Controller
             and a.i_company = d.i_company
             and a.i_area = d.i_area
             and a.i_customer = d.i_customer
-            and a.i_area ='$i_area'
+            and a.i_area in (select i_area from tbl_user_area tua where username = '$username' and i_company = '$i_company')
             and a.f_active = 'true'
             and a.i_company = '$i_company'
             and d.d_rrkh = '$sekarang'

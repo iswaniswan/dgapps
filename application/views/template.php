@@ -166,6 +166,7 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
+            <?php if ($user['i_role'] == '1' || $user['i_role'] == '2') {?>
             <li class="nav-item">
               <a href="<?=base_url();?>customer" class="nav-link">
                 <i class="fas fa-store"></i>
@@ -174,7 +175,8 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
-            <?php if ($user['i_role'] == '1') {?>
+          <?php } ?>
+            <?php if ($user['i_role'] == '1' || $user['i_role'] == '2') {?>
             <li class="nav-item">
               <a href="<?=base_url();?>product" class="nav-link">
                 <i class="fas fa-box-open"></i>
@@ -192,6 +194,7 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
+            <?php if ($user['i_role'] == '1' || $user['i_role'] == '2' || $user['i_role'] == '3' || $user['i_role'] == '4') {?>
             <li class="nav-item">
               <a href="<?=base_url();?>sales-order" class="nav-link">
                 <i class="fas fa-shopping-cart"></i>
@@ -200,6 +203,8 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
+            <?php } ?>
+            <?php if ($user['i_role'] == '1') {?>
             <li class="nav-item">
               <a href="<?=base_url();?>user-management" class="nav-link">
                 <i class="fas fa-user"></i>
@@ -208,6 +213,7 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
+          <?php }?>
             <li class="nav-item">
               <a href="<?=base_url();?>geo-analytic" class="nav-link">
                 <i class="fas fa-globe"></i>
