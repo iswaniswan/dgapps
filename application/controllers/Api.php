@@ -208,6 +208,56 @@ class Api extends REST_Controller
 
     }
 
+    public function listcity_post()
+    {
+
+        $i_company = $this->post('i_company');
+        $username = $this->post('username');
+        $i_area = $this->post('i_area');
+
+/*
+        $this->db->select("i_city");
+        $this->db->from("tbl_city");
+        $this->db->where("i_company", $i_company);
+        $this->db->where("id_maps", $id_map);
+        $this->db->where("f_active", 'true');
+*/
+        $cek_city=$this->db->query (" dselect a.i_city, a.id_maps from tbl_city a, tbl_area b 
+                            where a.i_company=b.i_company and a.id_maps=b.id_maps and a.i_company='$i_company' and a.f_active='t' and b.e_area_name='$i_area' ");
+//        $cek_city = $this->db->get();
+
+        if ($cek_city->num_rows() > 0) {
+
+            $i_company = $i_company;
+            $username = $username;
+            $this->Logger->write($i_company, $username, 'Apps Membuka daftar kota');
+
+            $data = $this->db->query("sselect e_city_name as value from tbl_city where i_company = '$i_company'
+            and f_active = 't' and id_maps in( select id_maps from tbl_area where i_company='$i_company' and f_active='t' and e_area_name='$i_area' )
+            order by id_maps asc");
+
+            if ($data->num_rows() > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $data->result_array(),
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'data' => [],
+                'message' => 'Perusahaan Anda Tidak Terdaftar ! Silahkan Logout Dulu yaaaa !',
+            ], REST_Controller::HTTP_OK);
+        }
+
+    }
+
     public function loginselfie_post()
     {
         $username = $this->post('username');
