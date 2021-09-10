@@ -215,13 +215,6 @@ class Api extends REST_Controller
         $username = $this->post('username');
         $i_area = $this->post('i_area');
 
-/*
-        $this->db->select("i_city");
-        $this->db->from("tbl_city");
-        $this->db->where("i_company", $i_company);
-        $this->db->where("id_maps", $id_map);
-        $this->db->where("f_active", 'true');
-*/
         $cek_city=$this->db->query (" dselect a.i_city, a.id_maps from tbl_city a, tbl_area b 
                             where a.i_company=b.i_company and a.id_maps=b.id_maps and a.i_company='$i_company' and a.f_active='t' and b.e_area_name='$i_area' ");
 //        $cek_city = $this->db->get();
@@ -253,6 +246,60 @@ class Api extends REST_Controller
                 'status' => false,
                 'data' => [],
                 'message' => 'Perusahaan Anda Tidak Terdaftar ! Silahkan Logout Dulu yaaaa !',
+            ], REST_Controller::HTTP_OK);
+        }
+
+    }
+
+    public function listtagihan_post()
+    {
+        $i_company = $this->post('i_company');
+        $username = $this->post('username');
+        $i_area = $this->post('i_area');
+
+        $this->db->select("i_company");
+        $this->db->from("tbl_company");
+        $this->db->where("i_company", $i_company);
+        $this->db->where("f_active", 'true');
+        $cek_company = $this->db->get();
+
+        if ($cek_company->num_rows() > 0) {
+
+            $i_company = $i_company;
+            $username = $username;
+            $this->Logger->write($i_company, $username, 'Apps Membuka Menu Sales Order');
+
+            // $this->db->select("e_area_name as value");
+            // $this->db->from("tbl_area");
+            // $this->db->where("i_company", $i_company);
+            // $this->db->where("i_area", $i_area);
+            // $this->db->where("f_active", 'true');
+            // $this->db->order_by("i_area", "asc");
+            // $data = $this->db->get();
+
+            $data = $this->db->query("select e_area_name as value from tbl_area where i_company = '$i_company'
+            and f_active = 't' and i_area in(
+            select i_area from tbl_user_area where username = '$username' and i_company = '$i_company'
+            )
+            order by i_area asc");
+
+            if ($data->num_rows() > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $data->result_array(),
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'data' => [],
+                'message' => 'Perusahaan Anda Tidak Terdaftar ! Silahkan Logout Dulu !',
             ], REST_Controller::HTTP_OK);
         }
 
@@ -308,7 +355,7 @@ class Api extends REST_Controller
 
     public function cari_pelanggan_post()
     {
-        $cari = strtoupper($this->post('cari'));
+        $cari = str_replace("'", "''", strtoupper($this->post('cari')));
         $e_area_name = $this->post('i_area');
         $i_company = $this->post('i_company');
         $username = $this->post('username');

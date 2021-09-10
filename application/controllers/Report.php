@@ -401,7 +401,6 @@ class Report extends CI_Controller
                 e.v_spb_netto , case when e.f_spb_cancel = 't' then 'Batal' when e.f_spb_cancel = 'f' and v_spb_netto is not null then 'Transfer' else '' end as status,
                 f.e_foto , h.e_saran_typename , g.e_saran
                 from tbl_customer_checkin a 
-                inner join tbl_area b on (a.i_area = b.i_area and b.i_company = a.i_company)
                 inner join tbl_user c on (a.username = c.username and c.i_company = a.i_company)
                 left join tbl_rrkh d on (a.username = d.username and a.i_company = d.i_company and a.d_checkin = d.d_rrkh and a.i_customer = d.i_customer)
                 left join tbl_spb e on (a.username = e.username and a.i_company = e.i_company and a.d_checkin = e.d_spb and a.i_customer = e.i_customer)
@@ -409,6 +408,7 @@ class Report extends CI_Controller
                 left join tbl_customer_saran g on (a.username = g.username and a.i_company = g.i_company and a.d_checkin = g.d_saran and a.i_customer = g.i_customer)
                 left join tbl_saran_type h on (g.i_company = h.i_company and g.i_saran_type = h.i_saran_type)
                 left join tbl_customer i on (a.i_company = i.i_company and a.i_customer = i.i_customer)
+                inner join tbl_area b on (i.i_area = b.i_area and b.i_company = i.i_company)
                 where a.i_company = '$i_company' and a.d_checkin between '$dfrom' and '$dto' 
                 and a.i_area in (select i_area from tbl_user_area where username = '$username' and i_company = '$i_company')
                 order by d_checkin, i_area, e_name
