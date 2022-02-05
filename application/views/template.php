@@ -178,6 +178,16 @@ $language = $this->session->userdata('language');
           <?php } ?>
             <?php if ($user['i_role'] == '1' || $user['i_role'] == '2') {?>
             <li class="nav-item">
+              <a href="<?=base_url();?>target_customer" class="nav-link">
+                <i class="fab fa-tumblr"></i>
+                <span>
+                  <?=$this->lang->line('Customer Target');?>
+                </span>
+              </a>
+            </li>
+          <?php } ?>
+            <?php if ($user['i_role'] == '1' || $user['i_role'] == '2') {?>
+            <li class="nav-item">
               <a href="<?=base_url();?>product" class="nav-link">
                 <i class="fas fa-box-open"></i>
                 <span>

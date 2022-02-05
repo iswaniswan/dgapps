@@ -75,10 +75,15 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '192.168.0.93',
+	/* 'hostname' => '202.150.150.58',
 	'username' => 'dedy',
 	'password' => 'g#>m[J2P^^',
-	'database' => 'dgapps',
+	'database' => 'dgapps', 
+	'port' 	   => 9191,*/
+	'hostname' => 'localhost',
+	'username' => 'dedy',
+	'password' => 'dialogue',
+	'database' => 'DG_Apps',
 	'port' 	   => 5432,
 	'dbdriver' => 'postgre',
 	'dbprefix' => '',
