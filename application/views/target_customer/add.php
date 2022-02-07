@@ -48,17 +48,17 @@
 			                <div class="form-group row">
 			                  <label class="col-form-label col-lg-2">Target SPB</label>
 			                  <div class="col-lg-10">
-			                    <input type="number" class="form-control" name="v_spb_target" min="1000000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
+			                    <input type="number" class="form-control" name="v_spb_target" min="100000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
 			                  </div>
 			                </div>
 			                <div class="form-group row">
 			                  <label class="col-form-label col-lg-2">Target Nota</label>
 			                  <div class="col-lg-10">
-							  	<input type="number" class="form-control" name="v_nota_target" min="1000000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
+							  	<input type="number" class="form-control" name="v_nota_target" min="100000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
 			                  </div>
 			                </div>
 			                <div class="d-flex justify-content-end align-items-center">
-			                  <button type="submit" class="btn bg-blue ml-3">SAVE</button>
+			                  <button type="submit" class="btn bg-blue ml-3"><i class="fas fa-paper-plane mr-2 fa-lg"></i>SAVE</button>
 			                </div>
 			              </div>
 

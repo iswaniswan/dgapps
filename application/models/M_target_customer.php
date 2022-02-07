@@ -37,6 +37,13 @@ class M_target_customer extends CI_Model
             }
         });
 
+        $datatables->edit('e_customer_name', function ($data) {
+            $i_customer = trim($data['i_customer']);
+            $i_periode = trim($data['i_periode']);
+            $e_customer_name = $data['e_customer_name'];
+            return '<a href="' . base_url() . 'target_customer/view/' . encrypt_url($i_customer) .'/'. encrypt_url($i_periode). '">' . $e_customer_name . '</a>';
+        });
+
         $datatables->edit('v_spb_target', function ($data) {
             return 'Rp. '.number_format($data['v_spb_target']);
         });
@@ -49,7 +56,8 @@ class M_target_customer extends CI_Model
             $i_customer = trim($data['i_customer']);
             $i_periode = trim($data['i_periode']);
             $data = '';
-            $data      .= "<a href='" . base_url() . 'target_customer/edit/' . encrypt_url($i_customer) .'/'. encrypt_url($i_periode)."' title='Edit Data'><i class='fas fa-pencil-ruler text-success darken-4 fa-lg'></i></a>";
+            $data .= "<a href='" . base_url() . 'target_customer/view/' . encrypt_url($i_customer) .'/'. encrypt_url($i_periode)."' title='Edit Data'><i class='fas fa-eye mr-2 text-success darken-4 fa-lg'></i></a>";
+            $data .= "<a href='" . base_url() . 'target_customer/edit/' . encrypt_url($i_customer) .'/'. encrypt_url($i_periode)."' title='Edit Data'><i class='fas fa-edit text-primary darken-4 fa-lg'></i></a>";
             return $data;
             // return '<a href="#" onclick="change_password(' . encrypt_url($i_customer) . '); return false;" class="change" title="Edit"><i class="fas fa-pencil-ruler mr-3 fa-lg"></i></a>';
         });
@@ -77,75 +85,6 @@ class M_target_customer extends CI_Model
             modifiedat = now()
         ");
     }
-
-    public function change_password($username, $password)
-    {
-        $this->load->library('custom');
-
-        $i_company = $this->session->userdata('i_company');
-
-        $password = $this->custom->password($password);
-
-        $data = array(
-            'e_password' => $password,
-        );
-
-        $this->db->where('username', $username);
-        $this->db->where('i_company', $i_company);
-        $this->db->update('tbl_user', $data);
-
-    }
-
-    public function cek_data($id)
-    {
-        $i_company = $this->session->userdata('i_company');
-        return $this->db->get_where('tbl_user', ['username' => $id, 'i_company' => $i_company])->row_array();
-    }
-
-    public function data_user($id)
-    {
-        $i_company = $this->session->userdata('i_company');
-
-        return $this->db->query("select username, i_staff, e_name, phone, email, address, i_area, i_role, f_active, username_upline from tbl_user where username = '$id'
-        and i_company = '$i_company'");
-
-    }
-
-    public function data_area()
-    {
-        $i_company = $this->session->userdata('i_company');
-        return $this->db->select('*')->from('tbl_area')->where('f_active', 't')->where('i_company', $i_company)->order_by('i_area', 'asc')->get();
-    }
-
-    public function data_role()
-    {
-        $i_company = $this->session->userdata('i_company');
-        $i_role = $this->session->userdata('i_role');
-        return $this->db->query("select * from tbl_user_role where i_company = '$i_company' and i_role > '$i_role' order by i_role asc");
-        //    return $this->db->select('*')->from('tbl_user_role')->where('i_company', $i_company, 'i_role >', $i_role)->order_by('i_role', 'asc')->get();
-    }
-
-    public function update($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email)
-    {
-        $i_company = $this->session->userdata('i_company');
-
-        $data = array(
-            'i_role' => $i_role,
-            'i_area' => $i_area,
-            'f_active' => $f_active,
-            'address' => $address,
-            'e_name' => $e_name,
-            'phone' => $phone,
-            'email' => $email,
-            'modifiedat' => current_datetime(),
-        );
-
-        $this->db->where('username', $username);
-        $this->db->where('i_company', $i_company);
-        $this->db->update('tbl_user', $data);
-
-    }
-
 }
 
 /* End of file M_user_management.php */

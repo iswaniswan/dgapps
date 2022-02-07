@@ -7,6 +7,7 @@ $lang['product'] = 'Produk';
 $lang['documentation'] = 'Dokumentasi';
 $lang['sales-order'] = 'Order Penjualan';
 $lang['user-management'] = 'Manajemen Pengguna';
+$lang['user-customer'] = 'Pelaggan Pengguna';
 $lang['geo-analytic'] = 'Analisis Geografis';
 $lang['push'] = 'Pemberitahuan';
 $lang['live-tracking'] = 'Pelacakan Langsung';

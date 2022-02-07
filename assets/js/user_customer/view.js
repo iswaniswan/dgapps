@@ -6,6 +6,28 @@ var Customer = (function() {
             return;
         }
         $(".select-search").select2();
+        $("#i_customer").select2({
+            dropdownAutoWidth: true,
+            width: "100%",
+            allowClear: true,
+            ajax: {
+                url: base_url + "user_customer/get_customer",
+                dataType: "json",
+                delay: 250,
+                data: function(params) {
+                    var query = {
+                        q: params.term,
+                    };
+                    return query;
+                },
+                processResults: function(data) {
+                    return {
+                        results: data,
+                    };
+                },
+                cache: false,
+            },
+        })
     };
 
     var _componentValidation = function() {
