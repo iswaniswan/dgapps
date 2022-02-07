@@ -23,6 +23,7 @@ class Target_customer extends CI_Controller
                 'global_assets/js/plugins/forms/styling/uniform.min.js',
                 'global_assets/js/plugins/forms/selects/select2.min.js',
                 'assets/js/target_customer/index.js',
+                'assets/js/custom.js',
             )
         );
         $this->Logger->write(null, null, 'Membuka Menu User Management');
@@ -131,5 +132,32 @@ class Target_customer extends CI_Controller
         );
         $this->Logger->write(null, null, 'Membuka Menu Target Customer ' . $id);
         $this->template->load('template', $this->folder . '/view', $data);
+    }
+
+    /** Update Status */
+    public function changestatus()
+    {
+        $id = decrypt_url($this->input->post('id', TRUE));
+        if (empty($id)) {
+            $data = array(
+                'sukses' => false,
+            );
+        } else {
+            $this->db->trans_begin();
+            $this->M_target_customer->changestatus($id);
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                $data = array(
+                    'sukses' => false,
+                );
+            } else {
+                $this->db->trans_commit();
+                $data = array(
+                    'sukses' => true,
+                );
+                $this->Logger->write(null, null, 'Merubah Status Target Customer : ' . $id);
+            }
+        }
+        echo json_encode($data);
     }
 }

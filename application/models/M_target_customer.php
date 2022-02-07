@@ -37,6 +37,17 @@ class M_target_customer extends CI_Model
             }
         });
 
+        $datatables->edit('f_active', function ($data) {
+            $link = "'".base_url() . "target_customer'";
+            $id = "'" . encrypt_url(trim($data['i_customer']).'|'.trim($data['i_periode'])) . "'";
+            $f_active = $data['f_active'];
+            if ($f_active == 't') {
+                return '<span class="badge badge-success" onclick="changestatus('.$link.','.$id.');">Active</span>';
+            } else {
+                return '<span class="badge badge-danger" onclick="changestatus('.$link.','.$id.');">Inactive</span>';
+            }
+        });
+
         $datatables->edit('e_customer_name', function ($data) {
             $i_customer = trim($data['i_customer']);
             $i_periode = trim($data['i_periode']);
@@ -85,6 +96,33 @@ class M_target_customer extends CI_Model
             modifiedat = now()
         ");
     }
+
+    public function changestatus($id)
+	{
+        $i_customer = explode('|',$id)[0];
+        $i_periode = explode('|',$id)[1];
+		$this->db->select('f_active');
+		$this->db->from('tbl_customer_target');
+		$this->db->where('i_customer', $i_customer);
+		$this->db->where('i_periode', $i_periode);
+		$query = $this->db->get();
+		if ($query->num_rows() > 0) {
+			$status = $query->row()->f_active;
+		} else {
+			$status = 'f';
+		}
+		if ($status == 'f') {
+			$fstatus = 't';
+		} else {
+			$fstatus = 'f';
+		}
+		$table = array(
+			'f_active' => $fstatus,
+		);
+		$this->db->where('i_customer', $i_customer);
+		$this->db->where('i_periode', $i_periode);
+		$this->db->update('tbl_customer_target', $table);
+	}
 }
 
 /* End of file M_user_management.php */
