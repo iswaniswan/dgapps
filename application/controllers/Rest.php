@@ -146,7 +146,7 @@ class Rest extends REST_Controller
         $this->db->from("tbl_company");
         $this->db->where("api_key", $api_key);
         $this->db->where("i_company", $i_company);
-        $this->db->where("f_active", 'true');
+        // $this->db->where("f_active", 'true');
         $cek_company = $this->db->get();
 
         if ($action == 'create' && $cek_company->num_rows() > 0 && $i_customer != '' && $e_customer_name != '' && $e_customer_address != ''
@@ -278,7 +278,7 @@ class Rest extends REST_Controller
         $this->db->from("tbl_company");
         $this->db->where("api_key", $api_key);
         $this->db->where("i_company", $i_company);
-        $this->db->where("f_active", 'true');
+        //$this->db->where("f_active", 'true');
         $cek_company = $this->db->get();
 
         if ($action == 'create' && $cek_company->num_rows() > 0 && $i_product != '' && $e_product_name != '' && $i_product_group != '' && $e_product_groupname != ''
@@ -377,7 +377,7 @@ class Rest extends REST_Controller
         $this->db->from("tbl_company");
         $this->db->where("api_key", $api_key);
         $this->db->where("i_company", $i_company);
-        $this->db->where("f_active", 'true');
+        //$this->db->where("f_active", 'true');
         $cek_company = $this->db->get();
 
         if ($action == 'create' && $cek_company->num_rows() > 0 && $i_product != '' && $i_product_grade != '' && $i_price_group != '' && $e_price_groupname != '' && $e_product_name != '' && $v_product_price != '') {
