@@ -35,7 +35,7 @@
 
 </head>
 
-<body>
+<body style="background-image: url('<?= base_url(); ?>global_assets/images/backgrounds/login-register.jpg'); height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover;"
   <!-- Page content -->
   <div class="page-content">
 
