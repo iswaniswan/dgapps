@@ -18,7 +18,6 @@ class M_target_customer extends CI_Model
                 a.i_periode,
                 a.i_customer,
                 b.e_customer_name,
-                v_spb_target,
                 v_nota_target,
                 a.f_active
             FROM
@@ -53,10 +52,6 @@ class M_target_customer extends CI_Model
             $i_periode = trim($data['i_periode']);
             $e_customer_name = $data['e_customer_name'];
             return '<a href="' . base_url() . 'target_customer/view/' . encrypt_url($i_customer) .'/'. encrypt_url($i_periode). '">' . $e_customer_name . '</a>';
-        });
-
-        $datatables->edit('v_spb_target', function ($data) {
-            return 'Rp. '.number_format($data['v_spb_target']);
         });
 
         $datatables->edit('v_nota_target', function ($data) {

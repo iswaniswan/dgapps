@@ -64,7 +64,7 @@
               </div>
 
               <div class="form-group form-group-feedback form-group-feedback-left">
-                <input type="text" class="form-control" placeholder="Username" name="username" required>
+                <input type="text" class="form-control" autocapitalize="off" placeholder="Username" name="username" required>
                 <div class="form-control-feedback">
                   <i class="icon-user text-muted"></i>
                 </div>

@@ -10,12 +10,15 @@ class M_user_customer extends CI_Model
     public function serverside()
     {
         $datatables = new Datatables(new CodeigniterAdapter);
-        $datatables->query("SELECT
-                username,
+        $datatables->query("SELECT DISTINCT
+               a.username,
                 e_name,
-                f_active
+                a.f_active
             FROM
-                tbl_user_toko", FALSE);
+                tbl_user_toko a, tbl_user_toko_item b
+            WHERE a.username = b.username
+            AND b.id_company = '$this->i_company'
+                ", FALSE);
         $datatables->edit('f_active', function ($data) {
             $link = "'".base_url() . "user-customer'";
             $username = "'" . encrypt_url(trim($data['username'])) . "'";
@@ -93,6 +96,8 @@ class M_user_customer extends CI_Model
 
     public function update($username, $username_old, $e_name, $e_password, $i_customer)
     {
+        $this->load->library('custom');
+        $e_password = $this->custom->password($e_password);
         if ($e_password != '' || $e_password != null) {
             $data = array(
                 'username' => $username,
@@ -103,7 +108,6 @@ class M_user_customer extends CI_Model
         } else {
             $data = array(
                 'username' => $username,
-                'e_password' => $e_password,
                 'e_name' => $e_name,
                 'modifiedat' => current_datetime(),
             );
