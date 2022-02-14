@@ -36,7 +36,7 @@
 									</div>
 								</div>
 								<div class="form-group row">
-									<label class="col-form-label col-lg-2">Full Name</label>
+									<label class="col-form-label col-lg-2">Shop Name</label>
 									<div class="col-lg-10">
 										<input type="text" class="form-control" placeholder="Full Name" name="e_name" required>
 									</div>

@@ -37,8 +37,8 @@
 								<th>Periode</th>
 								<th>Kode Customer</th>
 								<th>Nama Customer</th>
-								<th>Target SPB</th>
-								<th>Target Nota</th>
+								<!-- <th>Target SPB</th> -->
+								<th>Target MoU</th>
 								<th>Status</th>
 								<th>Aksi</th>
 							</tr>

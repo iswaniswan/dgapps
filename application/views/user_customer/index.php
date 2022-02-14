@@ -35,7 +35,7 @@
 						<thead>
 							<tr>
 								<th>Username</th>
-								<th>Name</th>
+								<th>Shop Name</th>
 								<th>Status</th>
 								<th>Act</th>
 							</tr>

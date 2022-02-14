@@ -28,7 +28,7 @@
 					<div class="card-body">
 						<form action="<?= base_url(); ?>target_customer/simpan" method="POST" class="form-validate">
 							<div class="row">
-								<div class="col-xl-6">
+								<div class="col-xl-12">
 									<div class="form-group row">
 										<label class="col-form-label col-lg-2">Customer</label>
 										<div class="col-lg-10">
@@ -37,6 +37,8 @@
 											</select>
 										</div>
 									</div>
+								</div>
+								<div class="col-xl-12">
 									<div class="form-group row">
 										<label class="col-form-label col-lg-2">Periode</label>
 										<div class="col-lg-10">
@@ -44,15 +46,15 @@
 										</div>
 									</div>
 								</div>
-								<div class="col-xl-6">
-									<div class="form-group row">
+								<div class="col-xl-12">
+									<div class="form-group row" hidden>
 										<label class="col-form-label col-lg-2">Target SPB</label>
 										<div class="col-lg-10">
 											<input type="number" class="form-control" value="<?= $data->v_spb_target; ?>" name="v_spb_target" min="100000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
 										</div>
 									</div>
 									<div class="form-group row">
-										<label class="col-form-label col-lg-2">Target Nota</label>
+										<label class="col-form-label col-lg-2">Target MoU</label>
 										<div class="col-lg-10">
 											<input type="number" class="form-control" value="<?= $data->v_nota_target; ?>" name="v_nota_target" min="100000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
 										</div>
@@ -71,4 +73,4 @@
 		</div>
 
 	</div>
-			<!-- /content area -->
+	<!-- /content area -->
