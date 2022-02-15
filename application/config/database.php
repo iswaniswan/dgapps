@@ -75,9 +75,9 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '192.168.0.93',
-	'username' => 'dedy',
-	'password' => 'g#>m[J2P^^',
+	'hostname' => '192.168.10.128',
+	'username' => 'postgres',
+	'password' => 'omiland',
 	'database' => 'dgapps',
 	'port' 	   => 5432,
 	'dbdriver' => 'postgre',
@@ -95,3 +95,34 @@ $db['default'] = array(
 	'failover' => array(),
 	'save_queries' => TRUE
 );
+
+
+// /** Simpan Data */
+//     public function save($iarea, $icity, $icover, $kode, $nama, $alamat, $pemilik, $telepon, $diskon, 
+//     	$npwp_kode, $npwp_nama, $npwp_alamat, $igroup, $itype, $ilevel, $istatus, $iprice, $ipayment, $ipaygroup)
+//     {
+//         $table = array(
+//         	'i_company'	=> $this->i_company,
+//             'i_customer_id' => $kode, 
+//             'e_customer_name' => $nama, 
+//             'e_customer_address' => $nama, 
+//             'n_discount' => $nama, 
+//             'e_customer_phone' => $nama, 
+//             'e_customer_owner' => $nama, 
+//             'e_customer_npwpcode' => $nama, 
+//             'e_customer_npwpname' => $nama, 
+//             'e_customer_npwpaddress' => $nama, 
+//             'i_area' => $nama, 
+//             'i_city' => $nama, 
+//             'i_area_cover' => $nama, 
+//             'i_price_group' => $nama, 
+//             'i_customer_group' => $nama, 
+//             'i_customer_paygroup' => $nama, 
+//             'i_customer_payment' => $nama, 
+//             'i_customer_type' => $nama, 
+//             'i_customer_level' => $nama, 
+//             'i_customer_status' => $nama, 
+//             'd_customer_entry'  => date('Y-m-d H:i:s'), 
+//         );
+//         $this->db->insert('tr_customer', $table);
+//     }

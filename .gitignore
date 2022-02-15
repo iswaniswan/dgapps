@@ -2,3 +2,4 @@ assets/images/*
 assets/images/
 application/logs/
 application/logs/*
+application/config/database.php

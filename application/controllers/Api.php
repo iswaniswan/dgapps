@@ -20,7 +20,7 @@ class Api extends REST_Controller
 
     public function index_get()
     {
-
+        echo 'HAI API';
     }
 
     public function userlocation_post()
@@ -1835,6 +1835,21 @@ class Api extends REST_Controller
                 'message' => 'Perusahaan Anda Tidak Terdaftar ! Silahkan Logout Dulu !',
             ], REST_Controller::HTTP_OK);
         }
+    }
+
+
+    public function koordinat_post()
+    {
+        echo "string";('kesini');
+        // $data = $this->db->query("
+        //     Select * from tr_customer_tmp limit 2
+        // ")->result();
+
+        // foreach ($data as $row) {
+        //     echo $row->i_customer. ' | '. $row->e_customer_name. ' | '. $row->e_area_name. ' | '. $row->i_company. ' | ';
+        //     # code...
+        // }
+
     }
 
 }

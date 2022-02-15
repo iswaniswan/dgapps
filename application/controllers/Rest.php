@@ -687,4 +687,169 @@ class Rest extends REST_Controller
 
     }
 
+    public function return_note_post()
+    {
+        $action = $this->post('action');
+        $api_key = $this->post('api_key');
+        $i_company = $this->post('i_company');
+        $ou_code = $this->post('ou_code');
+        $ou_name = $this->post('ou_name');
+        $return_note_no = $this->post('return_note_no');
+        $return_note_date = $this->post('return_note_date');
+        $rrs_no = $this->post('rrs_no');
+        $rrs_date = $this->post('rrs_date');
+        $warehouse_code = $this->post('warehouse_code');
+        $warehouse_name = $this->post('warehouse_name');
+        $customer_code = $this->post('customer_code');
+        $customer_name = $this->post('customer_name');
+        $remark = $this->post('remark');
+        $status_doc = $this->post('status_doc');
+
+        $create_datetime = $this->post('create_datetime');
+        $username = $this->post('username');
+        $role_name = $this->post('role_name');
+
+        // var_dump($ou_code, $ou_name, $return_note_no, $return_note_date, $rrs_no, $rrs_date, $warehouse_code, $warehouse_name, $customer_code, $customer_name, $remark, $status_doc, $create_datetime, $username, $role_name);
+        // die();
+        $this->db->select("i_company");
+        $this->db->from("tbl_company");
+        $this->db->where("api_key", $api_key);
+        $this->db->where("i_company", $i_company);
+        $this->db->where("f_active", 'true');
+        $cek_company = $this->db->get();
+
+        if ($action == 'create' && $cek_company->num_rows() > 0) {
+
+            $this->db->select("return_note_no");
+            $this->db->from("tbl_return_note");
+            $this->db->where("return_note_no", $return_note_no);
+            $this->db->where("ou_code", $ou_code);
+            $this->db->where("i_company", $i_company);
+            $cek_data = $this->db->get();
+
+            $query = $this->db->query("SELECT current_timestamp as c");
+            $row = $query->row();
+            $datenow = $row->c;
+            if ($cek_data->num_rows() > 0) {
+                $data = array(
+                    'i_company' => $i_company,
+                    'ou_code' => $ou_code,
+                    'ou_name' => $ou_name,
+                    'return_note_no' => $return_note_no,
+                    'return_note_date' => $return_note_date,
+                    'rrs_no' => $rrs_no,
+                    'rrs_date' => $rrs_date,
+                    'warehouse_code' => $warehouse_code,
+                    'warehouse_name' => $warehouse_name,
+                    'customer_code' => $customer_code,
+                    'customer_name' => $customer_name,
+                    'remark' => $remark,
+                    'modifiedat' => $datenow,
+                    'username' => $username,
+                    'role_name' => $role_name,
+                );
+
+                $this->db->where("return_note_no", $return_note_no);
+                $this->db->where("ou_code", $ou_code);
+                $this->db->where("i_company", $i_company);
+                $this->db->update('tbl_return_note', $data);
+                $message = "Data Return Note : " . $return_note_no . " Ou Code : " . $return_note_no . " Berhasil di update";
+            } else {
+                
+                $data = array(
+                    'i_company' => $i_company,
+                    'ou_code' => $ou_code,
+                    'ou_name' => $ou_name,
+                    'return_note_no' => $return_note_no,
+                    'return_note_date' => $return_note_date,
+                    'rrs_no' => $rrs_no,
+                    'rrs_date' => $rrs_date,
+                    'warehouse_code' => $warehouse_code,
+                    'warehouse_name' => $warehouse_name,
+                    'customer_code' => $customer_code,
+                    'customer_name' => $customer_name,
+                    'remark' => $remark,
+                    'createdat' => $create_datetime,
+                    'username' => $username,
+                    'role_name' => $role_name,
+                );
+                $this->db->insert('tbl_return_note', $data);
+                $message = "Data Return Note : " . $return_note_no . " Ou Code : " . $return_note_no . " Berhasil di input";
+
+            }
+
+            $query = $this->db->query("
+                DELETE FROM tbl_return_note_item where return_note_no = '$return_note_no' and ou_code = '$ou_code' and i_company = '$i_company'
+            ");
+
+            if ($this->post('item')) {
+                foreach ($this->post('item') as $row) {
+                    $data = array(
+                        'i_company' => $row['i_company'],
+                        'ou_code' => $row['ou_code'],
+                        'rrs_no' => $row['rrs_no'],
+                        'return_note_no' => $row['return_note_no'],
+                        'product_code' => $row['product_code'],
+                        'product_name' => $row['product_name'],
+                        'product_status' => $row['product_status'],
+                        'qty' => $row['qty'],
+                        'remark' => $row['remark'],
+                        'modifiedat' => $datenow
+                    );
+                    $this->db->insert('tbl_return_note_item', $data);
+                }
+            }
+            
+            $this->response([
+                'status' => true,
+                'message' => $message,
+            ], REST_Controller::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Parameter Salah!',
+            ], REST_Controller::HTTP_NOT_FOUND);
+
+        }
+
+    }
+
+    public function test_post()
+    {
+
+        
+
+        foreach ($this->post('item') as $row) {
+          echo $row['i_company'];
+        }
+        die();
+
+        // $query = $this->db->query("select * from tbl_area where i_company = '1' limit 10");
+        // $data = array(
+        //   'action' => 'create',
+        //   'api_key' => '123',
+        //   'i_company' => '4',
+        //   'i_area' => '02',
+        //   'e_area_name' => 'JABAR',
+        //   'f_active' => 'true',
+        //   'item' => array(),
+        // );
+
+
+        // foreach ($query->result() as $row) {
+        //     $data['item'][] = array(  
+        //         'action' => 'createitem',
+        //         'api_key' => '123',
+        //         'i_company' => '4',
+        //         'i_area' => $row->i_area,
+        //         'e_area_name' => $row->e_area_name,
+        //         'f_active' => 'true',
+        //     );
+        // }
+
+        // $data = json_encode($data);
+        // echo $data;
+
+
+    }
 }
