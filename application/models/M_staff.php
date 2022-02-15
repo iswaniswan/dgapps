@@ -10,16 +10,48 @@ class M_staff extends CI_Model {
         $username = $this->session->userdata('username');
         // $username_downline = $this->custom->username_downline($username);
         $i_company = $this->session->userdata('i_company');
+        $i_role = $this->session->userdata('i_role');
 
-        return $this->db->query("select * from tbl_user where i_company = '$i_company' and f_active = 'true' 
-        and not i_staff isnull and username in(
-            select a.username from tbl_user_area a, tbl_user b where a.i_area in(
-                select a.i_area from tbl_user_area a where a.username = '$username' and a.i_company = '$i_company'
-                )
-                and a.i_company = '$i_company' and b.e_name ilike '%$cari%'
-                and a.username = b.username and a.i_company = b.i_company and b.i_role >= '3'
-                group by a.username
-        )");
+        if ( ($i_role == '4' || $i_role == '3') ) {
+            //for ($i=1;$i<=5;$i++) {
+            
+            $query = $this->db->query("select * from tbl_user where username_upline = '$username' ");
+            $sql = "select * from tbl_user where username = '$username'";
+
+            if ($query->num_rows() > 0) {
+                $sql .= " union all select * from tbl_user where username_upline = '$username' ";
+                foreach ($query->result() as $row) {
+                    $query2 = $this->db->query(" select * from tbl_user where username_upline = '$row->username'");
+
+                    if ($query2->num_rows() > 0) {
+                        $sql .= "union all select * from tbl_user where username_upline = '$row->username' ";
+                        foreach ($query2->result() as $row2) {
+                             $query3 = $this->db->query("select * from tbl_user where username_upline = '$row2->username'");
+
+                            if ($query3->num_rows() > 0) {
+                                $sql .= " union all select * from tbl_user where username_upline = '$row2->username' ";
+                            }
+                        }
+                    }
+                    
+                }  
+            }
+
+            return $this->db->query($sql);
+            //}
+        } else {
+            return $this->db->query("select * from tbl_user where i_company = '$i_company' and f_active = 'true' 
+            and not i_staff isnull and username in(
+                select a.username from tbl_user_area a, tbl_user b where a.i_area in(
+                    select a.i_area from tbl_user_area a where a.username = '$username' and a.i_company = '$i_company'
+                    )
+                    and a.i_company = '$i_company' and b.e_name ilike '%$cari%'
+                    and a.username = b.username and a.i_company = b.i_company and (b.i_role >= '3' or (b.username = 'ganni' or b.username = 'suyadi' or b.username = 'admin')   )
+                    group by a.username
+            )");
+        }
+        
+
     }
 
     function data_staff($id){

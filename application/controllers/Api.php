@@ -208,6 +208,103 @@ class Api extends REST_Controller
 
     }
 
+    public function listcity_post()
+    {
+
+        $i_company = $this->post('i_company');
+        $username = $this->post('username');
+        $i_area = $this->post('i_area');
+
+        $cek_city=$this->db->query (" dselect a.i_city, a.id_maps from tbl_city a, tbl_area b 
+                            where a.i_company=b.i_company and a.id_maps=b.id_maps and a.i_company='$i_company' and a.f_active='t' and b.e_area_name='$i_area' ");
+//        $cek_city = $this->db->get();
+
+        if ($cek_city->num_rows() > 0) {
+
+            $i_company = $i_company;
+            $username = $username;
+            $this->Logger->write($i_company, $username, 'Apps Membuka daftar kota');
+
+            $data = $this->db->query("sselect e_city_name as value from tbl_city where i_company = '$i_company'
+            and f_active = 't' and id_maps in( select id_maps from tbl_area where i_company='$i_company' and f_active='t' and e_area_name='$i_area' )
+            order by id_maps asc");
+
+            if ($data->num_rows() > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $data->result_array(),
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'data' => [],
+                'message' => 'Perusahaan Anda Tidak Terdaftar ! Silahkan Logout Dulu yaaaa !',
+            ], REST_Controller::HTTP_OK);
+        }
+
+    }
+
+    public function listtagihan_post()
+    {
+        $i_company = $this->post('i_company');
+        $username = $this->post('username');
+        $i_area = $this->post('i_area');
+
+        $this->db->select("i_company");
+        $this->db->from("tbl_company");
+        $this->db->where("i_company", $i_company);
+        $this->db->where("f_active", 'true');
+        $cek_company = $this->db->get();
+
+        if ($cek_company->num_rows() > 0) {
+
+            $i_company = $i_company;
+            $username = $username;
+            $this->Logger->write($i_company, $username, 'Apps Membuka Menu Sales Order');
+
+            // $this->db->select("e_area_name as value");
+            // $this->db->from("tbl_area");
+            // $this->db->where("i_company", $i_company);
+            // $this->db->where("i_area", $i_area);
+            // $this->db->where("f_active", 'true');
+            // $this->db->order_by("i_area", "asc");
+            // $data = $this->db->get();
+
+            $data = $this->db->query("select e_area_name as value from tbl_area where i_company = '$i_company'
+            and f_active = 't' and i_area in(
+            select i_area from tbl_user_area where username = '$username' and i_company = '$i_company'
+            )
+            order by i_area asc");
+
+            if ($data->num_rows() > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $data->result_array(),
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'data' => [],
+                'message' => 'Perusahaan Anda Tidak Terdaftar ! Silahkan Logout Dulu !',
+            ], REST_Controller::HTTP_OK);
+        }
+
+    }
+
     public function loginselfie_post()
     {
         $username = $this->post('username');
@@ -258,7 +355,7 @@ class Api extends REST_Controller
 
     public function cari_pelanggan_post()
     {
-        $cari = strtoupper($this->post('cari'));
+        $cari = str_replace("'", "''", strtoupper($this->post('cari')));
         $e_area_name = $this->post('i_area');
         $i_company = $this->post('i_company');
         $username = $this->post('username');
@@ -446,30 +543,75 @@ class Api extends REST_Controller
                 $data_area = $this->db->query("select i_store, f_stock from tbl_area where i_company = '$i_company' and i_area = '$i_area'")->row();
                 $i_store = $data_area->i_store;
                 $f_stock = $data_area->f_stock;
-                if ($f_stock == 't') {
-                    $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, c.n_quantity ");
-                    $this->db->from("tbl_product a");
-                    $this->db->join("tbl_product_price b", "a.i_product = b.i_product and a.i_company = b.i_company");
-                    $this->db->join("tbl_ic c", "b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'", 'left');
-                    $this->db->where("a.i_product_group", $i_product_group);
-                    $this->db->where("b.i_price_group", $i_price_group);
-                    $this->db->where("a.i_company", $i_company);
-                    $this->db->where("a.f_active", 't');
-                    // $this->db->where("c.i_store", $i_store);
-                    $this->db->where("(a.i_product like '%$cari%' or a.e_product_name like '%$cari%')");
+                if ($i_company != '3' || $i_company != 3) {
+                    if ($f_stock == 't') {
+                        $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, c.n_quantity ");
+                        $this->db->from("tbl_product a");
+                        $this->db->join("tbl_product_price b", "a.i_product = b.i_product and a.i_company = b.i_company");
+                        $this->db->join("tbl_ic c", "b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'", 'left');
+                        $this->db->where("a.i_product_group", $i_product_group);
+                        $this->db->where("b.i_price_group", $i_price_group);
+                        $this->db->where("a.i_company", $i_company);
+                        $this->db->where("a.f_active", 't');
+                        // $this->db->where("c.i_store", $i_store);
+                        $this->db->where("(a.i_product like '%$cari%' or a.e_product_name like '%$cari%')");
 
+                    } else {
+                        $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, 99 as n_quantity ");
+                        $this->db->from("tbl_product a");
+                        $this->db->join("tbl_product_price b", "a.i_product = b.i_product and a.i_company = b.i_company");
+                        $this->db->where("a.i_product_group", $i_product_group);
+                        $this->db->where("trim(b.i_price_group)", $i_price_group);
+                        $this->db->where("a.i_company", $i_company);
+                        $this->db->where("a.f_active", 't');
+                        $this->db->where("(a.i_product like '%$cari%' or a.e_product_name like '%$cari%')");
+                    }
+
+                    $query = $this->db->get();
                 } else {
-                    $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, 99 as n_quantity ");
-                    $this->db->from("tbl_product a");
-                    $this->db->join("tbl_product_price b", "a.i_product = b.i_product and a.i_company = b.i_company");
-                    $this->db->where("a.i_product_group", $i_product_group);
-                    $this->db->where("trim(b.i_price_group)", $i_price_group);
-                    $this->db->where("a.i_company", $i_company);
-                    $this->db->where("a.f_active", 't');
-                    $this->db->where("(a.i_product like '%$cari%' or a.e_product_name like '%$cari%')");
+                    $i_price_group_new = substr($i_price_group,0,2)."00";
+                    if ($f_stock == 't') {
+                        $query = $this->db->query("
+                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, c.n_quantity 
+                            from tbl_product a
+                            left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
+                            left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'
+                            where a.i_product_group = '$i_product_group' and b.i_price_group = '$i_price_group' 
+                            and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%')
+                            union all
+                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, c.n_quantity 
+                            from tbl_product a
+                            left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
+                            left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'
+                            where a.i_product_group = '$i_product_group' and b.i_price_group = '$i_price_group_new' 
+                            and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%')
+                            and a.i_product not in (select a.i_product from tbl_product a
+                            left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
+                            left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'
+                            where a.i_product_group = '$i_product_group' and b.i_price_group = '$i_price_group' 
+                            and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%'))
+                        ");
+                    } else {
+                         $query = $this->db->query("
+                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group,  99 as n_quantity 
+                            from tbl_product a
+                            left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
+                            where a.i_product_group = '$i_product_group' and b.i_price_group = '$i_price_group' 
+                            and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%')
+                            union all
+                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, 99 as n_quantity 
+                            from tbl_product a
+                            left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
+                            where a.i_product_group = '$i_product_group' and b.i_price_group = '$i_price_group_new' 
+                            and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%')
+                            and a.i_product not in (select a.i_product from tbl_product a
+                            left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
+                            where a.i_product_group = '$i_product_group' and b.i_price_group = '$i_price_group' 
+                            and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%'))
+                        ");
+                    }
                 }
-
-                $query = $this->db->get();
+                
 
                 if ($query->num_rows() > 0) {
                     $list = array();
@@ -530,7 +672,7 @@ class Api extends REST_Controller
             $this->db->from("tbl_product_group");
             $this->db->where("f_active", 'true');
             $this->db->where("i_company", $i_company);
-            $this->db->order_by("i_product_group", "asc");
+            $this->db->order_by("e_product_groupname", "asc");
             $data = $this->db->get();
 
             if ($data->num_rows() > 0) {
@@ -585,8 +727,8 @@ class Api extends REST_Controller
                 $n_promo_discount1 = $data_promo->n_promo_discount1;
 
                 $data_diskon = $this->db->query("select * from tbl_customer_discount where i_customer = '$i_customer' and i_company = '$i_company'")->row();
-                $n_customer_discount1 = (int) $data_diskon->n_customer_discount1;
-                $n_customer_discount2 = (int) $data_diskon->n_customer_discount2;
+                $n_customer_discount1 = (float) $data_diskon->n_customer_discount1;
+                $n_customer_discount2 = (float) $data_diskon->n_customer_discount2;
 
                 if (($i_promo_type == '1') || ($i_promo_type == '6')) {
                     $vdis1 = 0;
@@ -667,8 +809,8 @@ class Api extends REST_Controller
 
             } else {
                 $data_diskon = $this->db->query("select * from tbl_customer_discount where i_customer = '$i_customer' and i_company = '$i_company'")->row();
-                $n_customer_discount1 = (int) $data_diskon->n_customer_discount1;
-                $n_customer_discount2 = (int) $data_diskon->n_customer_discount2;
+                $n_customer_discount1 = (float) $data_diskon->n_customer_discount1;
+                $n_customer_discount2 = (float) $data_diskon->n_customer_discount2;
 
                 $vdis1 = ($v_gross * $n_customer_discount1) / 100;
                 $vdis2 = (($v_gross - $vdis1) * $n_customer_discount2) / 100;
@@ -1010,7 +1152,7 @@ class Api extends REST_Controller
                 and a.f_active = 't'
                 and a.i_company = '$i_company'
                 and a.i_area in(select i_area from tbl_user_area where username = '$username' and i_company = '$i_company')
-                and (a.i_customer like '%$cari%' or a.e_customer_name like '%$cari%')
+                and (a.i_customer ilike '%$cari%' or a.e_customer_name ilike '%$cari%')
                 and a.latitude != ''
                 and a.longitude != ''
                 ) as x
@@ -1794,7 +1936,7 @@ class Api extends REST_Controller
             and a.i_company = d.i_company
             and a.i_area = d.i_area
             and a.i_customer = d.i_customer
-            and a.i_area ='$i_area'
+            and a.i_area in (select i_area from tbl_user_area tua where username = '$username' and i_company = '$i_company')
             and a.f_active = 'true'
             and a.i_company = '$i_company'
             and d.d_rrkh = '$sekarang'

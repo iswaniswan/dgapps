@@ -12,8 +12,8 @@ class M_Dashboard extends CI_Model {
         $i_company = $this->session->userdata('i_company');
 
         $datatables = new Datatables(new CodeigniterAdapter);
-        $datatables->query("select x.e_name, x.e_customer_name, x.createdat_checkin, x.createdat_checkout, x.durasi, x.i_spb, x.e_saran, x.e_foto from(
-            select c.e_name, b.e_customer_name, a.createdat as createdat_checkin, a.createdat as createdat_checkout, NULL as durasi, a.i_spb, NULL as e_saran, NULL as e_foto from tbl_spb a, tbl_customer b, tbl_user c
+        $datatables->query("select x.e_name, x.e_customer_name, x.createdat_checkin, x.createdat_checkout, x.durasi, x.i_spb, x.e_saran, x.e_foto, i_area from(
+            select c.e_name, b.e_customer_name, a.createdat as createdat_checkin, a.createdat as createdat_checkout, NULL as durasi, a.i_spb, NULL as e_saran, NULL as e_foto, a.i_area from tbl_spb a, tbl_customer b, tbl_user c
             where a.i_company = b.i_company
             and a.i_customer = b.i_customer
             and a.i_company = c.i_company
@@ -52,7 +52,7 @@ class M_Dashboard extends CI_Model {
             select b.e_name, f.e_customer_name, a.createdat_checkin, a.createdat_checkout, (a.createdat_checkout - a.createdat_checkin) as durasi,
             (select i_spb from tbl_spb where i_company = a.i_company and username = a.username and createdat > a.createdat_checkin and createdat < a.createdat_checkout limit 1),
             (select e_saran from tbl_customer_saran where i_company = a.i_company and username = a.username and createdat > a.createdat_checkin and createdat < a.createdat_checkout limit 1),
-            (select e_foto from tbl_customer_dokumentasi where i_company = a.i_company and username = a.username and createdat > a.createdat_checkin and createdat < a.createdat_checkout limit 1)  
+            (select e_foto from tbl_customer_dokumentasi where i_company = a.i_company and username = a.username and createdat > a.createdat_checkin and createdat < a.createdat_checkout limit 1), 'xx' as i_area  
             from tbl_user b, tbl_customer f, tbl_customer_checkin a
             where a.username = b.username
             and a.i_company = b.i_company
@@ -101,10 +101,11 @@ class M_Dashboard extends CI_Model {
             $i_spb = trim($data['i_spb']);
             $e_saran = trim($data['e_saran']);
             $e_foto = trim($data['e_foto']);
+            $i_area = trim($data['i_area']);
             $data = '';
 
             if($i_spb != ''){
-                $data .= "<i class='fas fa-shopping-cart'></i>&nbsp;&nbsp;";
+                $data .= "<a href='" . base_url('sales-order/view/' . encrypt_url($i_spb)) . '/' . encrypt_url($i_area) . "' target='_blank'><i class='fas fa-shopping-cart'></i></>&nbsp;&nbsp;";
             }
 
             if($e_saran != ''){
@@ -121,6 +122,7 @@ class M_Dashboard extends CI_Model {
         $datatables->hide('i_spb');
         $datatables->hide('e_saran');
         $datatables->hide('e_foto');
+        $datatables->hide('i_area');
 
 
         return $datatables->generate();

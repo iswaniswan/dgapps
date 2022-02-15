@@ -50,6 +50,7 @@
 			                <label class="col-form-label col-lg-3">Address</label>
 			                <label class="col-form-label col-lg-9">: <?=$data_customer->e_customer_address;?> <a href="#"
 			                    id="edit" class="fas fa-edit"></a></label>
+			                 <input type="hidden" id="address" value="<?=$data_customer->e_customer_address;?>">
 			              </div>
 			            </div>
 			          </div>

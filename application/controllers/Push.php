@@ -55,6 +55,7 @@ class Push extends CI_Controller
 
         $fields = array(
             'app_id' => "bf781614-4802-46aa-962a-681061a247e4",
+//            'app_id' =>"d96e3bb8-9dd3-41d8-9be9-8f1f2618ef9c",
             'included_segments' => array('All'),
             'data' => array("foo" => "bar"),
             'contents' => $content,
@@ -69,6 +70,8 @@ class Push extends CI_Controller
         curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
             'Authorization: Basic YjFmMzA2NWMtY2UwYy00YWZhLWIyZjMtY2Y1NTgxMGYxMTc1'));
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
+//            'Authorization: Basic NWY2ZGRiOWUtMTBiYi00ZDQwLWJmNTgtZGNmNDYwMzFlMWQ2'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_POST, true);

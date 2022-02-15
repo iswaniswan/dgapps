@@ -35,7 +35,7 @@
 
 </head>
 
-<body>
+<body style="background-image: url('<?= base_url(); ?>global_assets/images/backgrounds/login-register.jpg'); height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover;"
   <!-- Page content -->
   <div class="page-content">
 
@@ -64,7 +64,7 @@
               </div>
 
               <div class="form-group form-group-feedback form-group-feedback-left">
-                <input type="text" class="form-control" placeholder="Username" name="username" required>
+                <input type="text" class="form-control" autocapitalize="off" placeholder="Username" name="username" required>
                 <div class="form-control-feedback">
                   <i class="icon-user text-muted"></i>
                 </div>

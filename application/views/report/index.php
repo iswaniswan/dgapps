@@ -36,25 +36,37 @@
 			        <div class="card-body">
 			          <div class="row">
 			            <div class="col-md-4">
-			              <div class="mb-4">
-			                <h6 class="font-weight-semibold"><?=$this->lang->line('attendance');?></h6>
-			                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="sfa_attendance"
-			                  data-style="zoom-out">
-			                  <span class="ladda-label">Download <?=$this->lang->line('attendance');?>
-			                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
-			                </button>
-			              </div>
 
-			              <div class="mb-4">
-			                <h6 class="font-weight-semibold"><?=$this->lang->line('call');?></h6>
-			                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="call_report"
-			                  data-style="zoom-out">
-			                  <span class="ladda-label">Download <?=$this->lang->line('call');?>
-			                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
-			                </button>
-			              </div>
+			            	<div class="mb-4">
+				                <h6 class="font-weight-semibold">Download Sales Call Detail</h6>
+				                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="calldetail_report"
+				                  data-style="zoom-out">
+				                  <span class="ladda-label">Download Sales Call Detail
+				                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+				                </button>
+			              	</div>
 
-			              <div class="mb-3">
+			            	<div class="mb-4">
+				                <h6 class="font-weight-semibold"><?=$this->lang->line('call');?></h6>
+				                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="call_report"
+				                  data-style="zoom-out">
+				                  <span class="ladda-label">Download <?=$this->lang->line('call');?> (Tanpa RRKH)
+				                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+				                </button>
+			              	</div>
+
+							<div class="mb-4">
+								<h6 class="font-weight-semibold"><?=$this->lang->line('attendance');?></h6>
+								<button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="sfa_attendance"
+							  data-style="zoom-out">
+							  	<span class="ladda-label">Download <?=$this->lang->line('attendance');?>
+							    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+								</button>
+							</div>
+
+			              
+
+			              <div class="mb-3" hidden="">
 			                <h6 class="font-weight-semibold"><?=$this->lang->line('documentation');?></h6>
 			                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="documentation"
 			                  data-style="zoom-out">
@@ -83,7 +95,7 @@
 			                </button>
 			              </div>
 
-			              <div class="mb-3">
+			              <div class="mb-3" hidden="">
 			                <h6 class="font-weight-semibold"><?=$this->lang->line('suggestion');?></h6>
 			                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="suggestion"
 			                  data-style="zoom-out">
@@ -91,6 +103,16 @@
 			                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
 			                </button>
 			              </div>
+
+			              <div class="mb-4">
+			                <h6 class="font-weight-semibold"><?=$this->lang->line('lastvisit');?></h6>
+			                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="lastvisit"
+			                  data-style="zoom-out">
+			                  <span class="ladda-label">Download <?=$this->lang->line('lastvisit');?>
+			                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+			                </button>
+			              </div>
+
 			            </div>
 			          </div>
 			        </div>

@@ -81,8 +81,12 @@ class Custom
         $cari = array($username);
         $CI->load->library('custom');
         $username_new = $CI->custom->cari_username($cari);
-        $username_new = array_merge($cari, $username_new);
-        $username_new = "'" . implode("','", $username_new) . "'";
+
+        if ($username_new != null) {
+            $username_new = array_merge($cari, $username_new);
+            $username_new = "'" . implode("','", $username_new) . "'";
+        }
+        
         return $username_new;
     }
 
@@ -104,6 +108,9 @@ class Custom
             }
             $username = array_merge($username, (array) $CI->custom->cari_username($new_username, $no));
             return $username;
+        }else{
+            $new_username = array();
+            $username = array();
         }
     }
 

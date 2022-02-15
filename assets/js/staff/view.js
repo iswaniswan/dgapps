@@ -840,11 +840,12 @@ var Staff = function () {
                     },
                 }
             }).render();
+            //$('.fc-title').css('font-size', '1px');
+            //$('#journey_id').collapse('toggle');
         }
 
 
     };
-
     //
     // Return objects assigned to module
     //
@@ -855,6 +856,7 @@ var Staff = function () {
             _googleMapMarkerAnimation();
             _componentUiDatepicker();
             _componentFullCalendarStyling();
+
         }
     }
 }();
@@ -865,3 +867,11 @@ document.addEventListener('DOMContentLoaded', function () {
     datatable(controller, column);
     Staff.init();
 });
+
+$( document ).ready(function() {
+        // $(".fc-title").css({
+        //     'cssText':'font-size:0.1rem !important'
+        // });
+    $('.fc-event-container').css('word-wrap', 'break-word !important');
+});
+

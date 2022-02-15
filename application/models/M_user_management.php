@@ -21,11 +21,11 @@ class M_user_management extends CI_Model
         and a.i_role = c.i_role
         and a.i_company = c.i_company
         and a.i_company = '$i_company'
-        and a.username in(select a.username from tbl_user_area a, tbl_user b where a.i_area in(
+        and a.username in(select distinct on (a.username) a.username from tbl_user_area a, tbl_user b where a.i_area in(
             select a.i_area from tbl_user_area a where a.username = '$username' and a.i_company = '$i_company'
             )
             and a.i_company = '$i_company'
-            and a.username = b.username and a.i_company = b.i_company and b.i_role >= '3'
+            and a.username = b.username and a.i_company = b.i_company and b.i_role >= '1'
             group by a.username)");
         $datatables->edit('f_active', function ($data) {
             $f_active = $data['f_active'];
