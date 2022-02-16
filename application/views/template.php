@@ -166,7 +166,7 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
-            <?php if ($user['i_role'] == '1' || $user['i_role'] == '2') {?>
+            <?php if ($user['i_role'] == '1' || $user['i_role'] == '2' || $user['i_role'] == '3' || $user['i_role'] == '4') {?>
             <li class="nav-item">
               <a href="<?=base_url();?>customer" class="nav-link">
                 <i class="fas fa-store"></i>

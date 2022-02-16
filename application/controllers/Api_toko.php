@@ -67,10 +67,12 @@ class Api_toko extends REST_Controller
         ", FALSE);
 
         $total = 0;
+        $e_name = '';
         $list_customer = array();
         if ($data->num_rows() > 0) {
             foreach ($data->result() as $row) {
                 $total += $row->v_nota_target;
+                $e_name = $row->e_name;
                 array_push($list_customer, "'".$row->i_customer."'");
             }
             $arrayTxt = implode(',', $list_customer);
@@ -92,16 +94,35 @@ class Api_toko extends REST_Controller
             ", FALSE)->row();
 
             $item = $this->db->query("
-                select i_customer , i_nota , d_nota, d_jatuh_tempo , v_nota_netto , v_sisa , v_bayar 
+                select i_nota , e_color , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
                 from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
-                    $$
-                    select i_customer , i_nota , d_nota, d_jatuh_tempo , v_nota_netto , v_sisa , v_nota_netto - v_sisa as v_bayar from tm_nota
-                    where f_nota_cancel = false and to_char(d_nota , 'yyyy') = '$periode' and i_customer in  ($arrayTxt) /*('02579', '02265')*/
-                    order by  d_jatuh_tempo asc,v_sisa desc
-                    $$
+                $$
+                with cte as (
+                     select i_customer , i_nota, i_sj , d_nota, d_jatuh_tempo , 
+                     current_date - d_jatuh_tempo as selisih,
+                     v_nota_netto , v_sisa , v_nota_netto - v_sisa as v_bayar from tm_nota
+                     where f_nota_cancel = false and to_char(d_nota , 'yyyy') = '$periode' and i_customer in ($arrayTxt) /*('02564', '02221', '02579', '02265')*/
+                     order by  d_jatuh_tempo asc,v_sisa desc
+                )
+                select coalesce(a.i_nota,'') || ' / ' || a.i_sj || ' [' || a.i_customer || ']' as i_nota, a.d_nota, a.d_jatuh_tempo , 
+                     case 
+                          when v_sisa > 0 and selisih between 1 and 7 then '#279b37'
+                          when v_sisa > 0 and selisih between 8 and 15 then '#ffdd00'
+                          when v_sisa > 0 and selisih > 15 then '#e4002b'
+                          else '#000000'
+                     end as e_color,a.v_nota_netto , a.v_sisa ,a.v_bayar , coalesce(b.e_remark1, '') || ' - ' || coalesce(b.e_remark2, '') as e_remark from cte a
+                left join (
+                     select distinct on (a.i_nota) a.i_nota , 
+                     coalesce(c.e_pelunasan_remark, '') as e_remark1, coalesce(a.e_remark,'') as e_remark2 from tm_pelunasan_item a
+                     inner join tm_pelunasan b on (a.i_pelunasan = b.i_pelunasan and a.i_area = b.i_area)
+                     left join tr_pelunasan_remark c on (a.i_pelunasan_remark = c.i_pelunasan_remark)
+                     where a.i_nota in (select i_nota from cte) and b.f_pelunasan_cancel = false 
+                     order by a.i_nota , b.d_entry desc
+                ) as b on a.i_nota = b.i_nota
+                $$
                 ) AS nilai (
-                     i_customer varchar(20), i_nota varchar(20), d_nota date, d_jatuh_tempo date, v_nota_netto numeric, v_sisa numeric, v_bayar numeric
-                )   
+                     i_nota varchar(100), d_nota date, d_jatuh_tempo date, e_color varchar(20), v_nota_netto numeric, v_sisa numeric, v_bayar numeric, e_remark varchar(200)
+                )    
                 ", FALSE);
 
             $list = array();
@@ -114,6 +135,8 @@ class Api_toko extends REST_Controller
                 $list[$key]['v_nota_netto'] = $riw->v_nota_netto;
                 $list[$key]['v_sisa'] = $riw->v_sisa;
                 $list[$key]['v_bayar'] = $riw->v_bayar;
+                $list[$key]['e_color'] = $riw->e_color;
+                $list[$key]['e_remark_nota'] = $riw->e_remark;
                 $key++;
             }
 
@@ -122,7 +145,8 @@ class Api_toko extends REST_Controller
                 'v_nota_target' => number_format($total,0),  
                 'v_nota_netto' => number_format($data2->v_nota_netto,0),  
                 'v_sisa' => number_format($data2->v_sisa,0),  
-                'v_spb' => number_format($data2->v_spb,0),                
+                'v_spb' => number_format($data2->v_spb,0), 
+                'e_name' => $e_name,                
                 'data' => $list,  
             ], REST_Controller::HTTP_OK);
         } else {

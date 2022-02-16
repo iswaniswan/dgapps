@@ -24,6 +24,7 @@ class Column
     public $hidden = false;
 
     /**
+     * Column seachable
      *
      * @var bool
      */
@@ -72,7 +73,7 @@ class Column
     public function value($row): string
     {
         if ($this->closure instanceof \Closure) {
-            return call_user_func($this->closure, $row) ?? '';
+            return call_user_func($this->closure, $row);
         }
 
         return $row[$this->name] ?? '';
@@ -80,7 +81,6 @@ class Column
 
     /**
      * Set visibility of the column.
-     * @param bool $searchable
      */
     public function hide($searchable = false): void
     {

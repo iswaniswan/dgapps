@@ -165,16 +165,6 @@ class QueryBuilder
     }
 
     /**
-     * @param $escapes
-     */
-    public function setEscapes($escapes): void
-    {
-        $this->query->escapes = array_merge($escapes, $this->query->escapes);
-        $this->filtered->escapes = array_merge($escapes, $this->filtered->escapes);
-        $this->full->escapes = array_merge($escapes, $this->full->escapes);
-    }
-
-    /**
      * @param $column
      * @return Query
      */
@@ -232,7 +222,7 @@ class QueryBuilder
             $look = [];
 
             foreach ($columns as $column) {
-                $look[] = $this->db->makeLikeString($query, $column, $word);
+                $look[] = ' cast('.$column->name.' as text) LIKE upper('.$this->db->escape('%'.$word.'%', $query).')';
             }
 
             $search[] = '('.implode(' OR ', $look).')';

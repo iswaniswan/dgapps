@@ -254,34 +254,22 @@ class Api extends REST_Controller
     public function listtagihan_post()
     {
         $i_company = $this->post('i_company');
+        $kodesales = $this->post('kodesales');
         $username = $this->post('username');
-        $i_area = $this->post('i_area');
 
+        if($i_company=='1'){
+          $DB2 = $this->load->database('dgu', TRUE);
+        }
         $this->db->select("i_company");
         $this->db->from("tbl_company");
         $this->db->where("i_company", $i_company);
         $this->db->where("f_active", 'true');
         $cek_company = $this->db->get();
-
         if ($cek_company->num_rows() > 0) {
-
             $i_company = $i_company;
-            $username = $username;
             $this->Logger->write($i_company, $username, 'Apps Membuka Menu Sales Order');
-
-            // $this->db->select("e_area_name as value");
-            // $this->db->from("tbl_area");
-            // $this->db->where("i_company", $i_company);
-            // $this->db->where("i_area", $i_area);
-            // $this->db->where("f_active", 'true');
-            // $this->db->order_by("i_area", "asc");
-            // $data = $this->db->get();
-
-            $data = $this->db->query("select e_area_name as value from tbl_area where i_company = '$i_company'
-            and f_active = 't' and i_area in(
-            select i_area from tbl_user_area where username = '$username' and i_company = '$i_company'
-            )
-            order by i_area asc");
+            $data = $DB2->query("select b.e_customer_name, a.i_nota, a.v_sisa from tm_nota a, tr_customer b where not a.i_nota is null and a.f_nota_cancel='f' and a.i_salesman='$kodesales' 
+            and a.v_sisa>0 and a.i_customer=b.i_customer order by a.i_nota asc");
 
             if ($data->num_rows() > 0) {
                 $this->response([
@@ -294,6 +282,7 @@ class Api extends REST_Controller
                     'data' => [],
                 ], REST_Controller::HTTP_OK);
             }
+            $DB2->close();
 
         } else {
             $this->response([
@@ -545,7 +534,7 @@ class Api extends REST_Controller
                 $f_stock = $data_area->f_stock;
                 if ($i_company != '3' || $i_company != 3) {
                     if ($f_stock == 't') {
-                        $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, c.n_quantity ");
+                        $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity ");
                         $this->db->from("tbl_product a");
                         $this->db->join("tbl_product_price b", "a.i_product = b.i_product and a.i_company = b.i_company");
                         $this->db->join("tbl_ic c", "b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'", 'left');
@@ -572,14 +561,14 @@ class Api extends REST_Controller
                     $i_price_group_new = substr($i_price_group,0,2)."00";
                     if ($f_stock == 't') {
                         $query = $this->db->query("
-                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, c.n_quantity 
+                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity
                             from tbl_product a
                             left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
                             left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'
                             where a.i_product_group = '$i_product_group' and b.i_price_group = '$i_price_group' 
                             and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%')
                             union all
-                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, c.n_quantity 
+                            select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity
                             from tbl_product a
                             left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
                             left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'

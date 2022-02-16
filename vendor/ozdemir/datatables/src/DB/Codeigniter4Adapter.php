@@ -2,22 +2,25 @@
 
 namespace Ozdemir\Datatables\DB;
 
-use DB;
 use Ozdemir\Datatables\Query;
 
-
 /**
- * Class LaravelAdapter
+ * Class Codeigniter4Adapter
  * @package Ozdemir\Datatables\DB
  */
-class LaravelAdapter extends DBAdapter
+class Codeigniter4Adapter extends DBAdapter
 {
     /**
-     * LaravelAdapter constructor.
-     * @param null $config
+     * @var \CodeIgniter\Database\BaseConnection $db
+     */
+    protected $db;
+
+    /**
+     * @var $config
      */
     public function __construct($config = null)
     {
+
     }
 
     /**
@@ -25,23 +28,20 @@ class LaravelAdapter extends DBAdapter
      */
     public function connect()
     {
+        $this->db = \Config\Database::connect();
+
         return $this;
     }
 
     /**
      * @param Query $query
-     * @return array
+     * @return mixed
      */
     public function query(Query $query)
     {
-        $data = DB::select($query, $query->escapes);
-        $row = [];
+        $sql = $this->db->query($query, array_values($query->escapes));
 
-        foreach ($data as $item) {
-            $row[] = (array)$item;
-        }
-
-        return $row;
+        return $sql->getResultArray();
     }
 
     /**
@@ -50,9 +50,9 @@ class LaravelAdapter extends DBAdapter
      */
     public function count(Query $query)
     {
-        $data = DB::select("Select count(*) as rowcount from ($query)t", $query->escapes);
+        $sql = $this->db->query("Select count(*) as rowcount from ($query)t", array_values($query->escapes));
 
-        return $data[0]->rowcount;
+        return (int)$sql->getRow()->rowcount;
     }
 
     /**
@@ -62,9 +62,8 @@ class LaravelAdapter extends DBAdapter
      */
     public function escape($string, Query $query)
     {
-        $query->escapes[':binding_'.(count($query->escapes) + 1)] = $string;
+        $query->escapes[] = $string;
 
-        return ':binding_'.count($query->escapes);
+        return '?';
     }
 }
-

@@ -1,4 +1,4 @@
-# Datatables library for PHP 
+# Datatables library for PHP
 [![Latest Stable Version](https://poser.pugx.org/ozdemir/datatables/v/stable)](https://packagist.org/packages/ozdemir/datatables) [![Build Status](https://travis-ci.org/n1crack/datatables.svg?branch=master)](https://travis-ci.org/n1crack/datatables) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/n1crack/datatables/blob/master/LICENCE) 
 
 PHP Library to handle server-side processing for Datatables, in a fast and simple way. [Live Demo](https://datatables.ozdemir.be/)
@@ -14,7 +14,6 @@ PHP Library to handle server-side processing for Datatables, in a fast and simpl
     - [CodeIgniter 3](https://datatables.ozdemir.be/codeigniter)
     - [Phalcon 3+](https://datatables.ozdemir.be/phalcon)
     - [Prestashop](https://datatables.ozdemir.be/prestashop)
-    - [PostgreSql](https://datatables.ozdemir.be/postgresql)
 
 ## Installation
 
@@ -159,12 +158,12 @@ __getQuery()__
     });
 
     $dt->edit('email', function($data){
-        // masks email : mail@mail.com => m***@mail.com
+        // mask email : mail@mail.com => m***@mail.com
         return preg_replace('/(?<=.).(?=.*@)/u','*', $data['email']);
     });
 
     $dt->edit('address', function($data){
-        // checks user access.
+        // check if a user has authorized to see the column value.
         $current_user_plevel = 4;
         if ($current_user_plevel > 2 && $current_user_plevel > $data['plevel']) {
             return $data['address'];
@@ -173,10 +172,10 @@ __getQuery()__
         return 'you are not authorized to view this column';
     });
     
-    $dt->hide('plevel'); // hides 'plevel' column from the output
+    $dt->hide('plevel'); // hide 'plevel' column from the output
 
     $dt->add('action', function($data){
-        // returns a link in a new column
+        // return a link in a new column
         return "<a href='user.php?id=" . $data['id'] . "'>edit</a>";
     });
 
@@ -188,10 +187,6 @@ __getQuery()__
     echo $dt->generate()->toJson(); // same as 'echo $dt->generate()';
 ```
 
-## Road Map
-* better test suites for each class
-* improve integrations for php frameworks
-
 ## Requirements
 Composer  
 DataTables > 1.10  
@@ -199,8 +194,3 @@ PHP > 7.1.3
 
 ## License
 Copyright (c) 2015 Yusuf ÖZDEMİR, released under [the MIT license](https://github.com/n1crack/Datatables/blob/master/LICENCE)
-
-#### If you like the library  
-<a href="https://www.buymeacoffee.com/ozdemir" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
-
-

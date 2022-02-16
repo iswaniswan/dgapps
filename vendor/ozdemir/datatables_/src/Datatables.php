@@ -5,7 +5,6 @@ namespace Ozdemir\Datatables;
 use Closure;
 use Ozdemir\Datatables\DB\DatabaseInterface;
 use Ozdemir\Datatables\Http\Request;
-use Ozdemir\Datatables\Iterators\ColumnCollection;
 
 /**
  * Class Datatables
@@ -15,30 +14,24 @@ use Ozdemir\Datatables\Iterators\ColumnCollection;
 class Datatables
 {
     /**
-     * @var DatabaseInterface
+     * @var \Ozdemir\Datatables\DB\DatabaseInterface
      */
     protected $db;
 
     /**
-     * @var ColumnCollection
+     * @var \Ozdemir\Datatables\Iterators\ColumnCollection
      */
     protected $columns;
 
     /**
-     * @var QueryBuilder
+     * @var \Ozdemir\Datatables\QueryBuilder
      */
     protected $builder;
 
     /**
      * @var Option
      */
-    protected $options;
-
-    /**
-     * Custom escapes
-     * @var array
-     */
-    public $escapes = [];
+    public $options;
 
     /**
      * @var array
@@ -58,7 +51,7 @@ class Datatables
     /**
      * Datatables constructor.
      *
-     * @param DatabaseInterface $db
+     * @param \Ozdemir\Datatables\DB\DatabaseInterface $db
      * @param Request $request
      */
     public function __construct(DatabaseInterface $db, Request $request = null)
@@ -104,18 +97,6 @@ class Datatables
     {
         $column = $this->columns->getByName($column);
         $column->customFilter = $closure;
-
-        return $this;
-    }
-
-    /**
-     * @param string $key
-     * @param string $value
-     * @return Datatables
-     */
-    public function escape($key, $value): Datatables
-    {
-        $this->escapes[$key] = $value;
 
         return $this;
     }
@@ -189,8 +170,6 @@ class Datatables
         $this->builder->setColumnAttributes();
         $this->builder->setFilteredQuery();
         $this->builder->setFullQuery();
-        $this->builder->setEscapes($this->escapes);
-
         $this->setResponseData();
 
         return $this;
@@ -240,13 +219,7 @@ class Datatables
     {
         $this->response['draw'] = $this->options->draw();
         $this->response['recordsTotal'] = $this->db->count($this->builder->query);
-
-        if($this->builder->query->sql === $this->builder->filtered->sql) {
-            $this->response['recordsFiltered'] = $this->response['recordsTotal'];
-        } else {
-            $this->response['recordsFiltered'] = $this->db->count($this->builder->filtered);
-        }
-
+        $this->response['recordsFiltered'] = $this->db->count($this->builder->filtered);
         $this->response['data'] = $this->getData();
 
         if (\count($this->distinctColumn) > 0 || \count($this->distinctData) > 0) {
