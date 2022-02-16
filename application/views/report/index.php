@@ -117,7 +117,50 @@
 			          </div>
 			        </div>
 			      </div>
+			    </div>
+			  </div>
 
+			  <div class="row">
+			    <div class="col-xl-12">
+			      <div class="card">
+			        <div class="card-header header-elements-inline">
+			          <div class="header-elements">
+			            <div class="list-icons">
+			              <a class="list-icons-item" data-action="collapse"></a>
+			            </div>
+			          </div>
+			        </div>
+			        <div class="card-body">
+			          <div class="row">
+			            <div class="col-md-6">
+			            	<div class="mb-4">
+				                <h6 class="font-weight-semibold">Download Pencapaian Toko</h6>
+				                <div class="d-flex">
+				                	<?php 
+				                	$lastyear =  date('Y', strtotime('-1 year'));
+				                	$nextyear =  date('Y', strtotime('+1 year'));
+				                	$now =  date('Y');
+				                	?>
+				                	<select id="tahun">
+				                		<option value="<?= $lastyear?>"><?= $lastyear?></option>
+				                		<option value="<?= $now?>" selected><?= $now?></option>
+				                		<option value="<?= $nextyear?>"><?= $nextyear?></option>
+					                </select>
+
+				                	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="targettoko_report"
+					                  data-style="zoom-out">
+					                  <span class="ladda-label">Download Pencapaian Toko
+					                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+					                </button>
+					              </div>
+			              	</div>
+
+			            	
+			            </div>
+			          </div>
+			        </div>
+			      </div>
 			    </div>
 			  </div>
 			  <!-- /main charts -->

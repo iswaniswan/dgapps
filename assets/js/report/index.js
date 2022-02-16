@@ -73,6 +73,7 @@ var Buttons = (function() {
     $(".btn-ladda-progress").click(function(e) {
       let dfrom = $("#range-from").val();
       let dto = $("#range-to").val();
+      let tahun = $("#tahun").val();
 
       let l = Ladda.create(this);
       let $input = $(this);
@@ -85,6 +86,7 @@ var Buttons = (function() {
         data: {
           dfrom: dfrom,
           dto: dto,
+          tahun: tahun,
           type: type
         },
         dataType: "json",
