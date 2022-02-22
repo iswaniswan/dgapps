@@ -357,14 +357,14 @@ class Api extends REST_Controller
 
         if ($cek_company->num_rows() > 0) {
 
-            $this->db->select("a.i_customer, a.e_customer_name, a.e_customer_address, a.i_price_group, c.n_customer_discount1, c.n_customer_discount2, a.i_area ");
+            $this->db->select("a.i_customer, a.e_customer_name, a.e_customer_address, a.i_price_group, coalesce(c.n_customer_discount1,0) as n_customer_discount1 , coalesce(c.n_customer_discount2,0) as n_customer_discount2, a.i_area ");
             $this->db->from("tbl_customer a");
-            $this->db->join("tbl_customer_discount c", "a.i_customer = c.i_customer and a.i_company = c.i_company");
+            $this->db->join("tbl_customer_discount c", "a.i_customer = c.i_customer and a.i_company = c.i_company", 'left');
             $this->db->join("tbl_area b", "a.i_area = b.i_area and a.i_company = b.i_company");
             $this->db->where("b.e_area_name", $e_area_name);
             $this->db->where("a.f_active", 'true');
             $this->db->where("a.i_company", $i_company);
-            $this->db->where("(a.i_customer like '%$cari%' or a.e_customer_name like '%$cari%')");
+            $this->db->where("(a.i_customer ilike '%$cari%' or a.e_customer_name ilike '%$cari%')");
             $query = $this->db->get();
 
             $i_company = $i_company;

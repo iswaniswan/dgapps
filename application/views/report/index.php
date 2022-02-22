@@ -114,6 +114,18 @@
 			              </div>
 
 			            </div>
+
+			            <div class="col-md-4">
+			              <div class="mb-4">
+			                <h6 class="font-weight-semibold">Salesman Per Customer</h6>
+			                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="customer_salesman"
+			                  data-style="zoom-out">
+			                  <span class="ladda-label">Download Salesman Per Customer
+			                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+			                </button>
+			              </div>
+			            </div>
+
 			          </div>
 			        </div>
 			      </div>
@@ -132,7 +144,7 @@
 			        </div>
 			        <div class="card-body">
 			          <div class="row">
-			            <div class="col-md-6">
+			            <div class="col-md-9">
 			            	<div class="mb-4">
 				                <h6 class="font-weight-semibold">Download Pencapaian Toko</h6>
 				                <div class="d-flex">
@@ -151,6 +163,13 @@
 					                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="targettoko_report"
 					                  data-style="zoom-out">
 					                  <span class="ladda-label">Download Pencapaian Toko
+					                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
+					                </button>
+
+					                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					                <button type="button" class="btn btn-primary btn-ladda btn-ladda-progress" data="targettoko_detail_report"
+					                  data-style="zoom-out">
+					                  <span class="ladda-label">Download Pencapaian Toko Detail
 					                    <?=$this->lang->line('report');?> &nbsp; <i class="fas fa-download"></i></span>
 					                </button>
 					              </div>

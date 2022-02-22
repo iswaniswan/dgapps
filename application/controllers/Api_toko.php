@@ -140,7 +140,25 @@ class Api_toko extends REST_Controller
                 $key++;
             }
 
-             $this->response([
+            $databanner = $this->db->query("
+	            select e_path, e_remark from tbl_banner
+				where current_date between d_start and d_end order by d_end asc, createdat asc
+	        ", FALSE);
+
+            $listbanner = array();
+	        $keybanner = 0;
+	        if ($databanner->num_rows() > 0) {
+	            foreach ($databanner->result() as $riw) {
+	                $listbanner[$keybanner]['e_path'] = $riw->e_path;
+	                $listbanner[$keybanner]['e_remark'] = $riw->e_remark;
+	                $keybanner++;
+	            }
+	        } else {
+	        	$listbanner[$keybanner]['e_path'] = 'https://apps.dialoguegroup.net/dgapps/assets/images/banner/default.png';
+	        	$listbanner[$keybanner]['e_remark'] = ' ';
+	        }
+
+            $this->response([
                 'status' => true,  
                 'v_nota_target' => number_format($total,0),  
                 'v_nota_netto' => number_format($data2->v_nota_netto,0),  
@@ -148,6 +166,7 @@ class Api_toko extends REST_Controller
                 'v_spb' => number_format($data2->v_spb,0), 
                 'e_name' => $e_name,                
                 'data' => $list,  
+                'banner' => $listbanner,  
             ], REST_Controller::HTTP_OK);
         } else {
             $this->response([
@@ -184,6 +203,40 @@ class Api_toko extends REST_Controller
                 ], REST_Controller::HTTP_OK);
             }
         } 
+    }
+
+    public function main_banner_post() {
+     
+
+        $username = $this->post('username');
+
+        $data = $this->db->query("
+            select e_path, e_remark from tbl_banner
+			where current_date between d_start and d_end
+        ", FALSE);
+
+      	$list = array();
+        $key = 0;
+        if ($data->num_rows() > 0) {
+    
+            foreach ($data->result() as $riw) {
+                $list[$key]['e_path'] = $riw->e_path;
+                $list[$key]['e_remark'] = $riw->e_remark;
+                $key++;
+            }
+
+            $this->response([
+                'status' => true,                  
+                'data' => $list,  
+            ], REST_Controller::HTTP_OK);
+        } else {
+        	$list[$key]['e_path'] = 'https://apps.dialoguegroup.net/dgapps/assets/images/banner/default.png';
+        	$list[$key]['e_remark'] = ' ';
+            $this->response([
+                'status' => true,                  
+                'data' => $list,  
+            ], REST_Controller::HTTP_OK);
+        }
     }
 
 }

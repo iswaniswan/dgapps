@@ -637,7 +637,7 @@ class Report extends CI_Controller
                  select a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode from tbl_user_toko a
                  inner join tbl_user_toko_item b on (a.username = b.username)
                  inner join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
-                 where c.i_periode = '$tahun' and b.id_company = '$i_company'
+                 where c.i_periode = '$tahun' and b.id_company = '$i_company' and a.f_active = true and b.f_active = true 
             ", FALSE);
 
             $arrayTxt = '';
@@ -682,7 +682,7 @@ class Report extends CI_Controller
                      from tbl_user_toko a
                      inner join tbl_user_toko_item b on (a.username = b.username)
                      left join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
-                     where b.id_company = '$i_company'
+                     where b.id_company = '$i_company' and a.f_active = true and b.f_active = true 
                      group by 1, 2
                 )
                 select e_name, v_target, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, des,
@@ -778,6 +778,174 @@ class Report extends CI_Controller
             $writer = new Xlsx($spreadsheet);
 
             $filename = 'PencapaianToko_'.$tahun;
+
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+
+            $response = array(
+                'name' => $filename . '.xlsx',
+                'file' => "data:application/vnd.ms-excel;base64," . base64_encode($xlsData),
+            );
+            $this->Logger->write(null, null, 'Download Report Sales Order');
+            echo json_encode($response);
+
+        }  elseif ($type == 'targettoko_detail_report') {
+
+            $data = $this->db->query("
+                 select a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode from tbl_user_toko a
+                 inner join tbl_user_toko_item b on (a.username = b.username)
+                 inner join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
+                 where c.i_periode = '$tahun' and b.id_company = '$i_company' and a.f_active = true and b.f_active = true 
+            ", FALSE);
+
+            $arrayTxt = '';
+            $list_customer = array();
+            if ($data->num_rows() > 0) {
+                foreach ($data->result() as $row) {
+                    array_push($list_customer, "''".$row->i_customer."''");
+                }
+                $arrayTxt = implode(',', $list_customer);
+            }
+
+            $sheet->setCellValue('A1', 'No');
+            $sheet->setCellValue('B1', 'Nama Group');
+            $sheet->setCellValue('C1', 'Kode Customer');
+            $sheet->setCellValue('D1', 'Nama Customer');
+            $sheet->setCellValue('E1', 'Target');
+            $sheet->setCellValue('F1', 'Januari');
+            $sheet->setCellValue('G1', 'Februari');
+            $sheet->setCellValue('H1', 'Maret');
+            $sheet->setCellValue('I1', 'April');
+            $sheet->setCellValue('J1', 'Mei');
+            $sheet->setCellValue('K1', 'Juni');
+            $sheet->setCellValue('L1', 'July');
+            $sheet->setCellValue('M1', 'Agustus');
+            $sheet->setCellValue('N1', 'September');
+            $sheet->setCellValue('O1', 'Oktober');
+            $sheet->setCellValue('P1', 'November');
+            $sheet->setCellValue('Q1', 'Desember');
+            $sheet->setCellValue('R1', 'Total Nota');
+            $sheet->setCellValue('S1', 'Sisa Target');
+            $sheet->setCellValue('T1', '%');
+            // $sheet->setCellValue('I1', 'Efektif Kunjungan');
+            $sheet->getStyle('A1:T1')->applyFromArray($styleArray);
+
+            foreach (range('A', 'T') as $columnID) {
+                $sheet->getColumnDimension($columnID)->setAutoSize(true);
+            }
+
+            $i = 2;
+            $date = $tahun. "-01-01";
+            $query = $this->db->query("
+                with cte as (
+                     select a.username , a.e_name, b.i_customer, d.e_customer_name ,sum(coalesce(c.v_nota_target, 0)) as v_target
+                     from tbl_user_toko a
+                     inner join tbl_user_toko_item b on (a.username = b.username)
+                     inner join tbl_customer d on (b.i_customer = d.i_customer and b.id_company = d.i_company)
+                     left join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
+                     where b.id_company = '$i_company' and a.f_active = true and b.f_active = true 
+                     group by 1, 2,3,4
+                )
+                select e_name, i_customer, e_customer_name, v_target, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, des,
+                (jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des)  as total,
+                v_target - (jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des) as sisa,
+                (((jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des) / nullif(v_target,0))  * 100) as persen
+                from (
+                     SELECT y.e_name, datas[2] as i_customer,y.e_customer_name, y.v_target, coalesce(jan,0) as jan,
+                     coalesce(feb,0) as feb,
+                     coalesce(mar,0) as mar,
+                     coalesce(apr,0) as apr,
+                     coalesce(may,0) as may,
+                     coalesce(jun,0) as jun,
+                     coalesce(jul,0) as jul,
+                     coalesce(aug,0) as aug,
+                     coalesce(sep,0) as sep,
+                     coalesce(oct,0) as oct,
+                     coalesce(nov,0) as nov,
+                     coalesce(des,0) as des from CROSSTAB (
+                     $$
+                         select  Array[username::text, b.i_customer::text] as datas, bln::numeric , sum(v_nota_netto)::numeric 
+                          from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
+                           '
+                            select ''$i_company'' as id_company, i_customer,  to_number(to_char(d_nota, ''mm''), ''99'') AS bln, coalesce(sum(v_nota_netto), 0) as v_nota_netto from tm_nota 
+                            where f_nota_cancel = false and to_char(d_nota , ''yyyy'') = ''$tahun'' and i_customer in ($arrayTxt)
+                            group by 1,2,3
+                           '
+                           ) AS a (
+                               id_company varchar(20), i_customer varchar(20), bln numeric, v_nota_netto numeric
+                           ) 
+                           inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer)
+                           group by 1,2
+                     $$,
+                     $$ SELECT (
+                                select EXTRACT(MONTH from date_trunc('month', '$date'::date)::date + s.a * '1 month'::interval)
+                           ) from generate_series(0, 11) as s(a)
+                     $$
+                      ) as x (
+                        datas text[], jan numeric, feb numeric, mar numeric, apr numeric, may numeric, 
+                        jun numeric, jul numeric, aug numeric, sep numeric, oct numeric, nov numeric, des numeric )
+                     inner join cte y on (x.datas[1] = y.username and x.datas[2] = y.i_customer)
+                ) as final
+                order by 1,2,3 asc
+
+            ");
+
+            // var_dump($query->result());
+            // die();
+            if ($query->num_rows() > 0) {
+
+                foreach ($query->result() as $row) {
+
+                    $sheet->setCellValue('A' . $i, $i-1);
+                    $sheet->setCellValue('B' . $i, $row->e_name);
+                    $sheet->setCellValue('C' . $i, $row->i_customer);
+                    $sheet->setCellValue('D' . $i, $row->e_customer_name);
+                    $sheet->setCellValue('E' . $i, $row->v_target);
+                    $sheet->setCellValue('F' . $i, $row->jan);
+                    $sheet->setCellValue('G' . $i, $row->feb);
+                    $sheet->setCellValue('H' . $i, $row->mar);
+                    $sheet->setCellValue('I' . $i, $row->apr);
+                    $sheet->setCellValue('J' . $i, $row->may);
+                    $sheet->setCellValue('K' . $i, $row->jun);
+                    $sheet->setCellValue('L' . $i, $row->jul);
+                    $sheet->setCellValue('M' . $i, $row->aug);
+                    $sheet->setCellValue('N' . $i, $row->sep);
+                    $sheet->setCellValue('O' . $i, $row->oct);
+                    $sheet->setCellValue('P' . $i, $row->nov);
+                    $sheet->setCellValue('Q' . $i, $row->des);
+                    $sheet->setCellValue('R' . $i, $row->total);
+                    $sheet->setCellValue('S' . $i, $row->sisa);
+                    $sheet->setCellValue('T' . $i, number_format($row->persen,2). " %");
+                    // $sheet->setCellValue('I' . $i, '=E'.$i.'/'.'H'.$i );
+
+                    // $sheet->getStyle('A1:C1')
+                    $sheet->getStyle('E' . $i.':T'.$i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
+                    // $sheet->getStyle('R' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                    // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('N' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('O' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    // $sheet->getStyle('P' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    $i++;
+                }
+            }
+
+            // $i = $i + 3;
+            // $sheet->setCellValue('A' . $i, 'Start Date');
+            // $sheet->setCellValue('B' . $i, 'End Date');
+            // $sheet->getStyle('A' . $i . ':B' . $i)->applyFromArray($styleArray);
+
+            // $i++;
+            // $sheet->setCellValue('A' . $i, '-');
+            // $sheet->setCellValue('B' . $i, '-');
+
+            $writer = new Xlsx($spreadsheet);
+
+            $filename = 'PencapaianToko_Detail_'.$tahun;
 
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
