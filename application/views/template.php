@@ -251,6 +251,14 @@ $language = $this->session->userdata('language');
               </a>
             </li>
             <li class="nav-item">
+              <a href="<?=base_url();?>banner" class="nav-link">
+                <i class="far fa-newspaper"></i>
+                <span>
+                  <?=$this->lang->line('Banner');?>
+                </span>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="<?=base_url();?>live-tracking" class="nav-link">
                 <i class="fas fa-map"></i>
                 <span>
