@@ -27,12 +27,21 @@ class Report extends CI_Controller
         $this->template->load('template', 'report/index');
     }
 
+    public function num2alpha($n){
+        for($r = ""; $n >= 0; $n = intval($n / 26) - 1)
+            $r = chr($n%26 + 0x41) . $r;
+        return $r;
+    }
+
     public function export()
     {
         $dfrom = date("Y-m-d", strtotime($this->input->post('dfrom')));
         $dto = date("Y-m-d", strtotime($this->input->post('dto')));
         $type = $this->input->post('type');
         $tahun = $this->input->post('tahun');
+
+        $p_dfrom = date("Ym", strtotime($this->input->post('dfrom')));
+        $p_dto = date("Ym", strtotime($this->input->post('dto')));
 
         $this->load->library('custom');
         $username = $this->session->userdata('username');
@@ -558,6 +567,7 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Customer');
             echo json_encode($response);
+
         } elseif ($type == 'lastvisit') {
 
             $sheet->setCellValue('A1', 'No');
@@ -587,18 +597,6 @@ class Report extends CI_Controller
                     $sheet->setCellValue('A' . $i, $i-1);
                     $sheet->setCellValue('B' . $i, $row->i_customer);
                     $sheet->setCellValue('C' . $i, $row->d_checkin);
-                    // $sheet->setCellValue('D' . $i, $row->e_name);
-                    // $sheet->setCellValue('E' . $i, $row->kunjungan);
-                    // $sheet->setCellValue('F' . $i, $row->n_order);
-                    // $sheet->setCellValue('G' . $i, $row->persen);
-                    // $sheet->setCellValue('H' . $i, "");
-                    // $sheet->setCellValue('I' . $i, '=E'.$i.'/'.'H'.$i );
-                    // $sheet->getStyle('I' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('J' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('N' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('O' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('P' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     $i++;
                 }
             }
@@ -794,7 +792,7 @@ class Report extends CI_Controller
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
 
-        }  elseif ($type == 'targettoko_detail_report') {
+        } elseif ($type == 'targettoko_detail_report') {
 
             $data = $this->db->query("
                  select a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode from tbl_user_toko a
@@ -962,6 +960,129 @@ class Report extends CI_Controller
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
 
+        } elseif ($type == 'customer_salesman') {
+
+            $begin = new DateTime($dfrom);
+            $end   = new DateTime($dto);
+
+            $sheet->setCellValueByColumnAndRow(1, 1, 'No');
+            $sheet->setCellValueByColumnAndRow(2, 1, 'Salesman');
+            $sheet->setCellValueByColumnAndRow(3, 1, 'Provinsi');
+            $sheet->setCellValueByColumnAndRow(4, 1, 'Kota');
+            $sheet->setCellValueByColumnAndRow(5, 1, 'KD LANG');
+            $sheet->setCellValueByColumnAndRow(6, 1, 'Nama Toko');
+
+            $columnName = 7;
+
+            for($i = $begin; $i <= $end; $i->modify('+1 day')){
+                //echo $i->format("Y-m-d"). '<br>';
+                $sheet->setCellValueByColumnAndRow($columnName, 1, $i->format("d M"));
+                $columnName++;
+            }
+
+            // $max = chr($columnName+65);
+            // foreach (range('A', $max) as $columnID) {
+            //     $sheet->getColumnDimension($columnID)->setAutoSize(true);
+            // }
+
+            // $sheet->setCellValue('I1', 'Efektif Kunjungan');
+            //$sheet->getStyle('1')->applyFromArray($styleArray);
+            $sheet->getStyle('A1:'.$this->num2alpha($columnName-2).'1')->applyFromArray($styleArray);
+
+            $i = 2;
+
+            $query = $this->db->query("
+                select x.i_customer, x.i_salesman, x.i_area, x.e_city_name, x.e_name, x.hari, x.kegiatan, y.e_customer_name , z.e_area_name from (
+                     select a.i_customer, a.i_salesman, a.i_area, e_city_name, b.e_name, jsonb_agg(hari) as hari, 
+                      jsonb_agg(v_spb_netto::varchar || case when c.e_saran is not null then ' | ' || c.e_saran else '' end || case when d.e_foto is not null then ' | Dokumentasi' else '' end) as kegiatan
+                      from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
+                      $$
+                          with cte as (
+                               select a.i_customer, a.i_salesman, a.i_area,d.e_city_name ,a.e_periode, e.hari from tr_customer_salesman a 
+                               inner join tr_customer c on (a.i_customer = c.i_customer and a.i_area = c.i_area)
+                               left join tr_city d on (c.i_city = d.i_city and c.i_area = d.i_area)
+                               inner join (
+                                    SELECT hari::date, to_char(hari, 'yyyymm') as e_periode FROM generate_series(timestamp '$dfrom', '$dto', '1 day') hari 
+                               ) as e on (a.e_periode = e.e_periode)
+                               where 
+                               a.e_periode between '$p_dfrom' and '$p_dto' and a.i_product_group = '01' /*and a.i_salesman = '14' and a.i_customer = '04326'*/
+                          )
+                          select a.i_customer, a.i_salesman, a.i_area,a.e_city_name, a.hari, coalesce(sum(b.v_spb - b.v_spb_discounttotal),0) as v_spb_netto from cte a
+                          left join tm_spb b on (a.hari = b.d_spb and a.i_customer = b.i_customer and a.i_salesman = b.i_salesman)
+                          group by 1,2,3,4,5
+                      $$
+                      ) AS a (
+                           i_customer bpchar(5), i_salesman bpchar(2), i_area bpchar(2), e_city_name varchar(50), hari date, v_spb_netto numeric
+                      )
+                      inner join tbl_user b on (a.i_salesman = b.i_staff and b.i_company = '$i_company' )
+                      left join tbl_customer_saran c on (b.i_company = c.i_company and b.username = c.username and a.i_customer = c.i_customer and a.hari = d_saran)
+                      left join tbl_customer_dokumentasi d on (b.i_company = d.i_company and b.username = d.username and a.i_customer = d.i_customer and a.hari = d_dokumentasi)
+                      group by 1,2,3,4,5
+                ) as x
+                left join tbl_customer y on (x.i_customer = y.i_customer and y.i_company = '$i_company')
+                left join tbl_area z on (x.i_area = z.i_area and z.i_company = '$i_company')
+                order by x.e_name, x.i_customer 
+            ");
+
+            // var_dump($query->result());
+            // die();
+            if ($query->num_rows() > 0) {
+
+                foreach ($query->result() as $row) {
+                    //x.hari, x.kegiatan
+
+                    $sheet->setCellValueByColumnAndRow(1 , $i, $i-1);
+                    $sheet->setCellValueByColumnAndRow(2 , $i, $row->e_name. ' - '.$row->i_salesman);
+                    $sheet->setCellValueByColumnAndRow(3 , $i, $row->e_area_name);
+                    $sheet->setCellValueByColumnAndRow(4 , $i, $row->e_city_name);
+                    $sheet->setCellValueByColumnAndRow(5 , $i, $row->i_customer);
+                    $sheet->setCellValueByColumnAndRow(6 , $i, $row->e_customer_name);
+
+                    $columnName = 7;
+
+                    foreach (json_decode($row->kegiatan) as $kegiatan) {
+                        $sheet->setCellValueByColumnAndRow($columnName , $i, $kegiatan);
+                        $columnName++;
+                    }
+                    $i++;
+                }
+            }
+
+            $writer = new Xlsx($spreadsheet);
+
+            $filename = 'SalesmanPerCustomer_'.$dfrom.'_'.$dto;
+
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+
+            $response = array(
+                'name' => $filename . '.xlsx',
+                'file' => "data:application/vnd.ms-excel;base64," . base64_encode($xlsData),
+            );
+            $this->Logger->write(null, null, 'Download Report Sales Order');
+            echo json_encode($response);
+
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
