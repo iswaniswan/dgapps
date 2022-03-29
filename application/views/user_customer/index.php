@@ -25,8 +25,11 @@
 					</div>
 				</div>
 				<div class="card-body">
-					<a href="<?= base_url(); ?>user-customer/add" class="pull-right btn btn-xs btn-primary">
+					<a href="<?= base_url(); ?>user-customer/add" class="pull-right btn btn-xs bg-primary-800">
 						<i class="icon-plus22"></i> &nbsp; Add User
+					</a>
+					<a href="<?= base_url(); ?>user-customer/download_user" class="pull-right btn btn-xs bg-success-800 ml-2">
+						<i class="icon-download"></i> &nbsp; Download User
 					</a>
 				</div>
 				<div class="card-body">
@@ -36,6 +39,7 @@
 							<tr>
 								<th>Username</th>
 								<th>Shop Name</th>
+								<th>Password</th>
 								<th>Status</th>
 								<th>Act</th>
 							</tr>
