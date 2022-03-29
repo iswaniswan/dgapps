@@ -13,6 +13,7 @@ class M_user_customer extends CI_Model
         $datatables->query("SELECT DISTINCT
                a.username,
                 e_name,
+                e_password,
                 a.f_active
             FROM
                 tbl_user_toko a, tbl_user_toko_item b
@@ -35,6 +36,10 @@ class M_user_customer extends CI_Model
             return '<a title="View Data" href="' . base_url('user-customer/view/' . encrypt_url($username)) . '">' . $username . '</a>';
         });
 
+        $datatables->edit('e_password', function ($data) {
+            return decrypt_password($data['e_password']);
+        });
+
         $datatables->add('action', function ($data) {
             $username = trim($data['username']);
             $data = '';
@@ -54,12 +59,12 @@ class M_user_customer extends CI_Model
 
     public function simpan($username, $e_name, $e_password, $i_customer)
     {
-        $this->load->library('custom');
-        $e_password = $this->custom->password($e_password);
+        /* $this->load->library('custom');
+        $e_password = $this->custom->password($e_password); */
 
         $data = array(
             'username' => $username,
-            'e_password' => $e_password,
+            'e_password' => encrypt_password($e_password),
             'e_name' => $e_name,
             'createdat' => current_datetime(),
         );
@@ -96,12 +101,10 @@ class M_user_customer extends CI_Model
 
     public function update($username, $username_old, $e_name, $e_password, $i_customer)
     {
-        $this->load->library('custom');
-        $e_password = $this->custom->password($e_password);
         if ($e_password != '' || $e_password != null) {
             $data = array(
                 'username' => $username,
-                'e_password' => $e_password,
+                'e_password' => encrypt_password($e_password),
                 'e_name' => $e_name,
                 'modifiedat' => current_datetime(),
             );
@@ -153,6 +156,20 @@ class M_user_customer extends CI_Model
 		$this->db->where('username', $id);
 		$this->db->update('tbl_user_toko', $table);
 	}
+
+    public function download_user()
+    {
+        return $this->db->query("SELECT DISTINCT
+                a.username,
+                e_name,
+                e_password,
+                case when a.f_active = 't' then 'Aktif' else 'Tidak Aktif' end as f_active
+            FROM
+                tbl_user_toko a, tbl_user_toko_item b
+            WHERE a.username = b.username
+            AND b.id_company = '$this->i_company'
+            ORDER BY 2");
+    }
 }
 
 /* End of file M_user_customer.php */

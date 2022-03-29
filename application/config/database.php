@@ -75,6 +75,7 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
+
 	 'hostname' => '192.168.0.93',
 	'username' => 'dedy',
 	'password' => 'g#>m[J2P^^',
@@ -85,6 +86,18 @@ $db['default'] = array(
 	'password' => 'dialogue',
 	'database' => 'DGApps',
 	'port' 	   => 5432,*/
+
+	/* 'hostname' => '202.150.150.53',
+	'username' => 'dedy',
+	'password' => 'g#>m[J2P^^',
+	'database' => 'dgapps',  
+	'port' 	   => 9191, */
+	// 'hostname' => 'localhost',
+	// 'username' => 'dedy',
+	// 'password' => 'dialogue',
+	// 'database' => 'DG_Apps',
+	// 'port' 	   => 5432,
+
 	'dbdriver' => 'postgre',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

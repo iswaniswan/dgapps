@@ -31,7 +31,7 @@ var Customer = function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     var controller = 'user_customer/serverside';
-    var column = 6;
+    var column = 4;
     datatable(controller, column);
     Customer.init();
 });
