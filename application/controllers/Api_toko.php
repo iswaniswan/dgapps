@@ -142,7 +142,7 @@ class Api_toko extends REST_Controller
 
             $databanner = $this->db->query("
 	            select e_path, e_remark from tbl_banner
-				where current_date between d_start and d_end order by d_end asc, createdat asc
+				where f_active = true and current_date between d_start and d_end order by d_end asc, createdat asc
 	        ", FALSE);
 
             $listbanner = array();
@@ -205,14 +205,18 @@ class Api_toko extends REST_Controller
         } 
     }
 
-    public function main_banner_post() {
+    public function bank_post() {
      
 
         $username = $this->post('username');
 
         $data = $this->db->query("
-            select e_path, e_remark from tbl_banner
-			where current_date between d_start and d_end
+            select e_image_path, e_bank_name, i_norek, e_norek_name from tbl_bank 
+			where f_active = true and id_company in (
+			     select distinct b.id_company from tbl_user_toko a 
+			     inner join tbl_user_toko_item b on (a.username = b.username) 
+			     where a.username ilike '$username' limit 1
+			) order by createdat asc;
         ", FALSE);
 
       	$list = array();
@@ -220,8 +224,10 @@ class Api_toko extends REST_Controller
         if ($data->num_rows() > 0) {
     
             foreach ($data->result() as $riw) {
-                $list[$key]['e_path'] = $riw->e_path;
-                $list[$key]['e_remark'] = $riw->e_remark;
+                $list[$key]['e_image_path'] = $riw->e_image_path;
+                $list[$key]['e_bank_name'] = $riw->e_bank_name;
+                $list[$key]['i_norek'] = $riw->i_norek;
+                $list[$key]['e_norek_name'] = $riw->e_norek_name;
                 $key++;
             }
 
@@ -230,10 +236,8 @@ class Api_toko extends REST_Controller
                 'data' => $list,  
             ], REST_Controller::HTTP_OK);
         } else {
-        	$list[$key]['e_path'] = 'https://apps.dialoguegroup.net/dgapps/assets/images/banner/default.png';
-        	$list[$key]['e_remark'] = ' ';
             $this->response([
-                'status' => true,                  
+                'status' => false,                  
                 'data' => $list,  
             ], REST_Controller::HTTP_OK);
         }
