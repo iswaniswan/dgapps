@@ -3,3 +3,4 @@ assets/images/
 application/logs/
 application/logs/*
 application/config/database.php
+application/config/*
