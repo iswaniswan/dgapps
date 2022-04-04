@@ -50,13 +50,13 @@
 									<div class="form-group row" hidden>
 										<label class="col-form-label col-lg-2">Target SPB</label>
 										<div class="col-lg-10">
-											<input type="number" class="form-control" value="<?= $data->v_spb_target; ?>" name="v_spb_target" min="100000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
+											<input type="number" class="form-control" value="<?= $data->v_spb_target; ?>" name="v_spb_target" placeholder="Rp. xxx.xxx.xxx.xxx">
 										</div>
 									</div>
 									<div class="form-group row">
 										<label class="col-form-label col-lg-2">Target MoU</label>
 										<div class="col-lg-10">
-											<input type="number" class="form-control" value="<?= $data->v_nota_target; ?>" name="v_nota_target" min="100000" placeholder="Rp. xxx.xxx.xxx.xxx" required>
+											<input type="text" onkeyup="reformat(this);"  class="form-control" value="<?= number_format($data->v_nota_target); ?>" name="v_nota_target" placeholder="Rp. xxx.xxx.xxx.xxx" required>
 										</div>
 									</div>
 									<div class="d-flex justify-content-end align-items-center">

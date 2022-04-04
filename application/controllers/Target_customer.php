@@ -65,8 +65,8 @@ class Target_customer extends CI_Controller
 
     public function simpan()
     {
-        $v_spb_target = $this->input->post('v_spb_target', true);
-        $v_nota_target = $this->input->post('v_nota_target', true);
+        $v_spb_target = str_replace(",","",$this->input->post('v_spb_target', true));
+        $v_nota_target = str_replace(",","",$this->input->post('v_nota_target', true));
         $i_customer = $this->input->post('i_customer', true);
         $i_periode = $this->input->post('i_periode', true);
 
