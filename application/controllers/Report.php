@@ -20,6 +20,7 @@ class Report extends CI_Controller
                 'global_assets/js/plugins/extensions/jquery_ui/widgets.min.js',
                 'global_assets/js/plugins/buttons/spin.min.js',
                 'global_assets/js/plugins/buttons/ladda.min.js',
+                'global_assets/js/plugins/forms/selects/select2.min.js',
                 'assets/js/report/index.js?v=1',
             )
         );
@@ -142,7 +143,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -257,7 +258,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -360,7 +361,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -490,7 +491,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -556,7 +557,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -617,7 +618,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -780,7 +781,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -948,7 +949,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
@@ -1055,7 +1056,7 @@ class Report extends CI_Controller
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
             header('Cache-Control: max-age=0');
-
+            ob_start();
             $writer->save('php://output');
             $xlsData = ob_get_contents();
             ob_end_clean();
