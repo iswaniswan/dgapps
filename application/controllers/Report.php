@@ -1,7 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Style;
 
 class Report extends CI_Controller
 {
@@ -10,6 +13,7 @@ class Report extends CI_Controller
     {
         parent::__construct();
         cek_session();
+        $this->i_company =  $this->session->userdata('i_company');
     }
 
     public function index()
@@ -28,21 +32,24 @@ class Report extends CI_Controller
         $this->template->load('template', 'report/index');
     }
 
-    public function num2alpha($n){
-        for($r = ""; $n >= 0; $n = intval($n / 26) - 1)
-            $r = chr($n%26 + 0x41) . $r;
+    public function num2alpha($n)
+    {
+        for ($r = ""; $n >= 0; $n = intval($n / 26) - 1)
+            $r = chr($n % 26 + 0x41) . $r;
         return $r;
     }
 
     public function export()
     {
-        $dfrom = date("Y-m-d", strtotime($this->input->post('dfrom')));
-        $dto = date("Y-m-d", strtotime($this->input->post('dto')));
+        $date_from = $this->input->post('dfrom');
+        $date_to = $this->input->post('dto');
+        $dfrom = date("Y-m-d", strtotime($date_from));
+        $dto = date("Y-m-d", strtotime($date_to));
         $type = $this->input->post('type');
         $tahun = $this->input->post('tahun');
 
-        $p_dfrom = date("Ym", strtotime($this->input->post('dfrom')));
-        $p_dto = date("Ym", strtotime($this->input->post('dto')));
+        $p_dfrom = date("Ym", strtotime($date_from));
+        $p_dto = date("Ym", strtotime($date_to));
 
         $this->load->library('custom');
         $username = $this->session->userdata('username');
@@ -50,7 +57,64 @@ class Report extends CI_Controller
         $i_company = $this->session->userdata('i_company');
 
         $spreadsheet = new Spreadsheet();
+        $sharedStyle1 = new Style();
+        $sharedStyle2 = new Style();
+        $sharedStyle3 = new Style();
         $sheet = $spreadsheet->getActiveSheet();
+
+        /** Style */
+        $sharedStyle1->applyFromArray(
+            [
+                'alignment' => [
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+                'font' => [
+                    'name'   => 'Times New Roman',
+                    'bold'   => true,
+                    'italic' => false,
+                    'size'   => 12
+                ],
+            ]
+        );
+
+        $sharedStyle2->applyFromArray(
+            [
+                'font' => [
+                    'name'   => 'Times New Roman',
+                    'bold'   => false,
+                    'italic' => false,
+                    'size'   => 11
+                ],
+                'borders' => [
+                    'left'   => ['borderStyle' => Border::BORDER_THIN],
+                    'right'  => ['borderStyle' => Border::BORDER_THIN]
+                ],
+            ]
+
+        );
+
+        $sharedStyle3->applyFromArray(
+            [
+                'font' => [
+                    'name'   => 'Times New Roman',
+                    'bold'   => true,
+                    'italic' => false,
+                    'size'   => 11
+                ],
+                'borders' => [
+                    'top'    => ['borderStyle' => Border::BORDER_THIN],
+                    'bottom' => ['borderStyle' => Border::BORDER_THIN],
+                    'left'   => ['borderStyle' => Border::BORDER_THIN],
+                    'right'  => ['borderStyle' => Border::BORDER_THIN]
+                ],
+                'alignment' => [
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]
+        );
+
 
         $styleArray = [
             'font' => [
@@ -62,6 +126,7 @@ class Report extends CI_Controller
                 ],
             ],
         ];
+        /** End Style */
 
         if ($type == 'sfa_attendance') {
 
@@ -154,7 +219,6 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Kehadiran');
             echo json_encode($response);
-
         } elseif ($type == 'sales_order') {
 
             $sheet->setCellValue('A1', 'No Order');
@@ -269,8 +333,7 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
-
-          } elseif ($type == 'call_report') {
+        } elseif ($type == 'call_report') {
 
             $sheet->setCellValue('A1', 'No');
             $sheet->setCellValue('B1', 'Area');
@@ -326,7 +389,7 @@ class Report extends CI_Controller
 
                 foreach ($query->result() as $row) {
 
-                    $sheet->setCellValue('A' . $i, $i-1);
+                    $sheet->setCellValue('A' . $i, $i - 1);
                     $sheet->setCellValue('B' . $i, $row->area);
                     $sheet->setCellValue('C' . $i, $row->i_staff);
                     $sheet->setCellValue('D' . $i, $row->e_name);
@@ -334,7 +397,7 @@ class Report extends CI_Controller
                     $sheet->setCellValue('F' . $i, $row->n_order);
                     $sheet->setCellValue('G' . $i, $row->persen);
                     $sheet->setCellValue('H' . $i, "");
-                    $sheet->setCellValue('I' . $i, '=E'.$i.'/'.'H'.$i );
+                    $sheet->setCellValue('I' . $i, '=E' . $i . '/' . 'H' . $i);
                     // $sheet->getStyle('I' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     // $sheet->getStyle('J' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
@@ -372,7 +435,6 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
-
         } elseif ($type == 'calldetail_report') {
 
             $sheet->setCellValue('A1', 'No');
@@ -448,7 +510,7 @@ class Report extends CI_Controller
                     $sheet->setCellValue('P1', 'Tipe Saran');
                     $sheet->setCellValue('Q1', 'Saran');
 
-                    $sheet->setCellValue('A' . $i, $i-1);
+                    $sheet->setCellValue('A' . $i, $i - 1);
                     $sheet->setCellValue('B' . $i, $row->i_area);
                     $sheet->setCellValue('C' . $i, $row->e_area_name);
                     $sheet->setCellValue('D' . $i, $row->i_staff);
@@ -502,7 +564,6 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Sales Call Detail');
             echo json_encode($response);
-
         } elseif ($type == 'customer_report') {
 
             $sheet->setCellValue('A1', 'Kode Toko');
@@ -568,7 +629,6 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Customer');
             echo json_encode($response);
-
         } elseif ($type == 'lastvisit') {
 
             $sheet->setCellValue('A1', 'No');
@@ -595,7 +655,7 @@ class Report extends CI_Controller
 
                 foreach ($query->result() as $row) {
 
-                    $sheet->setCellValue('A' . $i, $i-1);
+                    $sheet->setCellValue('A' . $i, $i - 1);
                     $sheet->setCellValue('B' . $i, $row->i_customer);
                     $sheet->setCellValue('C' . $i, $row->d_checkin);
                     $i++;
@@ -629,7 +689,6 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
-
         } elseif ($type == 'targettoko_report') {
 
             $data = $this->db->query("
@@ -643,7 +702,7 @@ class Report extends CI_Controller
             $list_customer = array();
             if ($data->num_rows() > 0) {
                 foreach ($data->result() as $row) {
-                    array_push($list_customer, "''".$row->i_customer."''");
+                    array_push($list_customer, "''" . $row->i_customer . "''");
                 }
                 $arrayTxt = implode(',', $list_customer);
             }
@@ -674,7 +733,7 @@ class Report extends CI_Controller
             }
 
             $i = 2;
-            $date = $tahun. "-01-01";
+            $date = $tahun . "-01-01";
             $query = $this->db->query("
                 with cte as (
                      select a.username , a.e_name,  sum(coalesce(c.v_nota_target, 0)) as v_target
@@ -734,7 +793,7 @@ class Report extends CI_Controller
 
                 foreach ($query->result() as $row) {
 
-                    $sheet->setCellValue('A' . $i, $i-1);
+                    $sheet->setCellValue('A' . $i, $i - 1);
                     $sheet->setCellValue('B' . $i, $row->e_name);
                     $sheet->setCellValue('C' . $i, $row->v_target);
                     $sheet->setCellValue('D' . $i, $row->jan);
@@ -751,11 +810,11 @@ class Report extends CI_Controller
                     $sheet->setCellValue('O' . $i, $row->des);
                     $sheet->setCellValue('P' . $i, $row->total);
                     $sheet->setCellValue('Q' . $i, $row->sisa);
-                    $sheet->setCellValue('R' . $i, number_format($row->persen,2). " %");
+                    $sheet->setCellValue('R' . $i, number_format($row->persen, 2) . " %");
                     // $sheet->setCellValue('I' . $i, '=E'.$i.'/'.'H'.$i );
 
                     // $sheet->getStyle('A1:C1')
-                    $sheet->getStyle('C' . $i.':Q'.$i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
+                    $sheet->getStyle('C' . $i . ':Q' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
                     // $sheet->getStyle('R' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
                     // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     // $sheet->getStyle('N' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
@@ -776,7 +835,7 @@ class Report extends CI_Controller
 
             $writer = new Xlsx($spreadsheet);
 
-            $filename = 'PencapaianToko_'.$tahun;
+            $filename = 'PencapaianToko_' . $tahun;
 
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
@@ -792,7 +851,6 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
-
         } elseif ($type == 'targettoko_detail_report') {
 
             $data = $this->db->query("
@@ -806,7 +864,7 @@ class Report extends CI_Controller
             $list_customer = array();
             if ($data->num_rows() > 0) {
                 foreach ($data->result() as $row) {
-                    array_push($list_customer, "''".$row->i_customer."''");
+                    array_push($list_customer, "''" . $row->i_customer . "''");
                 }
                 $arrayTxt = implode(',', $list_customer);
             }
@@ -839,7 +897,7 @@ class Report extends CI_Controller
             }
 
             $i = 2;
-            $date = $tahun. "-01-01";
+            $date = $tahun . "-01-01";
             $query = $this->db->query("
                 with cte as (
                      select a.username , a.e_name, b.i_customer, d.e_customer_name ,sum(coalesce(c.v_nota_target, 0)) as v_target
@@ -900,7 +958,7 @@ class Report extends CI_Controller
 
                 foreach ($query->result() as $row) {
 
-                    $sheet->setCellValue('A' . $i, $i-1);
+                    $sheet->setCellValue('A' . $i, $i - 1);
                     $sheet->setCellValue('B' . $i, $row->e_name);
                     $sheet->setCellValue('C' . $i, $row->i_customer);
                     $sheet->setCellValue('D' . $i, $row->e_customer_name);
@@ -919,11 +977,11 @@ class Report extends CI_Controller
                     $sheet->setCellValue('Q' . $i, $row->des);
                     $sheet->setCellValue('R' . $i, $row->total);
                     $sheet->setCellValue('S' . $i, $row->sisa);
-                    $sheet->setCellValue('T' . $i, number_format($row->persen,2). " %");
+                    $sheet->setCellValue('T' . $i, number_format($row->persen, 2) . " %");
                     // $sheet->setCellValue('I' . $i, '=E'.$i.'/'.'H'.$i );
 
                     // $sheet->getStyle('A1:C1')
-                    $sheet->getStyle('E' . $i.':T'.$i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
+                    $sheet->getStyle('E' . $i . ':T' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
                     // $sheet->getStyle('R' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
                     // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     // $sheet->getStyle('N' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
@@ -944,7 +1002,7 @@ class Report extends CI_Controller
 
             $writer = new Xlsx($spreadsheet);
 
-            $filename = 'PencapaianToko_Detail_'.$tahun;
+            $filename = 'PencapaianToko_Detail_' . $tahun;
 
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
@@ -960,7 +1018,6 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
-
         } elseif ($type == 'customer_salesman') {
 
             $begin = new DateTime($dfrom);
@@ -975,7 +1032,7 @@ class Report extends CI_Controller
 
             $columnName = 7;
 
-            for($i = $begin; $i <= $end; $i->modify('+1 day')){
+            for ($i = $begin; $i <= $end; $i->modify('+1 day')) {
                 //echo $i->format("Y-m-d"). '<br>';
                 $sheet->setCellValueByColumnAndRow($columnName, 1, $i->format("d M"));
                 $columnName++;
@@ -988,7 +1045,7 @@ class Report extends CI_Controller
 
             // $sheet->setCellValue('I1', 'Efektif Kunjungan');
             //$sheet->getStyle('1')->applyFromArray($styleArray);
-            $sheet->getStyle('A1:'.$this->num2alpha($columnName-2).'1')->applyFromArray($styleArray);
+            $sheet->getStyle('A1:' . $this->num2alpha($columnName - 2) . '1')->applyFromArray($styleArray);
 
             $i = 2;
 
@@ -1032,17 +1089,17 @@ class Report extends CI_Controller
                 foreach ($query->result() as $row) {
                     //x.hari, x.kegiatan
 
-                    $sheet->setCellValueByColumnAndRow(1 , $i, $i-1);
-                    $sheet->setCellValueByColumnAndRow(2 , $i, $row->e_name. ' - '.$row->i_salesman);
-                    $sheet->setCellValueByColumnAndRow(3 , $i, $row->e_area_name);
-                    $sheet->setCellValueByColumnAndRow(4 , $i, $row->e_city_name);
-                    $sheet->setCellValueByColumnAndRow(5 , $i, $row->i_customer);
-                    $sheet->setCellValueByColumnAndRow(6 , $i, $row->e_customer_name);
+                    $sheet->setCellValueByColumnAndRow(1, $i, $i - 1);
+                    $sheet->setCellValueByColumnAndRow(2, $i, $row->e_name . ' - ' . $row->i_salesman);
+                    $sheet->setCellValueByColumnAndRow(3, $i, $row->e_area_name);
+                    $sheet->setCellValueByColumnAndRow(4, $i, $row->e_city_name);
+                    $sheet->setCellValueByColumnAndRow(5, $i, $row->i_customer);
+                    $sheet->setCellValueByColumnAndRow(6, $i, $row->e_customer_name);
 
                     $columnName = 7;
 
                     foreach (json_decode($row->kegiatan) as $kegiatan) {
-                        $sheet->setCellValueByColumnAndRow($columnName , $i, $kegiatan);
+                        $sheet->setCellValueByColumnAndRow($columnName, $i, $kegiatan);
                         $columnName++;
                     }
                     $i++;
@@ -1051,7 +1108,7 @@ class Report extends CI_Controller
 
             $writer = new Xlsx($spreadsheet);
 
-            $filename = 'SalesmanPerCustomer_'.$dfrom.'_'.$dto;
+            $filename = 'SalesmanPerCustomer_' . $dfrom . '_' . $dto;
 
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
@@ -1067,23 +1124,57 @@ class Report extends CI_Controller
             );
             $this->Logger->write(null, null, 'Download Report Sales Order');
             echo json_encode($response);
+        } elseif ($type == 'aktivitas') {
+            $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(12);
+            $spreadsheet->setActiveSheetIndex(0)->setCellValue('A1', "Aktivitas $date_from s/d $date_to");
+            $spreadsheet->getActiveSheet()->setTitle('Aktivitas');
+            $spreadsheet->getActiveSheet()->duplicateStyle($sharedStyle1, 'A1');
+            $spreadsheet->getActiveSheet()->mergeCells("A1:D3");
+            $spreadsheet->getActiveSheet()->mergeCells("A4:D4");
+            $h = 5;
+            $abjad  = range('A', 'Z');
+            $header = ['#', 'Username', 'Waktu', 'Aktivitas'];
+            for ($i = 0; $i < count($header); $i++) {
+                $spreadsheet->setActiveSheetIndex(0)->setCellValue($abjad[$i] . $h, $header[$i]);
+            }
+            $spreadsheet->getActiveSheet()->duplicateStyle($sharedStyle3, $abjad[0] . $h . ":" . $abjad[count($header) - 1] . $h);
+            $spreadsheet->getActiveSheet()->getStyle($abjad[0] . $h . ":" . $abjad[count($header) - 1] . $h)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('CCFFCC');
+            $writer = new Xlsx($spreadsheet);
+            $j = 6;
+            $x = 6;
+            $no = 0;
+            $query = $this->db->get_where('tbl_aktivitas', ['date(waktu)>=' => $dfrom, 'date(waktu) <=' => $dto, 'i_company' => $this->i_company]);
+            if ($query->num_rows() > 0) {
+                foreach ($query->result_array() as $data) {
+                    $no++;
+                    $isi = [$no, $data['username'],$data['waktu'],$data['aktivitas']];
+                    for ($i = 0; $i < count($isi); $i++) {
+                        $spreadsheet->setActiveSheetIndex(0)->setCellValue($abjad[$i] . $j, $isi[$i]);
+                    }
+                    $j++;
+                }
+            }
+            $y = $j - 1;
+            $spreadsheet->getActiveSheet()->duplicateStyle($sharedStyle2, $abjad[0] . $x . ":" . $abjad[count($header) - 1] . $y);
+            $spreadsheet->getActiveSheet()->getStyle($abjad[0] . $j . ":" . $abjad[count($header) - 1] . $j)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
+            $filename = 'Aktivitas_' . $dfrom . '_' . $dto;
+
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+            header('Cache-Control: max-age=0');
+            ob_start();
+            $writer->save('php://output');
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+            $response = array(
+                'name' => $filename . '.xlsx',
+                'file' => "data:application/vnd.ms-excel;base64," . base64_encode($xlsData),
+            );
+            $this->Logger->write(null, null, 'Download Report Aktivitas');
+            echo json_encode($response);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
