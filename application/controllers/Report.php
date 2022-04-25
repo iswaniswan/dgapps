@@ -126,6 +126,22 @@ class Report extends CI_Controller
                 ],
             ],
         ];
+
+        $styleArray2 = [
+            'font' => [
+                'bold' => true,
+            ],
+            'borders' => [
+                    'top'    => ['borderStyle' => Border::BORDER_THIN],
+                    'bottom' => ['borderStyle' => Border::BORDER_THIN],
+                    'left'   => ['borderStyle' => Border::BORDER_THIN],
+                    'right'  => ['borderStyle' => Border::BORDER_THIN]
+            ],
+            'alignment' => [
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+        ];
         /** End Style */
 
         if ($type == 'sfa_attendance') {
@@ -869,87 +885,237 @@ class Report extends CI_Controller
                 $arrayTxt = implode(',', $list_customer);
             }
 
+            $spreadsheet->getActiveSheet()->mergeCells("A1:A2");
+            $spreadsheet->getActiveSheet()->mergeCells("B1:B2");
+            $spreadsheet->getActiveSheet()->mergeCells("C1:C2");
+            $spreadsheet->getActiveSheet()->mergeCells("D1:D2");
+            $spreadsheet->getActiveSheet()->mergeCells("E1:E2");
+
             $sheet->setCellValue('A1', 'No');
             $sheet->setCellValue('B1', 'Nama Group');
             $sheet->setCellValue('C1', 'Kode Customer');
             $sheet->setCellValue('D1', 'Nama Customer');
             $sheet->setCellValue('E1', 'Target');
-            $sheet->setCellValue('F1', 'Januari');
-            $sheet->setCellValue('G1', 'Februari');
-            $sheet->setCellValue('H1', 'Maret');
-            $sheet->setCellValue('I1', 'April');
-            $sheet->setCellValue('J1', 'Mei');
-            $sheet->setCellValue('K1', 'Juni');
-            $sheet->setCellValue('L1', 'July');
-            $sheet->setCellValue('M1', 'Agustus');
-            $sheet->setCellValue('N1', 'September');
-            $sheet->setCellValue('O1', 'Oktober');
-            $sheet->setCellValue('P1', 'November');
-            $sheet->setCellValue('Q1', 'Desember');
-            $sheet->setCellValue('R1', 'Total Nota');
-            $sheet->setCellValue('S1', 'Sisa Target');
-            $sheet->setCellValue('T1', '%');
-            // $sheet->setCellValue('I1', 'Efektif Kunjungan');
-            $sheet->getStyle('A1:T1')->applyFromArray($styleArray);
 
-            foreach (range('A', 'T') as $columnID) {
+            $spreadsheet->getActiveSheet()->mergeCells("F1:I1");
+            $sheet->setCellValue('F1', 'Januari');
+            $sheet->setCellValue('F2', 'SPB');
+            $sheet->setCellValue('G2', 'NOTA');
+            $sheet->setCellValue('H2', 'LOST');
+            $sheet->setCellValue('I2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("J1:M1");
+            $sheet->setCellValue('J1', 'Februari');
+            $sheet->setCellValue('J2', 'SPB');
+            $sheet->setCellValue('K2', 'NOTA');
+            $sheet->setCellValue('L2', 'LOST');
+            $sheet->setCellValue('M2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("N1:Q1");
+            $sheet->setCellValue('N1', 'Maret');
+            $sheet->setCellValue('N2', 'SPB');
+            $sheet->setCellValue('O2', 'NOTA');
+            $sheet->setCellValue('P2', 'LOST');
+            $sheet->setCellValue('Q2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("R1:U1");
+            $sheet->setCellValue('R1', 'April');
+            $sheet->setCellValue('R2', 'SPB');
+            $sheet->setCellValue('S2', 'NOTA');
+            $sheet->setCellValue('T2', 'LOST');
+            $sheet->setCellValue('U2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("V1:Y1");
+            $sheet->setCellValue('V1', 'Mei');
+            $sheet->setCellValue('V2', 'SPB');
+            $sheet->setCellValue('W2', 'NOTA');
+            $sheet->setCellValue('X2', 'LOST');
+            $sheet->setCellValue('Y2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("Z1:AC1");
+            $sheet->setCellValue('Z1', 'Juni');
+            $sheet->setCellValue('Z2', 'SPB');
+            $sheet->setCellValue('AA2', 'NOTA');
+            $sheet->setCellValue('AB2', 'LOST');
+            $sheet->setCellValue('AC2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("AD1:AG1");
+            $sheet->setCellValue('AD1', 'July');
+            $sheet->setCellValue('AD2', 'SPB');
+            $sheet->setCellValue('AE2', 'NOTA');
+            $sheet->setCellValue('AF2', 'LOST');
+            $sheet->setCellValue('AG2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("AH1:AK1");
+            $sheet->setCellValue('AH1', 'Agustus');
+            $sheet->setCellValue('AH2', 'SPB');
+            $sheet->setCellValue('AI2', 'NOTA');
+            $sheet->setCellValue('AJ2', 'LOST');
+            $sheet->setCellValue('AK2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("AL1:AO1");
+            $sheet->setCellValue('AL1', 'September');
+            $sheet->setCellValue('AL2', 'SPB');
+            $sheet->setCellValue('AM2', 'NOTA');
+            $sheet->setCellValue('AN2', 'LOST');
+            $sheet->setCellValue('AO2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("AP1:AS1");
+            $sheet->setCellValue('AP1', 'Oktober');
+            $sheet->setCellValue('AP2', 'SPB');
+            $sheet->setCellValue('AQ2', 'NOTA');
+            $sheet->setCellValue('AR2', 'LOST');
+            $sheet->setCellValue('AS2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("AT1:AW1");
+            $sheet->setCellValue('AT1', 'November');
+            $sheet->setCellValue('AT2', 'SPB');
+            $sheet->setCellValue('AU2', 'NOTA');
+            $sheet->setCellValue('AV2', 'LOST');
+            $sheet->setCellValue('AW2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("AX1:BA1");
+            $sheet->setCellValue('AX1', 'Desember');
+            $sheet->setCellValue('AX2', 'SPB');
+            $sheet->setCellValue('AY2', 'NOTA');
+            $sheet->setCellValue('AZ2', 'LOST');
+            $sheet->setCellValue('BA2', '% LOST');
+
+            $spreadsheet->getActiveSheet()->mergeCells("BB1:BB2");
+            $spreadsheet->getActiveSheet()->mergeCells("BC1:BC2");
+            $spreadsheet->getActiveSheet()->mergeCells("BD1:BD2");
+            $spreadsheet->getActiveSheet()->mergeCells("BE1:BE2");
+            $spreadsheet->getActiveSheet()->mergeCells("BF1:BF2");
+            $spreadsheet->getActiveSheet()->mergeCells("BG1:BG2");
+            $sheet->setCellValue('BB1', 'TOT SPB');
+            $sheet->setCellValue('BC1', 'TOT NOTA');
+            $sheet->setCellValue('BD1', 'TOT LOST');
+            $sheet->setCellValue('BE1', 'TOT % LOST');
+            $sheet->setCellValue('BF1', 'Sisa Target');
+            $sheet->setCellValue('BG1', '%');
+
+            $sheet->getStyle('A1:E2')->applyFromArray($styleArray2);
+            $sheet->getStyle('F1:BG1')->applyFromArray($styleArray2);
+            $sheet->getStyle('F2:BG2')->applyFromArray($styleArray2);
+            // $sheet->getStyle('A1:I1')->applyFromArray($styleArray);
+
+            foreach (range('A', 'E') as $columnID) {
                 $sheet->getColumnDimension($columnID)->setAutoSize(true);
             }
 
-            $i = 2;
-            $date = $tahun . "-01-01";
-            $query = $this->db->query("
-                with cte as (
-                     select a.username , a.e_name, b.i_customer, d.e_customer_name ,sum(coalesce(c.v_nota_target, 0)) as v_target
-                     from tbl_user_toko a
-                     inner join tbl_user_toko_item b on (a.username = b.username)
-                     inner join tbl_customer d on (b.i_customer = d.i_customer and b.id_company = d.i_company)
-                     left join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
-                     where b.id_company = '$i_company' and a.f_active = true and b.f_active = true 
-                     group by 1, 2,3,4
-                )
-                select e_name, i_customer, e_customer_name, v_target, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, des,
-                (jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des)  as total,
-                v_target - (jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des) as sisa,
-                (((jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des) / nullif(v_target,0))  * 100) as persen
-                from (
-                     SELECT y.e_name, datas[2] as i_customer,y.e_customer_name, y.v_target, coalesce(jan,0) as jan,
-                     coalesce(feb,0) as feb,
-                     coalesce(mar,0) as mar,
-                     coalesce(apr,0) as apr,
-                     coalesce(may,0) as may,
-                     coalesce(jun,0) as jun,
-                     coalesce(jul,0) as jul,
-                     coalesce(aug,0) as aug,
-                     coalesce(sep,0) as sep,
-                     coalesce(oct,0) as oct,
-                     coalesce(nov,0) as nov,
-                     coalesce(des,0) as des from CROSSTAB (
-                     $$
-                         select  Array[username::text, b.i_customer::text] as datas, bln::numeric , sum(v_nota_netto)::numeric 
-                          from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
-                           '
-                            select ''$i_company'' as id_company, i_customer,  to_number(to_char(d_nota, ''mm''), ''99'') AS bln, coalesce(sum(v_nota_netto), 0) as v_nota_netto from tm_nota 
-                            where f_nota_cancel = false and to_char(d_nota , ''yyyy'') = ''$tahun'' and i_customer in ($arrayTxt)
-                            group by 1,2,3
-                           '
-                           ) AS a (
-                               id_company varchar(20), i_customer varchar(20), bln numeric, v_nota_netto numeric
-                           ) 
-                           inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer)
-                           group by 1,2
-                     $$,
-                     $$ SELECT (
-                                select EXTRACT(MONTH from date_trunc('month', '$date'::date)::date + s.a * '1 month'::interval)
-                           ) from generate_series(0, 11) as s(a)
-                     $$
-                      ) as x (
-                        datas text[], jan numeric, feb numeric, mar numeric, apr numeric, may numeric, 
-                        jun numeric, jul numeric, aug numeric, sep numeric, oct numeric, nov numeric, des numeric )
-                     inner join cte y on (x.datas[1] = y.username and x.datas[2] = y.i_customer)
-                ) as final
-                order by 1,2,3 asc
+            $sheet->getColumnDimension('BB')->setAutoSize(true);
+            $sheet->getColumnDimension('BC')->setAutoSize(true);
+            $sheet->getColumnDimension('BD')->setAutoSize(true);
+            $sheet->getColumnDimension('BE')->setAutoSize(true);
+            $sheet->getColumnDimension('BF')->setAutoSize(true);
+            $sheet->getColumnDimension('BG')->setAutoSize(true);
 
+            $i = 3;
+            $date = $tahun . "-01-01";
+            // $query = $this->db->query("
+            //     with cte as (
+            //          select a.username , a.e_name, b.i_customer, d.e_customer_name ,sum(coalesce(c.v_nota_target, 0)) as v_target
+            //          from tbl_user_toko a
+            //          inner join tbl_user_toko_item b on (a.username = b.username)
+            //          inner join tbl_customer d on (b.i_customer = d.i_customer and b.id_company = d.i_company)
+            //          left join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
+            //          where b.id_company = '$i_company' and a.f_active = true and b.f_active = true 
+            //          group by 1, 2,3,4
+            //     )
+            //     select e_name, i_customer, e_customer_name, v_target, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, des,
+            //     (jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des)  as total,
+            //     v_target - (jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des) as sisa,
+            //     (((jan + feb + mar + apr + may + jun + jul + aug + sep + oct + nov + des) / nullif(v_target,0))  * 100) as persen
+            //     from (
+            //          SELECT y.e_name, datas[2] as i_customer,y.e_customer_name, y.v_target, coalesce(jan,0) as jan,
+            //          coalesce(feb,0) as feb,
+            //          coalesce(mar,0) as mar,
+            //          coalesce(apr,0) as apr,
+            //          coalesce(may,0) as may,
+            //          coalesce(jun,0) as jun,
+            //          coalesce(jul,0) as jul,
+            //          coalesce(aug,0) as aug,
+            //          coalesce(sep,0) as sep,
+            //          coalesce(oct,0) as oct,
+            //          coalesce(nov,0) as nov,
+            //          coalesce(des,0) as des from CROSSTAB (
+            //          $$
+            //              select  Array[username::text, b.i_customer::text] as datas, bln::numeric , sum(v_nota_netto)::numeric 
+            //               from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
+            //                '
+            //                 select ''$i_company'' as id_company, i_customer,  to_number(to_char(d_nota, ''mm''), ''99'') AS bln, coalesce(sum(v_nota_netto), 0) as v_nota_netto from tm_nota 
+            //                 where f_nota_cancel = false and to_char(d_nota , ''yyyy'') = ''$tahun'' and i_customer in ($arrayTxt)
+            //                 group by 1,2,3
+            //                '
+            //                ) AS a (
+            //                    id_company varchar(20), i_customer varchar(20), bln numeric, v_nota_netto numeric
+            //                ) 
+            //                inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer)
+            //                group by 1,2
+            //          $$,
+            //          $$ SELECT (
+            //                     select EXTRACT(MONTH from date_trunc('month', '$date'::date)::date + s.a * '1 month'::interval)
+            //                ) from generate_series(0, 11) as s(a)
+            //          $$
+            //           ) as x (
+            //             datas text[], jan numeric, feb numeric, mar numeric, apr numeric, may numeric, 
+            //             jun numeric, jul numeric, aug numeric, sep numeric, oct numeric, nov numeric, des numeric )
+            //          inner join cte y on (x.datas[1] = y.username and x.datas[2] = y.i_customer)
+            //     ) as final
+            //     order by 1,2,3 asc
+
+            // ");
+
+            $query = $this->db->query("
+                     with cte as (
+                          select a.username , a.e_name, b.i_customer, d.e_customer_name ,sum(coalesce(c.v_nota_target, 0)) as v_target
+                          from tbl_user_toko a
+                          inner join tbl_user_toko_item b on (a.username = b.username)
+                          inner join tbl_customer d on (b.i_customer = d.i_customer and b.id_company = d.i_company)
+                          left join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
+                          where b.id_company = '$i_company' and a.f_active = true and b.f_active = true 
+                          group by 1, 2,3,4
+                     )
+                     select e_name, i_customer, e_customer_name, v_target, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, des
+                     from (
+                          SELECT y.e_name, datas[2] as i_customer,y.e_customer_name, y.v_target, coalesce(jan,'0|0') as jan,
+                          coalesce(feb,'0|0') as feb,
+                          coalesce(mar,'0|0') as mar,
+                          coalesce(apr,'0|0') as apr,
+                          coalesce(may,'0|0') as may,
+                          coalesce(jun,'0|0') as jun,
+                          coalesce(jul,'0|0') as jul,
+                          coalesce(aug,'0|0') as aug,
+                          coalesce(sep,'0|0') as sep,
+                          coalesce(oct,'0|0') as oct,
+                          coalesce(nov,'0|0') as nov,
+                          coalesce(des,'0|0') as des from CROSSTAB (
+                          $$
+                              select  Array[username::text, b.i_customer::text] as datas, bln::numeric , v_spbnota_netto
+                               from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
+                                '
+                                 select ''$i_company'' as id_company, a.i_customer, to_number(to_char(a.d_spb , ''mm''), ''99'') AS bln, 
+                                 sum(a.v_spb - a.v_spb_discounttotal) || ''|'' || coalesce(sum(b.v_nota_netto), 0) as v_spbnota_netto
+                                 from tm_spb a
+                                 left join tm_nota b on (a.i_spb = b.i_spb and a.i_area = b.i_area)
+                                 where a.f_spb_cancel = false and to_char(a.d_spb , ''yyyy'') = ''$tahun'' and a.i_customer in ($arrayTxt)
+                                 group by 1,2,3
+                                '
+                                ) AS a (
+                                    id_company varchar(20), i_customer varchar(20), bln numeric, v_spbnota_netto text
+                                ) 
+                                inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer)
+                          $$,
+                          $$ SELECT (
+                                     select EXTRACT(MONTH from date_trunc('month', '$date'::date)::date + s.a * '1 month'::interval)
+                                ) from generate_series(0, 11) as s(a)
+                          $$
+                           ) as x (
+                             datas text[], jan text, feb text, mar text, apr text, may text, 
+                             jun text, jul text, aug text, sep text, oct text, nov text, des text )
+                          inner join cte y on (x.datas[1] = y.username and x.datas[2] = y.i_customer)
+                     ) as final
+                     order by 1,2,3 asc
             ");
 
             // var_dump($query->result());
@@ -957,40 +1123,117 @@ class Report extends CI_Controller
             if ($query->num_rows() > 0) {
 
                 foreach ($query->result() as $row) {
+                    $jan = explode("|", $row->jan);
+                    $feb = explode("|", $row->feb);
+                    $mar = explode("|", $row->mar);
+                    $apr = explode("|", $row->apr);
+                    $may = explode("|", $row->may);
+                    $jun = explode("|", $row->jun);
+                    $jul = explode("|", $row->jul);
+                    $aug = explode("|", $row->aug);
+                    $sep = explode("|", $row->sep);
+                    $oct = explode("|", $row->oct);
+                    $nov = explode("|", $row->nov);
+                    $des = explode("|", $row->des);
 
                     $sheet->setCellValue('A' . $i, $i - 1);
                     $sheet->setCellValue('B' . $i, $row->e_name);
                     $sheet->setCellValue('C' . $i, $row->i_customer);
                     $sheet->setCellValue('D' . $i, $row->e_customer_name);
                     $sheet->setCellValue('E' . $i, $row->v_target);
-                    $sheet->setCellValue('F' . $i, $row->jan);
-                    $sheet->setCellValue('G' . $i, $row->feb);
-                    $sheet->setCellValue('H' . $i, $row->mar);
-                    $sheet->setCellValue('I' . $i, $row->apr);
-                    $sheet->setCellValue('J' . $i, $row->may);
-                    $sheet->setCellValue('K' . $i, $row->jun);
-                    $sheet->setCellValue('L' . $i, $row->jul);
-                    $sheet->setCellValue('M' . $i, $row->aug);
-                    $sheet->setCellValue('N' . $i, $row->sep);
-                    $sheet->setCellValue('O' . $i, $row->oct);
-                    $sheet->setCellValue('P' . $i, $row->nov);
-                    $sheet->setCellValue('Q' . $i, $row->des);
-                    $sheet->setCellValue('R' . $i, $row->total);
-                    $sheet->setCellValue('S' . $i, $row->sisa);
-                    $sheet->setCellValue('T' . $i, number_format($row->persen, 2) . " %");
-                    // $sheet->setCellValue('I' . $i, '=E'.$i.'/'.'H'.$i );
+
+                    $sheet->setCellValue('F' . $i, $jan[0]);
+                    $sheet->setCellValue('G' . $i, $jan[1]);
+                    $sheet->setCellValue('H' . $i, $jan[0] - $jan[1]);
+                    $sheet->setCellValue('I' . $i, ($jan[0] - $jan[1])/($jan[0] ?: 1));
+
+                    $sheet->setCellValue('J' . $i, $feb[0]);
+                    $sheet->setCellValue('K' . $i, $feb[1]);
+                    $sheet->setCellValue('L' . $i, $feb[0] - $feb[1]);
+                    $sheet->setCellValue('M' . $i, ($feb[0] - $feb[1])/($feb[0] ?: 1));
+
+                    $sheet->setCellValue('N' . $i, $mar[0]);
+                    $sheet->setCellValue('O' . $i, $mar[1]);
+                    $sheet->setCellValue('P' . $i, $mar[0] - $mar[1]);
+                    $sheet->setCellValue('Q' . $i, ($mar[0] - $mar[1])/($mar[0] ?: 1));
+
+                    $sheet->setCellValue('R' . $i, $apr[0]);
+                    $sheet->setCellValue('S' . $i, $apr[1]);
+                    $sheet->setCellValue('T' . $i, $apr[0] - $apr[1]);
+                    $sheet->setCellValue('U' . $i, ($apr[0] - $apr[1])/($apr[0] ?: 1));
+
+                    $sheet->setCellValue('V' . $i, $may[0]);
+                    $sheet->setCellValue('W' . $i, $may[1]);
+                    $sheet->setCellValue('X' . $i, $may[0] - $may[1]);
+                    $sheet->setCellValue('Y' . $i, ($may[0] - $may[1])/($may[0] ?: 1));
+
+                    $sheet->setCellValue('Z' . $i, $jun[0]);
+                    $sheet->setCellValue('AA' . $i, $jun[1]);
+                    $sheet->setCellValue('AB' . $i, $jun[0] - $jun[1]);
+                    $sheet->setCellValue('AC' . $i, ($jun[0] - $jun[1])/($jun[0] ?: 1));
+
+                    $sheet->setCellValue('AD' . $i, $jul[0]);
+                    $sheet->setCellValue('AE' . $i, $jul[1]);
+                    $sheet->setCellValue('AF' . $i, $jul[0] - $jul[1]);
+                    $sheet->setCellValue('AG' . $i, ($jul[0] - $jul[1])/($jul[0] ?: 1));
+
+                    $sheet->setCellValue('AH' . $i, $aug[0]);
+                    $sheet->setCellValue('AI' . $i, $aug[1]);
+                    $sheet->setCellValue('AJ' . $i, $aug[0] - $aug[1]);
+                    $sheet->setCellValue('AK' . $i, ($aug[0] - $aug[1])/($aug[0] ?: 1));
+
+                    $sheet->setCellValue('AL' . $i, $sep[0]);
+                    $sheet->setCellValue('AM' . $i, $sep[1]);
+                    $sheet->setCellValue('AN' . $i, $sep[0] - $sep[1]);
+                    $sheet->setCellValue('AO' . $i, ($sep[0] - $sep[1])/($sep[0] ?: 1));
+
+                    $sheet->setCellValue('AP' . $i, $oct[0]);
+                    $sheet->setCellValue('AQ' . $i, $oct[1]);
+                    $sheet->setCellValue('AR' . $i, $oct[0] - $oct[1]);
+                    $sheet->setCellValue('AS' . $i, ($oct[0] - $oct[1])/($oct[0] ?: 1));
+
+                    $sheet->setCellValue('AT' . $i, $nov[0]);
+                    $sheet->setCellValue('AU' . $i, $nov[1]);
+                    $sheet->setCellValue('AV' . $i, $nov[0] - $nov[1]);
+                    $sheet->setCellValue('AW' . $i, ($nov[0] - $nov[1])/($nov[0] ?: 1));
+
+                    $sheet->setCellValue('AX' . $i, $des[0]);
+                    $sheet->setCellValue('AY' . $i, $des[1]);
+                    $sheet->setCellValue('AZ' . $i, $des[0] - $des[1]);
+                    $sheet->setCellValue('BA' . $i, ($des[0] - $des[1])/($des[0] ?: 1));
+
+                    $tot_spb = $jan[0] + $feb[0] + $mar[0]  + $apr[0]  + $may[0]  + $jun[0]  + $jul[0]  + $aug[0]  + $sep[0]  + $oct[0]  + $nov[0]  + $des[0] ;
+                    $tot_nota = $jan[1] + $feb[1] + $mar[1]  + $apr[1]  + $may[1]  + $jun[1]  + $jul[1]  + $aug[1]  + $sep[1]  + $oct[1]  + $nov[1]  + $des[1] ;
+                    $tot_lost = $tot_spb - $tot_nota;
+                    $tot_persenlost = $tot_lost / ($tot_spb ?: 1);
+                    $persen_final = 0;
+                    if($row->v_target > 0){ 
+                        $persen_final = $tot_nota / $row->v_target; 
+                    }
+                    $sheet->setCellValue('BB' . $i, $tot_spb);
+                    $sheet->setCellValue('BC' . $i, $tot_nota);
+                    $sheet->setCellValue('BD' . $i, $tot_lost);
+                    $sheet->setCellValue('BE' . $i, $tot_persenlost);
+
+                    $sheet->setCellValue('BF' . $i, $row->v_target - $tot_nota);
+                    $sheet->setCellValue('BG' . $i, $persen_final);
+
+
+                    //$sheet->setCellValue('T' . $i, number_format($row->persen, 2) . " %");
 
                     // $sheet->getStyle('A1:C1')
-                    $sheet->getStyle('E' . $i . ':T' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
-                    // $sheet->getStyle('R' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
-                    // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('N' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('O' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-                    // $sheet->getStyle('P' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     $i++;
                 }
             }
+            $sheet->getStyle('E3:BG' . ($i-1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
+            $sheet->getStyle('A3:D' . ($i-1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
 
+            
+            $array_persen = ['I', 'M', 'Q', 'U', 'Y', 'AC', 'AG', 'AK', 'AO', 'AS', 'AW', 'BA', 'BG', 'BE'];
+            for ($j = 0; $j < count($array_persen); $j++) {
+                # code...
+                $sheet->getStyle($array_persen[$j].'3:'.$array_persen[$j].($i-1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+            }
             // $i = $i + 3;
             // $sheet->setCellValue('A' . $i, 'Start Date');
             // $sheet->setCellValue('B' . $i, 'End Date');
