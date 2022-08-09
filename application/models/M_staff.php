@@ -55,12 +55,12 @@ class M_staff extends CI_Model {
     }
 
     function data_staff($id){
-
+        $i_company = $this->session->userdata('i_company');
         
         return $this->db->query("select a.i_staff, a.e_name, a.phone, b.e_role_name from tbl_user a, tbl_user_role b
         where a.i_role = b.i_role
         and a.i_company= b.i_company
-        and a.username ='$id'");
+        and a.username ='$id' and a.i_company = '$i_company' ");
     }
 
     function view_serverside($id){

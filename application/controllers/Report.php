@@ -787,7 +787,7 @@ class Report extends CI_Controller
                            ) AS a (
                                id_company varchar(20), i_customer varchar(20), bln numeric, v_nota_netto numeric
                            ) 
-                           inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer)
+                           inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer and b.f_active = true)
                            group by 1,2
                      $$,
                      $$ SELECT (
@@ -1104,7 +1104,7 @@ class Report extends CI_Controller
                                 ) AS a (
                                     id_company varchar(20), i_customer varchar(20), bln numeric, v_spbnota_netto text
                                 ) 
-                                inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer)
+                                inner join tbl_user_toko_item b on (a.id_company = b.id_company and a.i_customer =  b.i_customer and b.f_active = true)
                           $$,
                           $$ SELECT (
                                      select EXTRACT(MONTH from date_trunc('month', '$date'::date)::date + s.a * '1 month'::interval)
@@ -1136,7 +1136,7 @@ class Report extends CI_Controller
                     $nov = explode("|", $row->nov);
                     $des = explode("|", $row->des);
 
-                    $sheet->setCellValue('A' . $i, $i - 1);
+                    $sheet->setCellValue('A' . $i, ($i - 2));
                     $sheet->setCellValue('B' . $i, $row->e_name);
                     $sheet->setCellValue('C' . $i, $row->i_customer);
                     $sheet->setCellValue('D' . $i, $row->e_customer_name);
@@ -1295,7 +1295,7 @@ class Report extends CI_Controller
             $query = $this->db->query("
                 select x.i_customer, x.i_salesman, x.i_area, x.e_city_name, x.e_name, x.hari, x.kegiatan, y.e_customer_name , z.e_area_name from (
                      select a.i_customer, a.i_salesman, a.i_area, e_city_name, b.e_name, jsonb_agg(hari) as hari, 
-                      jsonb_agg(v_spb_netto::varchar || case when c.e_saran is not null then ' | ' || c.e_saran else '' end || case when d.e_foto is not null then ' | Dokumentasi' else '' end) as kegiatan
+                      jsonb_agg(v_spb_netto::varchar || case when e.d_checkin is not null then ' | Call' else '' end || case when c.e_saran is not null then ' | ' || c.e_saran else '' end || case when d.e_foto is not null then ' | Dokumentasi' else '' end) as kegiatan
                       from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
                       $$
                           with cte as (
@@ -1318,6 +1318,9 @@ class Report extends CI_Controller
                       inner join tbl_user b on (a.i_salesman = b.i_staff and b.i_company = '$i_company' )
                       left join tbl_customer_saran c on (b.i_company = c.i_company and b.username = c.username and a.i_customer = c.i_customer and a.hari = d_saran)
                       left join tbl_customer_dokumentasi d on (b.i_company = d.i_company and b.username = d.username and a.i_customer = d.i_customer and a.hari = d_dokumentasi)
+                      left join (
+                         select distinct i_company , username, i_customer , d_checkin from tbl_customer_checkin where i_company = '$i_company' and d_checkin between '$dfrom' and '$dto'
+                      ) as e on (b.i_company = e.i_company and b.username = e.username and a.i_customer = e.i_customer and a.hari = e.d_checkin)
                       group by 1,2,3,4,5
                 ) as x
                 left join tbl_customer y on (x.i_customer = y.i_customer and y.i_company = '$i_company')

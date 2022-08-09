@@ -1300,16 +1300,29 @@ class Api extends REST_Controller
             $username = $username;
             $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
 
-            $this->db->select("a.i_customer, a.e_customer_name, a.e_customer_address, b.e_area_name, a.i_area, a.latitude, a.longitude ");
-            $this->db->from("tbl_customer a");
-            $this->db->join("tbl_customer_discount c", "a.i_customer = c.i_customer and a.i_company = c.i_company");
-            $this->db->join("tbl_area b", "a.i_area = b.i_area and a.i_company = b.i_company");
-            $this->db->where("a.i_area", $i_area);
-            $this->db->where("a.f_active", 'true');
-            $this->db->where("a.i_company", $i_company);
-            $this->db->like('a.i_customer', $i_customer);
+            // $this->db->select("a.i_customer, a.e_customer_name, a.e_customer_address, b.e_area_name, a.i_area, a.latitude, a.longitude ");
+            // $this->db->from("tbl_customer a");
+            // $this->db->join("tbl_customer_discount c", "a.i_customer = c.i_customer and a.i_company = c.i_company");
+            // $this->db->join("tbl_area b", "a.i_area = b.i_area and a.i_company = b.i_company");
+            // $this->db->where("a.i_area", $i_area);
+            // $this->db->where("a.f_active", 'true');
+            // $this->db->where("a.i_company", $i_company);
+            // $this->db->like('a.i_customer', $i_customer);
+            // $query = $this->db->get();
 
-            $query = $this->db->get();
+            $query = $this->db->query("
+                    SELECT a.i_customer 
+                    ||chr(10)|| 'Disc 1 : ' || c.n_customer_discount1 || ', Disc 2 : ' || c.n_customer_discount2 
+                    ||chr(10)|| d.e_price_groupname
+                    as i_customer , a.e_customer_name, 
+                    a.e_customer_address, b.e_area_name, a.i_area, a.latitude, a.longitude from tbl_customer a
+                    inner join tbl_customer_discount c on (a.i_customer = c.i_customer and a.i_company = c.i_company)
+                    inner join tbl_area b on (a.i_area = b.i_area and a.i_company = b.i_company)
+                    inner join tbl_price_group d on (a.i_price_group = d.i_price_group and a.i_company = d.i_company)
+                    where a.i_area = '$i_area' and a.f_active = true and a.i_company = '$i_company' and a.i_customer like '$i_customer'
+                ");
+
+           
 
             if ($query->num_rows() > 0) {
                 $this->response([
