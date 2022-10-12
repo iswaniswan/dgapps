@@ -484,7 +484,7 @@ class Report extends CI_Controller
                 //$where = ' and c.username in ($username_downline)';
             }
             $query = $this->db->query("
-                select a.i_area, b.e_area_name, c.i_staff , c.e_name, a.i_customer, i.e_customer_name ,a.d_checkin,
+                select b.i_area, b.e_area_name, c.i_staff , c.e_name, a.i_customer, i.e_customer_name ,a.d_checkin,
                 case when d_rrkh is not null then 'Ya' else 'Tidak' end as rrkh ,
                 a.createdat_checkin, a.createdat_checkout , to_char((a.createdat_checkout - a.createdat_checkin), 'HH24:MI') as durasi,
                 e.v_spb_netto , case when e.f_spb_cancel = 't' then 'Batal' when e.f_spb_cancel = 'f' and v_spb_netto is not null then 'Transfer' else '' end as status,
