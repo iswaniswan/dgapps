@@ -232,8 +232,16 @@ $language = $this->session->userdata('language');
               </a>
             </li>
             <li class="nav-item">
+              <a href="<?=base_url();?>informationtype" class="nav-link">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>
+                  <?=$this->lang->line('Informationtype');?>
+                </span>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="<?=base_url();?>information" class="nav-link">
-                <i class="fas fa-user-secret"></i>
+                <i class="fas fa-exclamation-circle"></i>
                 <span>
                   <?=$this->lang->line('Information');?>
                 </span>

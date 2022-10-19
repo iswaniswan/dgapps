@@ -1,17 +1,17 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-class Information extends CI_Controller
+class Informationtype extends CI_Controller
 {
 
     public function __construct()
     {
         parent::__construct();
         cek_session();
-        $this->load->model('M_information');
+        $this->load->model('M_informationtype','M_information');
         $this->i_company = $this->session->userdata('i_company');
     }
 
-    public $folder = 'information';
+    public $folder = 'informationtype';
 
     public function index()
     {
@@ -54,29 +54,14 @@ class Information extends CI_Controller
         $this->template->load('template', $this->folder . '/add');
     }
 
-
-    /** Get Data Type */
-    public function get_type()
-    {
-        $filter = [];
-        $data = $this->M_information->get_type(str_replace("'", "", $this->input->get('q')));
-        foreach ($data->result() as $row) {
-            $filter[] = array(
-                'id'   => $row->id,
-                'text' => $row->e_type_name,
-            );
-        }
-        echo json_encode($filter);
-    }
-
     public function simpan()
     {
         $this->M_information->simpan();
-        $this->Logger->write(null, null, 'Tambah Information : ' . $this->input->post('e_title'));
+        $this->Logger->write(null, null, 'Tambah Information Type : ' . $this->input->post('e_type_name'));
 
         $this->session->Set_flashdata('message', '<div class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
             <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-            <span class="font-weight-semibold">Success.</span> Title : <span class="font-weight-semibold">' . $this->input->post('e_title') . '</span>
+            <span class="font-weight-semibold">Success.</span> Type : <span class="font-weight-semibold">' . $this->input->post('e_type_name') . '</span>
         </div>');
         redirect($this->folder, 'refresh');
     }
@@ -108,7 +93,7 @@ class Information extends CI_Controller
             $data = array(
                 'data'     => $this->M_information->data_edit($id)->row(),
             );
-            $this->Logger->write(null, null, 'Membuka Menu Edit Information ' . $id);
+            $this->Logger->write(null, null, 'Membuka Menu Edit Information Type ' . $id);
             $this->template->load('template', $this->folder . '/update', $data);
         } else {
             redirect($this->folder, 'refresh');

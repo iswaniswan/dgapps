@@ -26,3 +26,4 @@ $lang['lastvisit'] = 'Terakhir Kunjungan Pelanggan ';
 $lang['Customer Target'] = 'Target Customer';
 $lang['Banner'] = 'Banner';
 $lang['Information'] = 'Informasi';
+$lang['Informationtype'] = 'Tipe Informasi';

@@ -32,7 +32,7 @@ class M_information extends CI_Model
         $datatables->add('action', function ($data) {
             $id = trim($data['id']);
             $data = '';
-            $data      .= "<a href='" . base_url($this->folder . '/view/' . encrypt_url($id)) . "' title='View Data'><i class='fas fa-eye text-success darken-4 fa-lg mr-2'></i></a>";
+            // $data      .= "<a href='" . base_url($this->folder . '/view/' . encrypt_url($id)) . "' title='View Data'><i class='fas fa-eye text-success darken-4 fa-lg mr-2'></i></a>";
             $data      .= "<a href='" . base_url($this->folder . '/edit/' . encrypt_url($id)) . "' title='Edit Data'><i class='fas fa-edit text-primary darken-4 fa-lg'></i></a>";
             return $data;
         });
@@ -91,20 +91,6 @@ class M_information extends CI_Model
     public function changestatus($id)
     {
         $this->db->query("UPDATE tbl_information SET f_active = CASE WHEN f_active = TRUE THEN FALSE ELSE TRUE END WHERE id = '$id';");
-    }
-
-    public function download_user()
-    {
-        return $this->db->query("SELECT DISTINCT
-                a.username,
-                e_name,
-                e_password,
-                case when a.f_active = 't' then 'Aktif' else 'Tidak Aktif' end as f_active
-            FROM
-                tbl_user_toko a, tbl_user_toko_item b
-            WHERE a.username = b.username
-            AND b.id_company = '$this->i_company'
-            ORDER BY 2");
     }
 }
 
