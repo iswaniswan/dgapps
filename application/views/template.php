@@ -231,6 +231,14 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="<?=base_url();?>information" class="nav-link">
+                <i class="fas fa-user-secret"></i>
+                <span>
+                  <?=$this->lang->line('Information');?>
+                </span>
+              </a>
+            </li>
           <?php }?>
             <li class="nav-item">
               <a href="<?=base_url();?>geo-analytic" class="nav-link">

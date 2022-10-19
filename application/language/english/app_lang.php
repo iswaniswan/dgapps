@@ -25,3 +25,4 @@ $lang['customer-information'] = 'Customer Information';
 $lang['lastvisit'] = 'Customer - Last Visit ( All Time ) ';
 $lang['Customer Target'] = 'Customer Target';
 $lang['Banner'] = 'Banner';
+$lang['Information'] = 'Information';

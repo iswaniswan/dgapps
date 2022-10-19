@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /*
 | -------------------------------------------------------------------
@@ -75,11 +75,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-
-	 'hostname' => '192.168.0.93',
-	'username' => 'dedy',
-	'password' => 'g#>m[J2P^^',
-	'database' => 'dgapps',  
+	'hostname' => 'localhost',
+	'username' => 'postgres',
+	'password' => 'postgres',
+	'database' => 'dgapps',
 	'port' 	   => 5432,
 	/*'hostname' => 'localhost',
 	'username' => 'dedy',
@@ -113,7 +112,7 @@ $db['default'] = array(
 	'failover' => array(),
 	'save_queries' => TRUE
 );
-$db['dgu'] = array(
+/* $db['dgu'] = array(
 	'dsn'	=> '',
 	'hostname' => '192.168.0.93',
 	'username' => 'dedy',
@@ -134,4 +133,4 @@ $db['dgu'] = array(
 	'stricton' => FALSE,
 	'failover' => array(),
 	'save_queries' => TRUE
-);
+); */
