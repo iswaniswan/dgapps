@@ -245,8 +245,9 @@
                     $dfrom = date('Y-m-d', strtotime('sunday last week'));
                     $dto = date('Y-m-d');
                     $wrap = wrap($data_staff->i_staff);
+                    // $id_user_db = wrap($data_staff->i_user_db);
                     ?>
-                    <a href="https://53.dialoguegroup.net/bcl/salesmansummary/view?id=<?= $wrap;?>&d1=<?= $dfrom;?>&d2=<?= $dto;?>" target="_blank" class="btn btn-sm btn-block bg-primary-800"><i class="icon-paperplane mr-3 icon-2x mr-2"></i> Summary of Sales <?= $data_staff->e_name; ?></a>
+                    <a href="https://53.dialoguegroup.net/bcl/portal/salesmansummary?id=<?= $wrap;?>&d1=<?= $dfrom;?>&d2=<?= $dto;?>" onclick="basicPopup(this.href);return false" class="btn btn-sm btn-block bg-primary-800"><i class="icon-paperplane mr-3 icon-2x mr-2"></i> Summary of Sales <?= $data_staff->e_name; ?></a>
                   <!-- </div>
                 </div> -->
               </div>

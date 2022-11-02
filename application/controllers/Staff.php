@@ -53,7 +53,7 @@ class Staff extends CI_Controller
                     'global_assets/js/plugins/extensions/jquery_ui/widgets.min.js',
                     'global_assets/js/plugins/ui/fullcalendar/core/main.min.js',
                     'global_assets/js/plugins/ui/fullcalendar/daygrid/main.min.js',
-                    'assets/js/staff/view.js',
+                    'assets/js/staff/view.js?=v1',
                 )
             );
             $cari=$this->input->post("cari");
