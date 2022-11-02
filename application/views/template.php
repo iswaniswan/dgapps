@@ -231,14 +231,14 @@ $language = $this->session->userdata('language');
                 </span>
               </a>
             </li>
-            <li class="nav-item">
+           <!--  <li class="nav-item">
               <a href="<?=base_url();?>informationtype" class="nav-link">
                 <i class="fas fa-exclamation-circle"></i>
                 <span>
                   <?=$this->lang->line('Informationtype');?>
                 </span>
               </a>
-            </li>
+            </li> -->
             <li class="nav-item">
               <a href="<?=base_url();?>information" class="nav-link">
                 <i class="fas fa-exclamation-circle"></i>

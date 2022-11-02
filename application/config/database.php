@@ -75,10 +75,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'postgres',
-	'password' => 'postgres',
-	'database' => 'DgApps',
+	'hostname' => '192.168.0.93',
+	'username' => 'dedy',
+	'password' => 'g#>m[J2P^^',
+	'database' => 'dgapps',
 	'port' 	   => 5432,
 	/*'hostname' => 'localhost',
 	'username' => 'dedy',

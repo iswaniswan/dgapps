@@ -1365,6 +1365,232 @@ class Api extends REST_Controller
 
         // $i_customer = "24114";
         // $i_area = "24";
+        $this->db->select("i_company");
+        $this->db->from("tbl_company");
+        $this->db->where("i_company", $i_company);
+        $this->db->where("f_active", 'true');
+        $cek_company = $this->db->get();
+
+        if ($cek_company->num_rows() > 0) {
+
+            $i_company = $i_company;
+            $username = $username;
+            $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
+
+            // $this->db->select("a.i_customer, a.e_customer_name, a.e_customer_address, b.e_area_name, a.i_area, a.latitude, a.longitude ");
+            // $this->db->from("tbl_customer a");
+            // $this->db->join("tbl_customer_discount c", "a.i_customer = c.i_customer and a.i_company = c.i_company");
+            // $this->db->join("tbl_area b", "a.i_area = b.i_area and a.i_company = b.i_company");
+            // $this->db->where("a.i_area", $i_area);
+            // $this->db->where("a.f_active", 'true');
+            // $this->db->where("a.i_company", $i_company);
+            // $this->db->like('a.i_customer', $i_customer);
+            // $query = $this->db->get();
+            if ($i_company == '6') {
+
+                $query = array();
+                $key = 0;
+                $cust_info = $this->db->query("
+                    SELECT 'Kode Lang : ' || a.i_customer 
+                    ||chr(10)|| 'Disc 1 : ' || c.n_customer_discount1 || CHR(10) || 'Disc 2 : ' || c.n_customer_discount2 
+                    ||chr(10)|| d.e_price_groupname
+                    as i_customer , a.e_customer_name, 
+                    a.e_customer_address, b.e_area_name, a.i_area, a.latitude, a.longitude from tbl_customer a
+                    inner join tbl_customer_discount c on (a.i_customer = c.i_customer and a.i_company = c.i_company)
+                    inner join tbl_area b on (a.i_area = b.i_area and a.i_company = b.i_company)
+                    inner join tbl_price_group d on (a.i_price_group = d.i_price_group and a.i_company = d.i_company)
+                    where a.i_area = '$i_area' and a.f_active = true and a.i_company = '$i_company' and a.i_customer like '$i_customer'
+                ");
+
+                foreach ($cust_info->result() as $riw) {
+                    $query[$key]['i_customer'] = $riw->i_customer;
+                    $query[$key]['e_customer_name'] = $riw->e_customer_name;
+                    $query[$key]['e_customer_address'] = $riw->e_customer_address;
+                    $query[$key]['e_area_name'] = $riw->e_area_name;
+                    $query[$key]['i_area'] = $riw->i_area;
+                    $query[$key]['latitude'] = $riw->latitude;
+                    $query[$key]['longitude'] = $riw->longitude;
+                    $key++;
+                }
+
+                 //list sub kategori
+                $subkategori = $this->db->query("
+                    select e_product_categoryname, rata
+                    from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
+                    $$
+                        with cte as (
+                            select to_char(b.d_nota, 'yyyymm') as periode, e.e_product_categoryname  , sum(a.n_deliver) as total from tm_nota_item a
+                            inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
+                            inner join tr_product c on (a.i_product = c.i_product)
+                            inner join tr_product_category e on (c.i_product_category  = e.i_product_category)
+                            where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
+                            group by 1,2
+                            order by 3 desc 
+                        )
+                        select e_product_categoryname, sum(total)/count(distinct periode) as total from cte group by 1 order by 2 desc
+                    $$
+                    ) AS nilai (
+                        e_product_categoryname varchar, rata numeric
+                    )
+                ", FALSE);
+
+                if ($subkategori->num_rows() > 0) {
+                    $single = '';
+                    foreach ($subkategori->result() as $sub) {
+                        $single .= $sub->e_product_categoryname . "  (". number_format($sub->rata) . " pcs) \n";
+                    }
+                    $query[$key]['i_customer'] = $single;
+                    $query[$key]['e_customer_name'] = "Rata Order By Sub Category";
+                    $query[$key]['e_customer_address'] = "**data dari nota 6 bulan terakhir" ;
+                    $key++;
+                }
+
+                $usertoko = $this->db->query("select username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
+                if ($usertoko->num_rows() > 0) {
+                    $usertoko = $usertoko->row()->username;
+                    $periode = date('Y');
+
+                    $data = $this->db->query("
+                         select a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode from tbl_user_toko a
+                         inner join tbl_user_toko_item b on (a.username = b.username)
+                         inner join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
+                         where a.username = '$usertoko' and c.i_periode = '$periode'
+                    ", FALSE);
+
+                    $total = 0;
+                    $list_customer = array();
+                    if ($data->num_rows() > 0) {
+                        foreach ($data->result() as $row) {
+                            $total += $row->v_nota_target;
+                            array_push($list_customer, "'".$row->i_customer."'");
+                        }
+                        $arrayTxt = implode(',', $list_customer);
+
+                        //list program
+                        $data2 = $this->db->query("
+                            select v_nota_netto, v_sisa, v_spb 
+                            from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
+                            $$
+                             select sum(v_nota_netto) as v_nota_netto , sum(v_sisa) as v_sisa , sum(v_spb) as v_spb from (
+                                  select coalesce(sum(v_nota_netto), 0) as v_nota_netto , coalesce(sum(v_sisa), 0) as v_sisa, 0 as v_spb from tm_nota 
+                                  where f_nota_cancel = false and to_char(d_nota , 'yyyy') = '$periode' and i_customer in ($arrayTxt)
+                                  union all 
+                                  select 0 as v_nota_netto , 0 as v_sisa, coalesce(sum(v_spb), 0) as v_spb from tm_spb 
+                                  where f_spb_cancel = false and to_char(d_spb , 'yyyy') = '$periode' and i_customer in ($arrayTxt)
+                            ) as x 
+                            $$
+                            ) AS nilai (
+                                v_nota_netto numeric, v_sisa numeric, v_spb numeric
+                            )
+                        ", FALSE)->row();
+                        $query[$key]['i_customer'] = "Tahun ". date('Y');
+                        $query[$key]['e_customer_name'] = "Program Semarak 7th Omiland";
+                        $query[$key]['e_customer_address'] = "Target : Rp. ". number_format($total) . "\n" . "Pencapaian : Rp. ".number_format($data2->v_nota_netto). "\n" . "Persentasi : " . number_format($data2->v_nota_netto / $total * 100,2) . " %\n"."Total Sisa Nota Belum Bayar : Rp. " .number_format($data2->v_sisa) ;
+                        // $query[$key]['e_area_name'] = "";
+                        // $query[$key]['i_area'] = "";
+                        // $query[$key]['latitude'] = "";
+                        // $query[$key]['longitude'] = "";
+                        $key++;
+
+                        
+
+
+
+                        //list daftar tagihan
+                        $item = $this->db->query("
+                            select i_nota , e_color , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
+                            from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
+                            $$
+                            with cte as (
+                                 select i_customer , i_nota, i_sj , d_nota, d_jatuh_tempo , 
+                                 current_date - d_jatuh_tempo as selisih,
+                                 v_nota_netto , v_sisa , v_nota_netto - v_sisa as v_bayar from tm_nota
+                                 where v_sisa > 0 and f_nota_cancel = false and to_char(d_nota , 'yyyy') = '$periode' and i_customer in ($arrayTxt) /*('02564', '02221', '02579', '02265')*/
+                                 order by  d_jatuh_tempo asc,v_sisa desc
+                            )
+                            select coalesce(a.i_nota,'') || ' / ' || a.i_sj || ' [' || a.i_customer || ']' as i_nota, a.d_nota, a.d_jatuh_tempo , 
+                                 case 
+                                      when v_sisa > 0 and selisih between 1 and 7 then '#279b37'
+                                      when v_sisa > 0 and selisih between 8 and 15 then '#ffdd00'
+                                      when v_sisa > 0 and selisih > 15 then '#e4002b'
+                                      else '#000000'
+                                 end as e_color,a.v_nota_netto , a.v_sisa ,a.v_bayar , coalesce(b.e_remark1, '') || ' - ' || coalesce(b.e_remark2, '') as e_remark from cte a
+                            left join (
+                                 select distinct on (a.i_nota) a.i_nota , 
+                                 coalesce(c.e_pelunasan_remark, '') as e_remark1, coalesce(a.e_remark,'') as e_remark2 from tm_pelunasan_item a
+                                 inner join tm_pelunasan b on (a.i_pelunasan = b.i_pelunasan and a.i_area = b.i_area)
+                                 left join tr_pelunasan_remark c on (a.i_pelunasan_remark = c.i_pelunasan_remark)
+                                 where a.i_nota in (select i_nota from cte) and b.f_pelunasan_cancel = false 
+                                 order by a.i_nota , b.d_entry desc
+                            ) as b on a.i_nota = b.i_nota
+                            $$
+                            ) AS nilai (
+                                 i_nota varchar(100), d_nota date, d_jatuh_tempo date, e_color varchar(20), v_nota_netto numeric, v_sisa numeric, v_bayar numeric, e_remark varchar(200)
+                            )    
+                        ", FALSE);
+
+                        foreach ($item->result() as $list) {
+                            $query[$key]['i_customer'] = "Jatuh Tempo ". $list->d_jatuh_tempo;
+                            $query[$key]['e_customer_name'] = $list->i_nota;
+                            $query[$key]['e_customer_address'] = "Sisa Rp. " . number_format($list->v_sisa) . " Dari Total Rp. " . number_format($list->v_nota_netto);
+                            $key++;
+                        }
+
+                    }
+
+
+
+
+
+                }
+
+            } else {
+                $query = $this->db->query("
+                    SELECT a.i_customer 
+                    ||chr(10)|| 'Disc 1 : ' || c.n_customer_discount1 || CHR(10) || 'Disc 2 : ' || c.n_customer_discount2 
+                    ||chr(10)|| d.e_price_groupname
+                    as i_customer , a.e_customer_name, 
+                    a.e_customer_address, b.e_area_name, a.i_area, a.latitude, a.longitude from tbl_customer a
+                    inner join tbl_customer_discount c on (a.i_customer = c.i_customer and a.i_company = c.i_company)
+                    inner join tbl_area b on (a.i_area = b.i_area and a.i_company = b.i_company)
+                    inner join tbl_price_group d on (a.i_price_group = d.i_price_group and a.i_company = d.i_company)
+                    where a.i_area = '$i_area' and a.f_active = true and a.i_company = '$i_company' and a.i_customer like '$i_customer'
+                ")->result_array();
+            }
+            
+            // echo sizeof($query);
+            // die();
+
+            if (sizeof($query) > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $query,
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Gagal Upload :p',
+            ], REST_Controller::HTTP_OK);
+        }
+    }
+
+
+    public function customerinformation_post()
+    {
+        $i_company = $this->post('i_company');
+        $i_customer = $this->post('i_customer');
+        $i_area = $this->post('i_area');
+        $username = $this->post('username');
+
+        // $i_customer = "24114";
+        // $i_area = "24";
         $this->db->select("*");
         $this->db->from("tbl_company");
         $this->db->where("i_company", $i_company);
@@ -1599,8 +1825,8 @@ class Api extends REST_Controller
         $i_area = $this->post('i_area');
         $username = $this->post('username');
 
-        // $i_customer = "24114";
-        // $i_area = "24";
+        $i_customer = "02171";
+        $i_area = "02";
         $this->db->select("*");
         $this->db->from("tbl_company");
         $this->db->where("i_company", $i_company);
@@ -1621,11 +1847,15 @@ class Api extends REST_Controller
 
             $this->Logger->write($i_company, $username, 'Apps Membuka Customer Card :' . $i_customer);
 
+            $query = array();
+            $key = 0;
+
+            $customerHead = $this->db->query("select i_customer, e_customer_name, e_customer_address from tbl_customer where i_customer = '$i_customer' and i_company = '$i_company';")->row();
+            $query['head']['i_customer'] = $customerHead->i_customer;
+            $query['head']['e_customer_name'] = $customerHead->e_customer_name;
+            $query['head']['e_customer_address'] = $customerHead->e_customer_address;
+
             if ($i_company == '6') {
-
-                $query = array();
-                $key = 0;
-
                 $usertoko = $this->db->query("select username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
                 if ($usertoko->num_rows() > 0) {
                     $usertoko = $usertoko->row()->username;
@@ -1664,14 +1894,170 @@ class Api extends REST_Controller
                                 v_nota_netto numeric, v_sisa numeric, v_spb numeric
                             )
                         ", FALSE)->row();
-                        $query[$key]['i_customer'] = "Tahun ". date('Y');
-                        $query[$key]['e_customer_name'] = "Program Semarak 7th Omiland";
-                        $query[$key]['e_customer_address'] = "Target : Rp. ". number_format($total) . "\n" . "Pencapaian : Rp. ".number_format($data2->v_nota_netto). "\n" . "Persentasi : " . number_format($data2->v_nota_netto / $total * 100,2) . " %\n"."Total Sisa Nota Belum Bayar : Rp. " .number_format($data2->v_sisa) ;
-                        $key++;
+                        $query['head']['i_periode'] = "Tahun ". date('Y');
+                        $query['head']['e_name'] = $data->row()->e_name;
+                        $query['head']['e_title'] = "Semarak 7th Omiland ";
+                        $query['head']['v_target'] = "Rp. ". number_format($total);
+                        $query['head']['v_pencapaian'] = "Rp. ". number_format($data2->v_nota_netto);
+                        $query['head']['v_persentasi'] = number_format($data2->v_nota_netto / $total * 100,2) . "";
+                        $query['head']['v_sisa'] = "Rp. ". number_format($data2->v_sisa);
+                        //$key++;
                     }
                 }
 
+                $datanota = $this->db->query("
+                    select v_nota_netto FROM
+                     dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                     $$
+                         with cte as (
+                             select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'yyyymm')) as mon
+                           )
+                           select json_agg(coalesce(v_nota_netto,0)) as v_nota_netto  from cte a
+                           left join (
+                               SELECT i_customer, to_char(d_nota, 'yyyymm') as mon , sum(v_nota_netto/1000000) as v_nota_netto  from tm_nota 
+                               where i_customer = '$i_customer' and f_nota_cancel = false and d_nota between to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date and current_date
+                               group by 1,2
+                               order by 2 asc
+                           ) as b on (a.mon = b.mon )
+                     $$
+                     ) AS datas (
+                          v_nota_netto json
+                     ) 
+                ", FALSE)->row();
+
+                // $query['detail'] =  str_replace(']', '', str_replace('[', '', $datanota->datanota));
+
+                $labelnota = $this->db->query("select json_agg(mon) as mon from (
+                                select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'Mon')) as mon
+                            ) as x")->row();
+                $query['chart']['labels'] =  json_decode($labelnota->mon, TRUE);
+                //$query['chart']['datasets'] =  array(array('data' => array(11,22,33,44,55,66,77,88,99,10,11,12)));
+                $query['chart']['datasets'] =  array(
+                                                    array(
+                                                        'data' => json_decode($datanota->v_nota_netto, TRUE)
+                                                    ),
+                                                );
+                // $query['detail']['jan'] =  $datanota->jan;
+                // $query['detail']['feb'] =  $datanota->feb;
+                // $query['detail']['mar'] =  $datanota->mar;
+                // $query['detail']['apr'] =  $datanota->apr;
+                // $query['detail']['may'] =  $datanota->may;
+                // $query['detail']['jun'] =  $datanota->jun;
+                // $query['detail']['jul'] =  $datanota->jul;
+                // $query['detail']['aug'] =  $datanota->aug;
+                // $query['detail']['sep'] =  $datanota->sep;
+                // $query['detail']['oct'] =  $datanota->oct;
+                // $query['detail']['nov'] =  $datanota->nov;
+                // $query['detail']['dec'] =  $datanota->dec;
+
+
+                $kategori = $this->db->query("
+                    select e_product_classname, total 
+                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                        with cte as (
+                            select to_char(b.d_nota, 'yyyymm') as periode, d.e_product_classname  , sum(a.n_deliver) as total from tm_nota_item a
+                            inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
+                            inner join tr_product c on (a.i_product = c.i_product)
+                            inner join tr_product_class d on (c.i_product_class = d.i_product_class)
+                            where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
+                            group by 1,2
+                            order by 3 desc 
+                        )
+                        select e_product_classname, sum(total) as total from cte group by 1 order by 2 desc
+                    $$
+                    ) AS nilai (
+                        e_product_classname varchar, total numeric
+                    )
+                ", FALSE);
+
+                if ($kategori->num_rows() > 0) {
+                    $key=0;
+                    $max = array_sum(array_column($kategori->result_array(),'total'));
+                    foreach ($kategori->result() as $kat) {
+                        // if ($key == 0) {
+                        //     $max = $kat->total;
+                        // }
+                        $query['kategori'][$key]['kategori'] = $kat->e_product_classname;
+                        $query['kategori'][$key]['max'] = $max;
+                        $query['kategori'][$key]['total'] = $kat->total;
+                        $query['kategori'][$key]['progress'] = $kat->total/$max;
+                        $key++;
+                    }
+                    
+                }
+
+                $subkategori = $this->db->query("
+                    select e_product_categoryname, total 
+                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                        with cte as (
+                            select to_char(b.d_nota, 'yyyymm') as periode, e.e_product_categoryname  , sum(a.n_deliver) as total from tm_nota_item a
+                            inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
+                            inner join tr_product c on (a.i_product = c.i_product)
+                            inner join tr_product_category e on (c.i_product_category  = e.i_product_category)
+                            where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
+                            group by 1,2
+                            order by 3 desc 
+                        )
+                        select e_product_categoryname, sum(total) as total from cte group by 1 order by 2 desc
+                    $$
+                    ) AS nilai (
+                        
+                        e_product_categoryname varchar, total numeric
+                    )
+                ", FALSE);
+
+                if ($subkategori->num_rows() > 0) {
+                    $key=0;
+                    $max = array_sum(array_column($subkategori->result_array(),'total'));
+                    foreach ($subkategori->result() as $kat) {
+                        $query['subkategori'][$key]['subkategori'] = $kat->e_product_categoryname;
+                        $query['subkategori'][$key]['max'] = $max;
+                        $query['subkategori'][$key]['total'] = $kat->total;
+                        $query['subkategori'][$key]['progress'] = $kat->total/$max;
+                        $key++;
+                    }
+                    
+                }
+
+                $seri = $this->db->query("
+                    select e_product_seriname, total 
+                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                        with cte as (
+                            select to_char(b.d_nota, 'yyyymm') as periode, d.e_product_seriname , sum(a.n_deliver) as total from tm_nota_item a
+                            inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
+                            inner join tr_product c on (a.i_product = c.i_product)
+                            inner join tr_product_seri d on (c.i_product_seri  = d.i_product_seri)
+                            where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
+                            group by 1,2
+                            order by 3 desc 
+                        )
+                        select e_product_seriname, sum(total) as total from cte group by 1 order by 2 desc
+                    $$
+                    ) AS nilai (
+                        e_product_seriname varchar, total numeric
+                    )
+                ", FALSE);
+
+                if ($seri->num_rows() > 0) {
+                    $key=0;
+                    $max = array_sum(array_column($seri->result_array(),'total'));
+                    foreach ($seri->result() as $row) {
+                        $query['seri'][$key]['seri'] = $row->e_product_seriname;
+                        $query['seri'][$key]['max'] = $max;
+                        $query['seri'][$key]['total'] = $row->total;
+                        $query['seri'][$key]['progress'] = $row->total/$max;
+                        $key++;
+                    }
+                    
+                }
+
             }
+
+
+            
             
             // echo sizeof($query);
             // die();
@@ -1697,6 +2083,253 @@ class Api extends REST_Controller
     }
 
 
+
+    public function piutang_post()
+    {
+        $i_company = $this->post('i_company');
+        $i_customer = $this->post('i_customer');
+        $i_area = $this->post('i_area');
+        $username = $this->post('username');
+
+        $i_customer = "02171";
+        $i_area = "02";
+        $this->db->select("*");
+        $this->db->from("tbl_company");
+        $this->db->where("i_company", $i_company);
+        $this->db->where("f_active", 'true');
+        $cek_company = $this->db->get();
+
+        if ($cek_company->num_rows() > 0) {
+
+            $i_company = $i_company;
+            $username = $username;
+            $db_host =  $cek_company->row()->db_host;
+            $db_user =  $cek_company->row()->db_user;
+            $db_password =  $cek_company->row()->db_password;
+            $db_name =  $cek_company->row()->db_name;
+            $db_port =  $cek_company->row()->db_port;
+            // var_dump($db_host);
+            // die();
+            $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
+
+            $query = array();
+
+            $query['list'] = null; 
+            $key = 0;
+
+            if ($i_company == '6') {
+        
+                //list daftar tagihan
+                $item = $this->db->query("
+                    select i_nota , e_color, e_icon , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
+                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
+                         select i_customer , i_nota, i_sj , d_nota, d_jatuh_tempo , 
+                         current_date - d_jatuh_tempo as selisih,
+                         v_nota_netto , v_sisa , v_nota_netto - v_sisa as v_bayar from tm_nota
+                         where v_sisa > 0 and f_nota_cancel = false and i_customer in ('$i_customer') /*('02564', '02221', '02579', '02265')*/
+                         order by  d_jatuh_tempo asc,v_sisa desc
+                    )
+                    select coalesce(a.i_nota,'') || ' / ' || a.i_sj as i_nota, a.d_nota, a.d_jatuh_tempo , 
+                         case 
+                              when v_sisa > 0 and selisih between 1 and 7 then '#279b37'
+                              when v_sisa > 0 and selisih between 8 and 15 then '#ffdd00'
+                              when v_sisa > 0 and selisih > 15 then '#e4002b'
+                              else '#000000'
+                         end as e_color,
+                         case 
+                              when v_sisa > 0 and selisih between 1 and 7 then 'warning'
+                              when v_sisa > 0 and selisih between 8 and 15 then 'warning'
+                              when v_sisa > 0 and selisih > 15 then 'warning'
+                              else 'info'
+                         end as e_icon
+                         ,a.v_nota_netto , a.v_sisa ,a.v_bayar , coalesce(b.e_remark1, '') || ' - ' || coalesce(b.e_remark2, '') as e_remark from cte a
+                    left join (
+                         select distinct on (a.i_nota) a.i_nota , 
+                         coalesce(c.e_pelunasan_remark, '') as e_remark1, coalesce(a.e_remark,'') as e_remark2 from tm_pelunasan_item a
+                         inner join tm_pelunasan b on (a.i_pelunasan = b.i_pelunasan and a.i_area = b.i_area)
+                         left join tr_pelunasan_remark c on (a.i_pelunasan_remark = c.i_pelunasan_remark)
+                         where a.i_nota in (select i_nota from cte) and b.f_pelunasan_cancel = false 
+                         order by a.i_nota , b.d_entry desc
+                    ) as b on a.i_nota = b.i_nota
+                    order by d_jatuh_tempo asc
+                    $$
+                    ) AS nilai (
+                         i_nota varchar(100), d_nota date, d_jatuh_tempo date, e_color varchar(20), e_icon varchar(20),v_nota_netto numeric, v_sisa numeric, v_bayar numeric, e_remark varchar(200)
+                    )    
+                ", FALSE);
+
+                $saldo_piutang = 0;
+                foreach ($item->result() as $list) {
+                    $saldo_piutang += $list->v_sisa;
+                    $query['list'][$key]['d_jatuh_tempo'] = "Jatuh Tempo : ". $list->d_jatuh_tempo;
+                    $query['list'][$key]['i_nota'] = $list->i_nota;
+                    $query['list'][$key]['v_sisa'] = number_format($list->v_sisa);
+                    $query['list'][$key]['v_netto'] = number_format($list->v_nota_netto);
+                    $query['list'][$key]['e_color'] = $list->e_color;
+                    $query['list'][$key]['e_icon'] = $list->e_icon;
+                    $query['list'][$key]['e_remark'] = $list->e_remark;
+                    $query['list'][$key]['e_text'] = $list->e_remark;
+                    $key++;
+                }
+
+                $header = $this->db->query("
+                        with cte as (
+                             select array[i_customer, e_customer_name, n_customer_toplength::text || ' Hari', sumketerlambatan::text || ' Hari', nota_count::text , rata_keterlambatan::text || ' Hari' ,
+                             case when is_normal = true then 'Wajar' else 'Tidak Wajar' end, to_char(v_flapond, 'FMRp 999,999,999,990D00')::text, to_char(v_flapond - $saldo_piutang, 'FMRp 999,999,999,990D00')::text] as e_data 
+                             from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                             $$
+                                select x3.i_customer, x3.e_customer_name, x3.n_customer_toplength, sumketerlambatan, nota_count, rata_keterlambatan,
+                                case
+                                    when n_customer_toplength = 0 then false
+                                    when (n_customer_toplength >= 30 and n_customer_toplength <= 35) and rata_keterlambatan <= 15 then true
+                                    when n_customer_toplength = 45 and rata_keterlambatan <= 15 then true
+                                    when n_customer_toplength = 60 and rata_keterlambatan <= 10 then true
+                                    else false
+                                end as is_normal, b.v_flapond 
+                                    from(
+                                    select i_customer, e_customer_name, n_customer_toplength, sum(sumketerlambatan) sumketerlambatan, sum(nota_count) nota_count,
+                                        round((sum(sumketerlambatan)/sum(nota_count))) rata_keterlambatan from(
+                                        select row_number() over(partition by i_customer order by substring(i_nota, 1,7) desc) as rownumber, i_customer, e_customer_name, n_customer_toplength
+                                            , substring(i_nota, 1,7) inota
+                                            , sum(1) as nota_count
+                                            , sum(d_cair-d_sj_receive-n_customer_toplength) as sumketerlambatan
+                                            from(
+                                            select a.i_customer, c.e_customer_name, a.i_nota, c.n_customer_toplength, a.v_sisa,
+                                            case
+                                                when b.i_jenis_bayar = '01' then g.d_giro_cair
+                                                when b.i_jenis_bayar = '03' then kum.d_kum
+                                                when b.i_jenis_bayar != '01' and b.i_jenis_bayar != '03' then b.d_bukti
+                                            end as d_cair,
+                                            case
+                                                when a.d_sj_receive is null then a.d_nota
+                                                when a.d_sj_receive is not null then a.d_sj_receive
+                                            end as d_sj_receive
+                                            from tm_nota a
+                                            inner join (
+                                                select pli.i_pelunasan, pli.i_area, pli.i_nota, pli.v_jumlah, pl.i_giro, pl.d_giro, pl.d_bukti, pl.d_cair, i_jenis_bayar
+                                                from tm_pelunasan_item pli
+                                                inner join tm_pelunasan pl on (pli.i_pelunasan=pl.i_pelunasan and pli.i_area=pl.i_area)
+                                                where (pl.i_jenis_bayar='02' and pl.v_jumlah > 10000) or (pl.i_jenis_bayar not in('02','04','10'))
+                                            ) b on(a.i_nota=b.i_nota and a.i_area=b.i_area)
+                                            left join tm_kum kum on(kum.i_kum=b.i_giro and kum.i_area=b.i_area)
+                                            left join tm_giro g on(g.i_giro=b.i_giro and g.i_area=b.i_area)
+                                            left  join tr_customer c on(a.i_customer=c.i_customer)
+                                            where f_nota_cancel='f' and c.f_customer_aktif='t' and a.i_customer = '$i_customer'
+                                            order by 1, 3
+                                        ) x1
+                                        group by 2, 3, 4, 5
+                                    ) x2
+                                    where rownumber <= 6
+                                    group by 1, 2, 3
+                                ) x3
+                                inner join tr_customer_groupar b on (x3.i_customer = b.i_customer)  
+                             $$
+                             ) AS datas (
+                                  i_customer varchar(255), e_customer_name varchar(255), n_customer_toplength numeric, sumketerlambatan numeric , nota_count numeric , 
+                                  rata_keterlambatan numeric ,is_normal boolean, v_flapond numeric
+                             ) 
+                        )
+                        SELECT un1.val::text as e_label, un2.val::text as e_data
+                        FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'TOP', 'Total Keterlambatan', 'Jumlah Nota', 'Rata - Rata Keterlambatan', 'TOP Terhadap Rata Rata', 'Plafon', 'Limit']) WITH ORDINALITY un1 (val, ord)
+                        FULL JOIN unnest((select e_data from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
+                    ", false);
+                
+
+                if ($header->num_rows() > 0) {
+                    $key = 0;
+                    foreach($header->result() as $row) {
+                         $query['head'][$key]['e_label'] = $row->e_label;
+                         $query['head'][$key]['e_data'] = $row->e_data;
+                         $key++;
+                    }
+                   
+                //     $query['head']['i_customer'] = $header->row()->i_customer;
+                //     $query['head']['e_customer_name'] = $header->row()->e_customer_name;
+                //     $query['head']['n_customer_toplength'] = $header->row()->n_customer_toplength;
+                //     $query['head']['nota_count'] = $header->row()->nota_count;
+                //     $query['head']['rata_keterlambatan'] = $header->row()->rata_keterlambatan;
+                //     $query['head']['is_normal'] = $header->row()->is_normal;
+                //     $query['head']['v_flapond'] = number_format($header->row()->v_flapond);
+                //     $query['head']['v_piutang'] = number_format($saldo_piutang);
+                //     $query['head']['v_limit'] = number_format($header->row()->v_flapond - $saldo_piutang) ;
+                }
+
+
+            }
+            
+            // echo sizeof($query);
+            // die();
+
+            if (sizeof($query) > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $query,
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Perusahaan Tidak Terdaftar / Tidak Aktif',
+            ], REST_Controller::HTTP_OK);
+        }
+    }
+
+
+    public function infolainnya_post()
+    {
+        $i_company = $this->post('i_company');
+        $i_customer = $this->post('i_customer');
+        $i_area = $this->post('i_area');
+        $username = $this->post('username');
+
+        $i_customer = "02171";
+        $i_area = "02";
+        $this->db->select("*");
+        $this->db->from("tbl_company");
+        $this->db->where("i_company", $i_company);
+        $this->db->where("f_active", 'true');
+        $cek_company = $this->db->get();
+
+        if ($cek_company->num_rows() > 0) {
+
+            $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Lain Lain :');
+
+            $query = $this->db->query("
+                SELECT a.e_title , a.e_deskripsi, 'Informasi Ini Aktif Sampai ' || to_char(a.d_end, 'dd FMMonth yyyy') as e_aktif, 
+                b.e_icon from tbl_information a
+                inner join tbl_information_type b on (a.id_type = b.id)
+                where a.i_company = '$i_company' and f_active = true and current_date between d_start and d_end 
+                order by d_end asc, a.id asc
+            ",false)->result();
+
+            if (sizeof($query) > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $query,
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Perusahaan Tidak Terdaftar / Tidak Aktif',
+            ], REST_Controller::HTTP_OK);
+        }
+
+    }
 
     public function batalspb_post()
     {
