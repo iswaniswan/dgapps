@@ -82,7 +82,7 @@
                     class="icon-circle-right2 ml-2"></i></button>
               </div>
               <div class="form-group text-center">
-                <a href="<?=base_url('dialogue.apk');?>" class="btn btn-success">Download Apk <i
+                <a href="<?=base_url('dialogue.apk');?>" class="btn btn-block btn-success">Download Apk <i
                     class="icon-download"></i></a>
               </div>
             </div>

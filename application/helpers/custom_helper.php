@@ -244,3 +244,19 @@ function replace($str = '', $sp = '')
 
     return $replace_string;
 }
+
+function wrap($string){
+	$output = false;
+
+	$secret_key     = '3266948498825511';
+	$secret_iv      = '4673354643733366';
+	$encrypt_method = 'aes-256-cbc';
+
+	$key = hash("sha256", $secret_key);
+
+	$iv     = substr(hash("sha256", $secret_iv), 0, 16);
+	$result = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+	$output = str_replace('=','',base64_encode($result));
+
+	return $output;
+}
