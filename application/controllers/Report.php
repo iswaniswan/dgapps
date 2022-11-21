@@ -132,15 +132,15 @@ class Report extends CI_Controller
                 'bold' => true,
             ],
             'borders' => [
-                    'top'    => ['borderStyle' => Border::BORDER_THIN],
-                    'bottom' => ['borderStyle' => Border::BORDER_THIN],
-                    'left'   => ['borderStyle' => Border::BORDER_THIN],
-                    'right'  => ['borderStyle' => Border::BORDER_THIN]
+                'top'    => ['borderStyle' => Border::BORDER_THIN],
+                'bottom' => ['borderStyle' => Border::BORDER_THIN],
+                'left'   => ['borderStyle' => Border::BORDER_THIN],
+                'right'  => ['borderStyle' => Border::BORDER_THIN]
             ],
             'alignment' => [
-                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
+                'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
         ];
         /** End Style */
 
@@ -488,7 +488,7 @@ class Report extends CI_Controller
                 case when d_rrkh is not null then 'Ya' else 'Tidak' end as rrkh ,
                 a.createdat_checkin, a.createdat_checkout , to_char((a.createdat_checkout - a.createdat_checkin), 'HH24:MI') as durasi,
                 e.v_spb_netto , case when e.f_spb_cancel = 't' then 'Batal' when e.f_spb_cancel = 'f' and v_spb_netto is not null then 'Transfer' else '' end as status,
-                f.e_foto , h.e_saran_typename , g.e_saran
+                case when id_dokumentasi_type isnull then f.e_foto else e_dokumentasi_name end as e_foto, h.e_saran_typename , g.e_saran
                 from tbl_customer_checkin a 
                 inner join tbl_user c on (a.username = c.username and c.i_company = a.i_company)
                 left join tbl_rrkh d on (a.username = d.username and a.i_company = d.i_company and a.d_checkin = d.d_rrkh and a.i_customer = d.i_customer)
@@ -497,6 +497,7 @@ class Report extends CI_Controller
                 left join tbl_customer_saran g on (a.username = g.username and a.i_company = g.i_company and a.d_checkin = g.d_saran and a.i_customer = g.i_customer)
                 left join tbl_saran_type h on (g.i_company = h.i_company and g.i_saran_type = h.i_saran_type)
                 left join tbl_customer i on (a.i_company = i.i_company and a.i_customer = i.i_customer)
+                left join tbl_dokumentasi_type ff on (ff.id = f.id_dokumentasi_type)
                 inner join tbl_area b on (i.i_area = b.i_area and b.i_company = i.i_company)
                 where a.i_company = '$i_company' and a.d_checkin between '$dfrom' and '$dto' 
                 and a.i_area in (select i_area from tbl_user_area where username = '$username' and i_company = '$i_company')
@@ -1145,70 +1146,70 @@ class Report extends CI_Controller
                     $sheet->setCellValue('F' . $i, $jan[0]);
                     $sheet->setCellValue('G' . $i, $jan[1]);
                     $sheet->setCellValue('H' . $i, $jan[0] - $jan[1]);
-                    $sheet->setCellValue('I' . $i, ($jan[0] - $jan[1])/($jan[0] ?: 1));
+                    $sheet->setCellValue('I' . $i, ($jan[0] - $jan[1]) / ($jan[0] ?: 1));
 
                     $sheet->setCellValue('J' . $i, $feb[0]);
                     $sheet->setCellValue('K' . $i, $feb[1]);
                     $sheet->setCellValue('L' . $i, $feb[0] - $feb[1]);
-                    $sheet->setCellValue('M' . $i, ($feb[0] - $feb[1])/($feb[0] ?: 1));
+                    $sheet->setCellValue('M' . $i, ($feb[0] - $feb[1]) / ($feb[0] ?: 1));
 
                     $sheet->setCellValue('N' . $i, $mar[0]);
                     $sheet->setCellValue('O' . $i, $mar[1]);
                     $sheet->setCellValue('P' . $i, $mar[0] - $mar[1]);
-                    $sheet->setCellValue('Q' . $i, ($mar[0] - $mar[1])/($mar[0] ?: 1));
+                    $sheet->setCellValue('Q' . $i, ($mar[0] - $mar[1]) / ($mar[0] ?: 1));
 
                     $sheet->setCellValue('R' . $i, $apr[0]);
                     $sheet->setCellValue('S' . $i, $apr[1]);
                     $sheet->setCellValue('T' . $i, $apr[0] - $apr[1]);
-                    $sheet->setCellValue('U' . $i, ($apr[0] - $apr[1])/($apr[0] ?: 1));
+                    $sheet->setCellValue('U' . $i, ($apr[0] - $apr[1]) / ($apr[0] ?: 1));
 
                     $sheet->setCellValue('V' . $i, $may[0]);
                     $sheet->setCellValue('W' . $i, $may[1]);
                     $sheet->setCellValue('X' . $i, $may[0] - $may[1]);
-                    $sheet->setCellValue('Y' . $i, ($may[0] - $may[1])/($may[0] ?: 1));
+                    $sheet->setCellValue('Y' . $i, ($may[0] - $may[1]) / ($may[0] ?: 1));
 
                     $sheet->setCellValue('Z' . $i, $jun[0]);
                     $sheet->setCellValue('AA' . $i, $jun[1]);
                     $sheet->setCellValue('AB' . $i, $jun[0] - $jun[1]);
-                    $sheet->setCellValue('AC' . $i, ($jun[0] - $jun[1])/($jun[0] ?: 1));
+                    $sheet->setCellValue('AC' . $i, ($jun[0] - $jun[1]) / ($jun[0] ?: 1));
 
                     $sheet->setCellValue('AD' . $i, $jul[0]);
                     $sheet->setCellValue('AE' . $i, $jul[1]);
                     $sheet->setCellValue('AF' . $i, $jul[0] - $jul[1]);
-                    $sheet->setCellValue('AG' . $i, ($jul[0] - $jul[1])/($jul[0] ?: 1));
+                    $sheet->setCellValue('AG' . $i, ($jul[0] - $jul[1]) / ($jul[0] ?: 1));
 
                     $sheet->setCellValue('AH' . $i, $aug[0]);
                     $sheet->setCellValue('AI' . $i, $aug[1]);
                     $sheet->setCellValue('AJ' . $i, $aug[0] - $aug[1]);
-                    $sheet->setCellValue('AK' . $i, ($aug[0] - $aug[1])/($aug[0] ?: 1));
+                    $sheet->setCellValue('AK' . $i, ($aug[0] - $aug[1]) / ($aug[0] ?: 1));
 
                     $sheet->setCellValue('AL' . $i, $sep[0]);
                     $sheet->setCellValue('AM' . $i, $sep[1]);
                     $sheet->setCellValue('AN' . $i, $sep[0] - $sep[1]);
-                    $sheet->setCellValue('AO' . $i, ($sep[0] - $sep[1])/($sep[0] ?: 1));
+                    $sheet->setCellValue('AO' . $i, ($sep[0] - $sep[1]) / ($sep[0] ?: 1));
 
                     $sheet->setCellValue('AP' . $i, $oct[0]);
                     $sheet->setCellValue('AQ' . $i, $oct[1]);
                     $sheet->setCellValue('AR' . $i, $oct[0] - $oct[1]);
-                    $sheet->setCellValue('AS' . $i, ($oct[0] - $oct[1])/($oct[0] ?: 1));
+                    $sheet->setCellValue('AS' . $i, ($oct[0] - $oct[1]) / ($oct[0] ?: 1));
 
                     $sheet->setCellValue('AT' . $i, $nov[0]);
                     $sheet->setCellValue('AU' . $i, $nov[1]);
                     $sheet->setCellValue('AV' . $i, $nov[0] - $nov[1]);
-                    $sheet->setCellValue('AW' . $i, ($nov[0] - $nov[1])/($nov[0] ?: 1));
+                    $sheet->setCellValue('AW' . $i, ($nov[0] - $nov[1]) / ($nov[0] ?: 1));
 
                     $sheet->setCellValue('AX' . $i, $des[0]);
                     $sheet->setCellValue('AY' . $i, $des[1]);
                     $sheet->setCellValue('AZ' . $i, $des[0] - $des[1]);
-                    $sheet->setCellValue('BA' . $i, ($des[0] - $des[1])/($des[0] ?: 1));
+                    $sheet->setCellValue('BA' . $i, ($des[0] - $des[1]) / ($des[0] ?: 1));
 
-                    $tot_spb = $jan[0] + $feb[0] + $mar[0]  + $apr[0]  + $may[0]  + $jun[0]  + $jul[0]  + $aug[0]  + $sep[0]  + $oct[0]  + $nov[0]  + $des[0] ;
-                    $tot_nota = $jan[1] + $feb[1] + $mar[1]  + $apr[1]  + $may[1]  + $jun[1]  + $jul[1]  + $aug[1]  + $sep[1]  + $oct[1]  + $nov[1]  + $des[1] ;
+                    $tot_spb = $jan[0] + $feb[0] + $mar[0]  + $apr[0]  + $may[0]  + $jun[0]  + $jul[0]  + $aug[0]  + $sep[0]  + $oct[0]  + $nov[0]  + $des[0];
+                    $tot_nota = $jan[1] + $feb[1] + $mar[1]  + $apr[1]  + $may[1]  + $jun[1]  + $jul[1]  + $aug[1]  + $sep[1]  + $oct[1]  + $nov[1]  + $des[1];
                     $tot_lost = $tot_spb - $tot_nota;
                     $tot_persenlost = $tot_lost / ($tot_spb ?: 1);
                     $persen_final = 0;
-                    if($row->v_target > 0){ 
-                        $persen_final = $tot_nota / $row->v_target; 
+                    if ($row->v_target > 0) {
+                        $persen_final = $tot_nota / $row->v_target;
                     }
                     $sheet->setCellValue('BB' . $i, $tot_spb);
                     $sheet->setCellValue('BC' . $i, $tot_nota);
@@ -1225,14 +1226,14 @@ class Report extends CI_Controller
                     $i++;
                 }
             }
-            $sheet->getStyle('E3:BG' . ($i-1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
-            $sheet->getStyle('A3:D' . ($i-1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+            $sheet->getStyle('E3:BG' . ($i - 1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED);
+            $sheet->getStyle('A3:D' . ($i - 1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
 
-            
+
             $array_persen = ['I', 'M', 'Q', 'U', 'Y', 'AC', 'AG', 'AK', 'AO', 'AS', 'AW', 'BA', 'BG', 'BE'];
             for ($j = 0; $j < count($array_persen); $j++) {
                 # code...
-                $sheet->getStyle($array_persen[$j].'3:'.$array_persen[$j].($i-1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                $sheet->getStyle($array_persen[$j] . '3:' . $array_persen[$j] . ($i - 1))->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
             }
             // $i = $i + 3;
             // $sheet->setCellValue('A' . $i, 'Start Date');
@@ -1395,7 +1396,7 @@ class Report extends CI_Controller
             if ($query->num_rows() > 0) {
                 foreach ($query->result_array() as $data) {
                     $no++;
-                    $isi = [$no, $data['username'],$data['waktu'],$data['aktivitas']];
+                    $isi = [$no, $data['username'], $data['waktu'], $data['aktivitas']];
                     for ($i = 0; $i < count($isi); $i++) {
                         $spreadsheet->setActiveSheetIndex(0)->setCellValue($abjad[$i] . $j, $isi[$i]);
                     }
@@ -1407,6 +1408,85 @@ class Report extends CI_Controller
             $spreadsheet->getActiveSheet()->getStyle($abjad[0] . $j . ":" . $abjad[count($header) - 1] . $j)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
             $filename = 'Aktivitas_' . $dfrom . '_' . $dto;
+
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
+            header('Cache-Control: max-age=0');
+            ob_start();
+            $writer->save('php://output');
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+            $response = array(
+                'name' => $filename . '.xlsx',
+                'file' => "data:application/vnd.ms-excel;base64," . base64_encode($xlsData),
+            );
+            $this->Logger->write(null, null, 'Download Report Aktivitas');
+            echo json_encode($response);
+        } elseif ($type == 'rating') {
+            $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(12);
+            $spreadsheet->setActiveSheetIndex(0)->setCellValue('A1', "Rating $date_from s/d $date_to");
+            $spreadsheet->getActiveSheet()->setTitle('Rating');
+            $spreadsheet->getActiveSheet()->duplicateStyle($sharedStyle1, 'A1');
+            $spreadsheet->getActiveSheet()->mergeCells("A1:Q3");
+            $spreadsheet->getActiveSheet()->mergeCells("A4:Q4");
+            $h = 5;
+            $abjad  = range('A', 'Z');
+            $header = [
+                '#', 'Kode Area', 'Nama Area', 'Kode Sales', 'Nama Sales',
+                'Kode Customer', 'Nama Customer', 'Tanggal', 'Waktu Checkin',
+                'Waktu Checkout', 'Durasi', 'Basic', 'Card', 'Piutang',
+                'Infolainnya', 'Sales', 'Rating'
+            ];
+            for ($i = 0; $i < count($header); $i++) {
+                $spreadsheet->setActiveSheetIndex(0)->setCellValue($abjad[$i] . $h, $header[$i]);
+            }
+            $spreadsheet->getActiveSheet()->freezePane($abjad[0] . ($h + 1));
+            $spreadsheet->getActiveSheet()->duplicateStyle($sharedStyle3, $abjad[0] . $h . ":" . $abjad[count($header) - 1] . $h);
+            $spreadsheet->getActiveSheet()->getStyle($abjad[0] . $h . ":" . $abjad[count($header) - 1] . $h)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('CCFFCC');
+            $writer = new Xlsx($spreadsheet);
+            $j = 6;
+            $x = 6;
+            $no = 0;
+            $query = $this->db->query("SELECT *, (basic + card + piutang + infolainnya + sales) as rating 
+                FROM (
+                    select d.i_area, d.e_area_name, c.i_staff, c.e_name, b.i_customer, b.e_customer_name, 
+                    a.d_checkin, a.createdat_checkin, a.createdat_checkout,
+                    to_char((a.createdat_checkout - a.createdat_checkin), 'HH24:MI') as durasi,
+                    case when a.basic = true then 1 else 0 end as basic,
+                    case when a.card = true then 1 else 0 end as card,
+                    case when a.piutang = true then 1 else 0 end as piutang,
+                    case when a.infolainnya = true then 1 else 0 end as infolainnya,
+                    case when a.sales = true then 1 else 0 end as sales
+                    from tbl_customer_checkin a
+                    inner join tbl_customer b on (b.i_customer=a.i_customer and a.i_company = b.i_company)
+                    inner join tbl_user c on (c.username = a.username and a.i_company = c.i_company)
+                    inner join tbl_area d on (d.i_area = a.i_area and a.i_company = d.i_company)
+                    where a.i_company = '$i_company' and d_checkin between '$dfrom' and '$dto'
+                    order by a.i_area, c.e_name, b.e_customer_name
+                ) tabel
+                ;");
+            if ($query->num_rows() > 0) {
+                foreach ($query->result_array() as $data) {
+                    $no++;
+                    $isi = [
+                        $no, $data['i_area'], $data['e_area_name'], $data['i_staff'], $data['e_name'],
+                        $data['i_customer'], $data['e_customer_name'], $data['d_checkin'],
+                        $data['createdat_checkin'], $data['createdat_checkout'], $data['durasi'], $data['basic'],
+                        $data['card'], $data['piutang'], $data['infolainnya'], $data['sales'], $data['rating']
+                    ];
+                    for ($i = 0; $i < count($isi); $i++) {
+                        $spreadsheet->setActiveSheetIndex(0)->setCellValue($abjad[$i] . $j, $isi[$i]);
+                    }
+                    $j++;
+                }
+            }
+            $y = $j - 1;
+            $spreadsheet->getActiveSheet()->duplicateStyle($sharedStyle2, $abjad[0] . $x . ":" . $abjad[count($header) - 1] . $y);
+            $spreadsheet->getActiveSheet()->getStyle($abjad[0] . $j . ":" . $abjad[count($header) - 1] . $j)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+            $filename = 'Rating_' . $dfrom . '_' . $dto;
 
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');

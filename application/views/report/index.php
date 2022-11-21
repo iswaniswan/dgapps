@@ -237,7 +237,7 @@
 					<tr class="table-active table-border-double">
 						<td colspan="3"><h6 class="mb-0"><strong>Daftar Module [ Berdasarkan Time Range : Tanggal ]</strong></h6></td>
 						<td class="text-right">
-							<span class="badge bg-success-800 badge-pill">9</span>
+							<span class="badge bg-success-800 badge-pill">10</span>
 						</td>
 					</tr>
 
@@ -407,6 +407,25 @@
 						<td colspan="2">
 							<button type="button" class="btn bg-primary-800 btn-block btn-sm btn-ladda btn-ladda-progress" data="aktivitas" data-style="zoom-out">
 								<span class="ladda-label">Download Aktivitas
+									<?= $this->lang->line('report'); ?> &nbsp; <i class="icon-download"></i></span>
+							</button>
+						</td>
+					</tr>
+
+					<tr>
+						<td class="text-center">
+							<h6 class="mb-0">10</h6>
+						</td>
+						<td>
+							<div class="d-flex align-items-center">
+								<div>
+									<a href="#" class="text-default font-weight-semibold letter-icon-title">Rating</a>
+								</div>
+							</div>
+						</td>
+						<td colspan="2">
+							<button type="button" class="btn bg-primary-800 btn-block btn-sm btn-ladda btn-ladda-progress" data="rating" data-style="zoom-out">
+								<span class="ladda-label">Download Rating
 									<?= $this->lang->line('report'); ?> &nbsp; <i class="icon-download"></i></span>
 							</button>
 						</td>
