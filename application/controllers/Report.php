@@ -468,12 +468,13 @@ class Report extends CI_Controller
             $sheet->setCellValue('M1', 'Net Order');
             $sheet->setCellValue('N1', 'Status SPB');
             $sheet->setCellValue('O1', 'Dokumentasi');
-            $sheet->setCellValue('P1', 'Tipe Saran');
-            $sheet->setCellValue('Q1', 'Saran');
+            $sheet->setCellValue('P1', 'Detail');
+            $sheet->setCellValue('Q1', 'Tipe Saran');
+            $sheet->setCellValue('R1', 'Saran');
             // $sheet->setCellValue('I1', 'Efektif Kunjungan');
-            $sheet->getStyle('A1:Q1')->applyFromArray($styleArray);
+            $sheet->getStyle('A1:R1')->applyFromArray($styleArray);
 
-            foreach (range('A', 'Q') as $columnID) {
+            foreach (range('A', 'R') as $columnID) {
                 $sheet->getColumnDimension($columnID)->setAutoSize(true);
             }
 
@@ -488,7 +489,7 @@ class Report extends CI_Controller
                 case when d_rrkh is not null then 'Ya' else 'Tidak' end as rrkh ,
                 a.createdat_checkin, a.createdat_checkout , to_char((a.createdat_checkout - a.createdat_checkin), 'HH24:MI') as durasi,
                 e.v_spb_netto , case when e.f_spb_cancel = 't' then 'Batal' when e.f_spb_cancel = 'f' and v_spb_netto is not null then 'Transfer' else '' end as status,
-                case when id_dokumentasi_type isnull then f.e_foto else e_dokumentasi_name end as e_foto, h.e_saran_typename , g.e_saran
+                case when id_dokumentasi_type isnull then f.e_foto else e_dokumentasi_name end as e_foto, h.e_saran_typename , g.e_saran, f.e_detail
                 from tbl_customer_checkin a 
                 inner join tbl_user c on (a.username = c.username and c.i_company = a.i_company)
                 left join tbl_rrkh d on (a.username = d.username and a.i_company = d.i_company and a.d_checkin = d.d_rrkh and a.i_customer = d.i_customer)
@@ -524,8 +525,9 @@ class Report extends CI_Controller
                     $sheet->setCellValue('M1', 'Net Order');
                     $sheet->setCellValue('N1', 'Status SPB');
                     $sheet->setCellValue('O1', 'Dokumentasi');
-                    $sheet->setCellValue('P1', 'Tipe Saran');
-                    $sheet->setCellValue('Q1', 'Saran');
+                    $sheet->setCellValue('P1', 'Detail');
+                    $sheet->setCellValue('Q1', 'Tipe Saran');
+                    $sheet->setCellValue('R1', 'Saran');
 
                     $sheet->setCellValue('A' . $i, $i - 1);
                     $sheet->setCellValue('B' . $i, $row->i_area);
@@ -542,8 +544,9 @@ class Report extends CI_Controller
                     $sheet->setCellValue('M' . $i, $row->v_spb_netto);
                     $sheet->setCellValue('N' . $i, $row->status);
                     $sheet->setCellValue('O' . $i, $row->e_foto);
-                    $sheet->setCellValue('P' . $i, $row->e_saran_typename);
-                    $sheet->setCellValue('Q' . $i, $row->e_saran);
+                    $sheet->setCellValue('P' . $i, $row->e_detail);
+                    $sheet->setCellValue('Q' . $i, $row->e_saran_typename);
+                    $sheet->setCellValue('R' . $i, $row->e_saran);
                     // $sheet->getStyle('I' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     // $sheet->getStyle('J' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
                     // $sheet->getStyle('K' . $i)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
@@ -1424,8 +1427,8 @@ class Report extends CI_Controller
             echo json_encode($response);
         } elseif ($type == 'rating') {
             $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(12);
-            $spreadsheet->setActiveSheetIndex(0)->setCellValue('A1', "Rating $date_from s/d $date_to");
-            $spreadsheet->getActiveSheet()->setTitle('Rating');
+            $spreadsheet->setActiveSheetIndex(0)->setCellValue('A1', "Rating Kunjungan $date_from s/d $date_to");
+            $spreadsheet->getActiveSheet()->setTitle('Rating Kunjungan');
             $spreadsheet->getActiveSheet()->duplicateStyle($sharedStyle1, 'A1');
             $spreadsheet->getActiveSheet()->mergeCells("A1:Q3");
             $spreadsheet->getActiveSheet()->mergeCells("A4:Q4");
@@ -1435,7 +1438,7 @@ class Report extends CI_Controller
                 '#', 'Kode Area', 'Nama Area', 'Kode Sales', 'Nama Sales',
                 'Kode Customer', 'Nama Customer', 'Tanggal', 'Waktu Checkin',
                 'Waktu Checkout', 'Durasi', 'Basic', 'Card', 'Piutang',
-                'Infolainnya', 'Sales', 'Rating'
+                'Infolainnya', 'Sales/Dokumentasi', 'Rating'
             ];
             for ($i = 0; $i < count($header); $i++) {
                 $spreadsheet->setActiveSheetIndex(0)->setCellValue($abjad[$i] . $h, $header[$i]);

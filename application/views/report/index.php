@@ -419,13 +419,13 @@
 						<td>
 							<div class="d-flex align-items-center">
 								<div>
-									<a href="#" class="text-default font-weight-semibold letter-icon-title">Rating</a>
+									<a href="#" class="text-default font-weight-semibold letter-icon-title">Rating Kunjungan</a>
 								</div>
 							</div>
 						</td>
 						<td colspan="2">
 							<button type="button" class="btn bg-primary-800 btn-block btn-sm btn-ladda btn-ladda-progress" data="rating" data-style="zoom-out">
-								<span class="ladda-label">Download Rating
+								<span class="ladda-label">Download Rating Kunjungan
 									<?= $this->lang->line('report'); ?> &nbsp; <i class="icon-download"></i></span>
 							</button>
 						</td>
