@@ -543,17 +543,19 @@ class Api extends REST_Controller
                         $this->db->where("a.i_company", $i_company);
                         $this->db->where("a.f_active", 't');
                         // $this->db->where("c.i_store", $i_store);
-                        $this->db->where("(a.i_product like '%$cari%' or a.e_product_name like '%$cari%')");
+                        $this->db->where("(a.i_product ilike '%$cari%' or a.e_product_name ilike '%$cari%')");
+                        $this->db->order_by("a.e_product_name ASC");
 
                     } else {
-                        $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, 99 as n_quantity ");
+                        $this->db->select("a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, 0 as n_quantity ");
                         $this->db->from("tbl_product a");
                         $this->db->join("tbl_product_price b", "a.i_product = b.i_product and a.i_company = b.i_company");
                         $this->db->where("a.i_product_group", $i_product_group);
                         $this->db->where("trim(b.i_price_group)", $i_price_group);
                         $this->db->where("a.i_company", $i_company);
                         $this->db->where("a.f_active", 't');
-                        $this->db->where("(a.i_product like '%$cari%' or a.e_product_name like '%$cari%')");
+                        $this->db->where("(a.i_product ilike '%$cari%' or a.e_product_name ilike '%$cari%')");
+                        $this->db->order_by("a.e_product_name ASC");
                     }
 
                     $query = $this->db->get();
@@ -1622,7 +1624,7 @@ class Api extends REST_Controller
                      with cte as (
                         select array[
                             a.i_customer ,a.e_customer_name, coalesce(b.e_customer_groupname,'-'), c.e_customer_classname, (d.i_price_group),
-                            e.n_customer_discount1::char || '% , ' || e.n_customer_discount2::char || '%',  f.e_customer_ownername || ' - ' || f.e_customer_ownerphone ,
+                            e.n_customer_discount1::char(5) || '% , ' || e.n_customer_discount2::char(5) || '%',  f.e_customer_ownername || ' - ' || f.e_customer_ownerphone ,
                             to_char(g.v_flapond, 'FMRp 999,999,999,990D00')::text, a.n_customer_toplength || ' Hari', case when f_customer_pkp = true then 'PKP' else 'Non PKP' end
                             ] as e_customer_name from tr_customer a
                         left join tr_customer_group b on (a.i_customer = b.i_customer_group)
@@ -1825,8 +1827,8 @@ class Api extends REST_Controller
         $i_area = $this->post('i_area');
         $username = $this->post('username');
 
-        $i_customer = "02171";
-        $i_area = "02";
+        // $i_customer = "02171";
+        // $i_area = "02";
         $this->db->select("*");
         $this->db->from("tbl_company");
         $this->db->where("i_company", $i_company);
@@ -1937,55 +1939,43 @@ class Api extends REST_Controller
                                                         'data' => json_decode($datanota->v_nota_netto, TRUE)
                                                     ),
                                                 );
-                // $query['detail']['jan'] =  $datanota->jan;
-                // $query['detail']['feb'] =  $datanota->feb;
-                // $query['detail']['mar'] =  $datanota->mar;
-                // $query['detail']['apr'] =  $datanota->apr;
-                // $query['detail']['may'] =  $datanota->may;
-                // $query['detail']['jun'] =  $datanota->jun;
-                // $query['detail']['jul'] =  $datanota->jul;
-                // $query['detail']['aug'] =  $datanota->aug;
-                // $query['detail']['sep'] =  $datanota->sep;
-                // $query['detail']['oct'] =  $datanota->oct;
-                // $query['detail']['nov'] =  $datanota->nov;
-                // $query['detail']['dec'] =  $datanota->dec;
 
 
-                $kategori = $this->db->query("
-                    select e_product_classname, total 
-                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
-                    $$
-                        with cte as (
-                            select to_char(b.d_nota, 'yyyymm') as periode, d.e_product_classname  , sum(a.n_deliver) as total from tm_nota_item a
-                            inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
-                            inner join tr_product c on (a.i_product = c.i_product)
-                            inner join tr_product_class d on (c.i_product_class = d.i_product_class)
-                            where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
-                            group by 1,2
-                            order by 3 desc 
-                        )
-                        select e_product_classname, sum(total) as total from cte group by 1 order by 2 desc
-                    $$
-                    ) AS nilai (
-                        e_product_classname varchar, total numeric
-                    )
-                ", FALSE);
+                // $kategori = $this->db->query("
+                //     select e_product_classname, total 
+                //     from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                //     $$
+                //         with cte as (
+                //             select to_char(b.d_nota, 'yyyymm') as periode, d.e_product_classname  , sum(a.n_deliver) as total from tm_nota_item a
+                //             inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
+                //             inner join tr_product c on (a.i_product = c.i_product)
+                //             inner join tr_product_class d on (c.i_product_class = d.i_product_class)
+                //             where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
+                //             group by 1,2
+                //             order by 3 desc 
+                //         )
+                //         select e_product_classname, sum(total) as total from cte group by 1 order by 2 desc
+                //     $$
+                //     ) AS nilai (
+                //         e_product_classname varchar, total numeric
+                //     )
+                // ", FALSE);
 
-                if ($kategori->num_rows() > 0) {
-                    $key=0;
-                    $max = array_sum(array_column($kategori->result_array(),'total'));
-                    foreach ($kategori->result() as $kat) {
-                        // if ($key == 0) {
-                        //     $max = $kat->total;
-                        // }
-                        $query['kategori'][$key]['kategori'] = $kat->e_product_classname;
-                        $query['kategori'][$key]['max'] = $max;
-                        $query['kategori'][$key]['total'] = $kat->total;
-                        $query['kategori'][$key]['progress'] = $kat->total/$max;
-                        $key++;
-                    }
+                // if ($kategori->num_rows() > 0) {
+                //     $key=0;
+                //     $max = array_sum(array_column($kategori->result_array(),'total'));
+                //     foreach ($kategori->result() as $kat) {
+                //         // if ($key == 0) {
+                //         //     $max = $kat->total;
+                //         // }
+                //         $query['kategori'][$key]['kategori'] = $kat->e_product_classname;
+                //         $query['kategori'][$key]['max'] = $max;
+                //         $query['kategori'][$key]['total'] = $kat->total;
+                //         $query['kategori'][$key]['progress'] = $kat->total/$max;
+                //         $key++;
+                //     }
                     
-                }
+                // }
 
                 $subkategori = $this->db->query("
                     select e_product_categoryname, total 
@@ -2021,38 +2011,38 @@ class Api extends REST_Controller
                     
                 }
 
-                $seri = $this->db->query("
-                    select e_product_seriname, total 
-                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
-                    $$
-                        with cte as (
-                            select to_char(b.d_nota, 'yyyymm') as periode, d.e_product_seriname , sum(a.n_deliver) as total from tm_nota_item a
-                            inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
-                            inner join tr_product c on (a.i_product = c.i_product)
-                            inner join tr_product_seri d on (c.i_product_seri  = d.i_product_seri)
-                            where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
-                            group by 1,2
-                            order by 3 desc 
-                        )
-                        select e_product_seriname, sum(total) as total from cte group by 1 order by 2 desc
-                    $$
-                    ) AS nilai (
-                        e_product_seriname varchar, total numeric
-                    )
-                ", FALSE);
+                // $seri = $this->db->query("
+                //     select e_product_seriname, total 
+                //     from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                //     $$
+                //         with cte as (
+                //             select to_char(b.d_nota, 'yyyymm') as periode, d.e_product_seriname , sum(a.n_deliver) as total from tm_nota_item a
+                //             inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
+                //             inner join tr_product c on (a.i_product = c.i_product)
+                //             inner join tr_product_seri d on (c.i_product_seri  = d.i_product_seri)
+                //             where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
+                //             group by 1,2
+                //             order by 3 desc 
+                //         )
+                //         select e_product_seriname, sum(total) as total from cte group by 1 order by 2 desc
+                //     $$
+                //     ) AS nilai (
+                //         e_product_seriname varchar, total numeric
+                //     )
+                // ", FALSE);
 
-                if ($seri->num_rows() > 0) {
-                    $key=0;
-                    $max = array_sum(array_column($seri->result_array(),'total'));
-                    foreach ($seri->result() as $row) {
-                        $query['seri'][$key]['seri'] = $row->e_product_seriname;
-                        $query['seri'][$key]['max'] = $max;
-                        $query['seri'][$key]['total'] = $row->total;
-                        $query['seri'][$key]['progress'] = $row->total/$max;
-                        $key++;
-                    }
+                // if ($seri->num_rows() > 0) {
+                //     $key=0;
+                //     $max = array_sum(array_column($seri->result_array(),'total'));
+                //     foreach ($seri->result() as $row) {
+                //         $query['seri'][$key]['seri'] = $row->e_product_seriname;
+                //         $query['seri'][$key]['max'] = $max;
+                //         $query['seri'][$key]['total'] = $row->total;
+                //         $query['seri'][$key]['progress'] = $row->total/$max;
+                //         $key++;
+                //     }
                     
-                }
+                // }
 
             }
 
@@ -2091,8 +2081,8 @@ class Api extends REST_Controller
         $i_area = $this->post('i_area');
         $username = $this->post('username');
 
-        $i_customer = "02171";
-        $i_area = "02";
+         // $i_customer = "02171";
+        // $i_area = "02";
         $this->db->select("*");
         $this->db->from("tbl_company");
         $this->db->where("i_company", $i_company);
@@ -2418,6 +2408,12 @@ class Api extends REST_Controller
         $latitude = $this->post('latitude');
         $longitude = $this->post('longitude');
 
+        $basic = $this->post('basic') ? $this->post('basic') : false;
+        $card = $this->post('card') ? $this->post('card') : false;
+        $piutang = $this->post('piutang') ? $this->post('piutang') : false;
+        $infolainnya = $this->post('infolainnya') ? $this->post('infolainnya') : false;
+        $sales = $this->post('sales') ? $this->post('sales') : false;
+
         $this->db->select("i_company");
         $this->db->from("tbl_company");
         $this->db->where("i_company", $i_company);
@@ -2434,6 +2430,11 @@ class Api extends REST_Controller
                 'latitude_checkout' => $latitude,
                 'longitude_checkout' => $longitude,
                 'createdat_checkout' => $datenow,
+                'basic' => $basic,
+                'card' => $card,
+                'piutang' => $piutang,
+                'infolainnya' => $infolainnya,
+                'sales' => $sales,
             );
 
             $this->db->where('username', $username);
@@ -2466,6 +2467,13 @@ class Api extends REST_Controller
         $username = $this->post('username');
         $i_company = $this->post('i_company');
         $i_customer = $this->post('i_customer');
+
+        $type = $this->post('type') ? $this->post('type') : null ;
+        $detail = $this->post('detail') ? $this->post('detail') : null;
+
+        if ($type) {
+            $type = $this->db->query("SELECT id from tbl_dokumentasi_type where e_dokumentasi_name = '$type' ")->row()->id;
+        }
 
         $target_dir = "assets/images/dokumentasi/$i_company/";
         $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
@@ -2504,6 +2512,8 @@ class Api extends REST_Controller
                     'd_dokumentasi' => date('Y-m-d'),
                     'e_foto' => $gambar,
                     'createdat' => $datenow,
+                    'id_dokumentasi_type' => $type,
+                    'e_detail' => $detail,
                 );
 
                 $this->db->insert('tbl_customer_dokumentasi', $data);
@@ -2713,6 +2723,51 @@ class Api extends REST_Controller
             $this->db->from("tbl_saran_type");
             $this->db->where("i_company", $i_company);
             $this->db->order_by("i_saran_type", "asc");
+            $data = $this->db->get();
+
+            if ($data->num_rows() > 0) {
+                $this->response([
+                    'status' => true,
+                    'data' => $data->result_array(),
+                ], REST_Controller::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => true,
+                    'data' => [],
+                ], REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $this->response([
+                'status' => false,
+                'data' => [],
+                'message' => 'Perusahaan Anda Tidak Terdaftar ! Silahkan Logout Dulu !',
+            ], REST_Controller::HTTP_OK);
+        }
+
+    }
+
+
+    public function listdokumentasitype_post()
+    {
+        $i_company = $this->post('i_company');
+        $username = $this->post('username');
+
+        $this->db->select("i_company");
+        $this->db->from("tbl_company");
+        $this->db->where("i_company", $i_company);
+        $this->db->where("f_active", 'true');
+        $cek_company = $this->db->get();
+
+        if ($cek_company->num_rows() > 0) {
+
+            $i_company = $i_company;
+            $username = $username;
+            $this->Logger->write($i_company, $username, 'Apps List Dokumentasi Type');
+
+            $this->db->select("e_dokumentasi_name as value");
+            $this->db->from("tbl_dokumentasi_type");
+            $this->db->order_by("n_order", "asc");
             $data = $this->db->get();
 
             if ($data->num_rows() > 0) {

@@ -46,9 +46,12 @@ class M_documentation extends CI_Model
             $i_company = $data['i_company'];
             $imgData = base64_encode(file_get_contents(base_url() . 'assets/images/dokumentasi/' . $i_company . '/' . $e_foto));
             $src = 'data:image/jpg;base64,' . $imgData;
-            return '<a href="' . $src . '" data-popup="lightbox">
-            <img src="' . $src . '" alt="" class="img-preview rounded">
-        </a>';
+            return '<a href="' . $src . '" data-popup="lightbox"><i class="icon-images2 icon-2x mr-2"></i>'.$e_foto.'</a>'
+            ;
+            /* return '<a href="' . $src . '" data-popup="lightbox">
+                <img src="' . $src . '" alt="" class="img-preview rounded">
+            </a>'
+            ; */
         });
 
         return $datatables->generate();
@@ -95,9 +98,10 @@ class M_documentation extends CI_Model
             $i_company = $data['i_company'];
             $imgData = base64_encode(file_get_contents(base_url() . 'assets/images/checkinselfie/' . $i_company . '/' . $e_foto));
             $src = 'data:image/jpg;base64,' . $imgData;
-            return '<a href="' . $src . '" data-popup="lightbox">
+            return '<a href="' . $src . '" data-popup="lightbox"><i class="icon-images2 icon-2x mr-2"></i>'.$e_foto.'</a>';
+            /* return '<a href="' . $src . '" data-popup="lightbox">
             <img src="' . $src . '" alt="" class="img-preview rounded">
-        </a>';
+        </a>'; */
         });
 
         return $datatables->generate();
