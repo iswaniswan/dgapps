@@ -1082,7 +1082,7 @@ class Report extends CI_Controller
                      )
                      select e_name, i_customer, e_customer_name, v_target, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, des
                      from (
-                          SELECT y.e_name, datas[2] as i_customer,y.e_customer_name, y.v_target, coalesce(jan,'0|0') as jan,
+                          SELECT y.e_name, y.i_customer /*datas[2] as i_customer*/ ,y.e_customer_name, y.v_target, coalesce(jan,'0|0') as jan,
                           coalesce(feb,'0|0') as feb,
                           coalesce(mar,'0|0') as mar,
                           coalesce(apr,'0|0') as apr,
@@ -1117,7 +1117,7 @@ class Report extends CI_Controller
                            ) as x (
                              datas text[], jan text, feb text, mar text, apr text, may text, 
                              jun text, jul text, aug text, sep text, oct text, nov text, des text )
-                          inner join cte y on (x.datas[1] = y.username and x.datas[2] = y.i_customer)
+                          right join cte y on (x.datas[1] = y.username and x.datas[2] = y.i_customer)
                      ) as final
                      order by 1,2,3 asc
             ");

@@ -18,6 +18,7 @@ var MediaLibrary = (function () {
       serverSide: true,
       autoWidth: false,
       processing: true,
+      order: [[3, "desc"]],
       ajax: {
         url: base_url + "documentation/data_documentation",
         type: "post",
@@ -55,6 +56,7 @@ var MediaLibrary = (function () {
       serverSide: true,
       autoWidth: false,
       processing: true,
+      order: [[3, "desc"]],
       ajax: {
         url: base_url + "documentation/data_checkin",
         type: "post",
@@ -151,3 +153,44 @@ document.addEventListener("DOMContentLoaded", function () {
   var column = 8;
   datatable(controller, column);
 });
+
+function click_image(url, title) {
+  swal
+    .queue([
+      {
+        title: title,
+        /* text: "Bootstrap is awesome.", */
+        imageUrl: base_url + url,
+        imageWidth: 500,
+        // background: '#FFFF0080',
+        background: "rgba(255,255,255,.6)",
+        grow: "column",
+        // backdrop: false,
+        // grow: 'fullscreen',
+        // backdrop-filter: 'blur(2px)',
+
+        /* type: "error", */
+        confirmButtonClass: "btn bg-slate-800",
+        confirmButtonText: "Close",
+      },
+    ])
+    .then(function (result) {
+      // if (result.value) {
+      //   // alert('x');
+      //   $(".swal2-image").css({
+      //     "-webkit-transform": "rotate(90deg)",
+      //     "-moz-transform": "rotate(90deg)",
+      //     transform: "rotate(90deg)" /* For modern browsers(CSS3)  */,
+      //   });
+      //   // return false;
+      //   click_image(url, title);
+      // }
+      // console.log(result.value == true);
+      // .css({
+      //     "-webkit-transform": "rotate(90deg)",
+      //     "-moz-transform": "rotate(90deg)",
+      //     "transform": "rotate(90deg)" /* For modern browsers(CSS3)  */
+      // });
+      /* console.log($('.swal2-image').val()); */
+    });
+}

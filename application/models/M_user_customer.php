@@ -54,7 +54,7 @@ class M_user_customer extends CI_Model
 
     public function get_customer($cari)
     {
-        return $this->db->query("SELECT i_customer, e_customer_name FROM tbl_customer WHERE f_active = 't' AND i_company = '$this->i_company' AND (i_customer ILIKE '%$cari%' OR e_customer_name ILIKE '%$cari%' ) ORDER BY 2", FALSE);
+        return $this->db->query("SELECT i_customer, e_customer_name FROM tbl_customer WHERE /*f_active = 't' AND*/ i_company = '$this->i_company' AND (i_customer ILIKE '%$cari%' OR e_customer_name ILIKE '%$cari%' ) ORDER BY 2", FALSE);
     }
 
     public function simpan($username, $e_name, $e_password, $i_customer)

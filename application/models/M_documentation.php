@@ -43,10 +43,12 @@ class M_documentation extends CI_Model
 
         $datatables->edit('e_foto', function ($data) {
             $e_foto = $data['e_foto'];
+            $foto = "'$e_foto'";
             $i_company = $data['i_company'];
-            $imgData = base64_encode(file_get_contents(base_url() . 'assets/images/dokumentasi/' . $i_company . '/' . $e_foto));
-            $src = 'data:image/jpg;base64,' . $imgData;
-            return '<a href="' . $src . '" data-popup="lightbox"><i class="icon-images2 icon-2x mr-2"></i>'.$e_foto.'</a>'
+            $url = "'assets/images/dokumentasi/$i_company/$e_foto'";
+            /*$imgData = base64_encode(file_get_contents(base_url() . 'assets/images/dokumentasi/' . $i_company . '/' . $e_foto));
+            $src = 'data:image/jpg;base64,' . $imgData; */
+            return '<a href="#" onclick="click_image('.$url.','.$foto.'); return false;"><i class="icon-images2 mr-2"></i>'.$e_foto.'</a>'
             ;
             /* return '<a href="' . $src . '" data-popup="lightbox">
                 <img src="' . $src . '" alt="" class="img-preview rounded">
@@ -77,7 +79,7 @@ class M_documentation extends CI_Model
                 select a.i_area from tbl_user_area a where a.username = '$username' and a.i_company = '$i_company'
                 )
                 and a.i_company = '$i_company'
-                and a.username = b.username and a.i_company = b.i_company and b.i_role >= '3'
+                and a.username = b.username and a.i_company = b.i_company and (b.i_role >= '3' or b.i_role = '1')
                 group by a.username
         )
         order by a.createdat_checkin desc");
@@ -93,15 +95,30 @@ class M_documentation extends CI_Model
             }
         });
 
+        // $datatables->edit('e_foto', function ($data) {
+        //     $e_foto = $data['e_foto'];
+        //     $i_company = $data['i_company'];
+        //     $imgData = base64_encode(file_get_contents(base_url() . 'assets/images/checkinselfie/' . $i_company . '/' . $e_foto));
+        //     $src = 'data:image/jpg;base64,' . $imgData;
+        //     return '<a href="' . $src . '" data-popup="lightbox"><i class="icon-images2 icon-2x mr-2"></i>'.$e_foto.'</a>';
+        //     /* return '<a href="' . $src . '" data-popup="lightbox">
+        //     <img src="' . $src . '" alt="" class="img-preview rounded">
+        // </a>'; */
+        // });
+
         $datatables->edit('e_foto', function ($data) {
             $e_foto = $data['e_foto'];
+            $foto = "'$e_foto'";
             $i_company = $data['i_company'];
-            $imgData = base64_encode(file_get_contents(base_url() . 'assets/images/checkinselfie/' . $i_company . '/' . $e_foto));
-            $src = 'data:image/jpg;base64,' . $imgData;
-            return '<a href="' . $src . '" data-popup="lightbox"><i class="icon-images2 icon-2x mr-2"></i>'.$e_foto.'</a>';
+            $url = "'assets/images/checkinselfie/$i_company/$e_foto'";
+            /*$imgData = base64_encode(file_get_contents(base_url() . 'assets/images/dokumentasi/' . $i_company . '/' . $e_foto));
+            $src = 'data:image/jpg;base64,' . $imgData; */
+            return '<a href="#" onclick="click_image('.$url.','.$foto.'); return false;"><i class="icon-images2 mr-2"></i>'.$e_foto.'</a>'
+            ;
             /* return '<a href="' . $src . '" data-popup="lightbox">
-            <img src="' . $src . '" alt="" class="img-preview rounded">
-        </a>'; */
+                <img src="' . $src . '" alt="" class="img-preview rounded">
+            </a>'
+            ; */
         });
 
         return $datatables->generate();

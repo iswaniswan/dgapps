@@ -21,7 +21,8 @@ class Documentation extends CI_Controller
                 'global_assets/js/plugins/forms/styling/uniform.min.js',
                 'global_assets/js/plugins/forms/selects/select2.min.js',
                 'global_assets/js/plugins/tables/datatables/datatables.min.js',
-                'assets/js/documentation/index.js',
+                'global_assets/js/plugins/notifications/sweet_alert.min.js',
+                'assets/js/documentation/index.js?v=1',
             )
         );
         $this->Logger->write(null, null, 'Membuka Menu Documentation');

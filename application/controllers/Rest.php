@@ -162,7 +162,7 @@ class Rest extends REST_Controller
             $this->db->select("i_customer");
             $this->db->from("tbl_customer");
             $this->db->where("i_customer", $i_customer);
-            $this->db->where("i_area", $i_area);
+            /* $this->db->where("i_area", $i_area); */
             $this->db->where("i_company", $i_company);
             $cek_customer = $this->db->get();
 
