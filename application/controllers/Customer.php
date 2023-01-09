@@ -52,7 +52,7 @@ class Customer extends CI_Controller
                     'global_assets/js/plugins/tables/datatables/datatables.min.js',
                     'global_assets/js/plugins/forms/selects/select2.min.js',
                     'global_assets/js/plugins/notifications/sweet_alert.min.js',
-                    'assets/js/customer/view.js',
+                    'assets/js/customer/view.js?v=1',
                 )
             );
             $data = array(
@@ -88,10 +88,14 @@ class Customer extends CI_Controller
         $latitude = $data[1];
         $longitude = $data[2];
 
+        $pos1 = strpos($latitude, ",");
+        $pos2 = strpos($longitude, ",");
+
         if ($latitude == '' || $longitude == '') {
             $status = 'failed';
+        } else if ($pos1 !== false || $pos2 !== false) {
+            $status = 'failed';
         } else {
-
             $this->M_customer->change_address($i_customer, $address, $latitude, $longitude);
             $status = 'success';
         }

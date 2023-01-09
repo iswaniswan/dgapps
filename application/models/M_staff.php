@@ -12,9 +12,17 @@ class M_staff extends CI_Model {
         $i_company = $this->session->userdata('i_company');
         $i_role = $this->session->userdata('i_role');
 
-        if ( ($i_role == '4' || $i_role == '3') ) {
+        if ( ($i_role == '4' || $i_role == '3' || $i_role == '7') ) {
             //for ($i=1;$i<=5;$i++) {
             
+            if ($i_role == '7') {
+                $cek_rss = $this->db->query("select username_upline from tbl_user where username = '$username'", FALSE);
+                if ($cek_rss->num_rows() > 0) {
+                    $username = $cek_rss->row()->username_upline;
+                } 
+            } 
+            
+
             $query = $this->db->query("select * from tbl_user where username_upline = '$username' ");
             $sql = "select * from tbl_user where username = '$username'";
 
@@ -46,7 +54,7 @@ class M_staff extends CI_Model {
                     select a.i_area from tbl_user_area a where a.username = '$username' and a.i_company = '$i_company'
                     )
                     and a.i_company = '$i_company' and b.e_name ilike '%$cari%'
-                    and a.username = b.username and a.i_company = b.i_company and (b.i_role >= '3' or (b.username = 'ganni' or b.username = 'suyadi' or b.username = 'admin')   )
+                    and a.username = b.username and a.i_company = b.i_company /*and (b.i_role >= '3' or (b.username = 'ganni' or b.username = 'suyadi' or b.username = 'admin')  )*/
                     group by a.username
             )");
         }

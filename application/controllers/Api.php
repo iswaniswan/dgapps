@@ -1132,6 +1132,11 @@ class Api extends REST_Controller
             // // $this->db->like('a.i_customer', $cari);
             // // $this->db->or_like('a.e_customer_name', $cari);
 
+            $where = '';
+            if ($username == 'admin' && $i_company == '7') {
+                $where = " or i_customer in ('02820', '52548') ";
+            }
+
             // $query = $this->db->get();
             $query = $this->db->query("select x.* from(
                 select a.i_customer, a.e_customer_name, a.e_customer_address, a.i_price_group, c.n_customer_discount1, c.n_customer_discount2, a.i_area, a.latitude, a.longitude,
@@ -1152,7 +1157,7 @@ class Api extends REST_Controller
                 and a.latitude != ''
                 and a.longitude != ''
                 ) as x
-                where x.distance <= 1000");
+                where x.distance <= 1000 $where ");
 
             $list = array();
             $key = 0;
@@ -1619,7 +1624,9 @@ class Api extends REST_Controller
 
             $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
 
-            if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
+            // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
+            if ($i_company == '6' || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') ) {
+
 
                 $query = array();
                 $key = 0;
@@ -1737,7 +1744,8 @@ class Api extends REST_Controller
             $query['head']['e_customer_name'] = $customerHead->e_customer_name;
             $query['head']['e_customer_address'] = $customerHead->e_customer_address;
 
-            if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin')) {
+            // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin')) {
+            if ($i_company == '6' || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') ) {
                 $usertoko = $this->db->query("select username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
                 if ($usertoko->num_rows() > 0) {
                     $usertoko = $usertoko->row()->username;
@@ -2117,7 +2125,8 @@ class Api extends REST_Controller
                 }
 
 
-            } else if ( ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
+            // } else if ( ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
+            } else if ( ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') ) {
 
                  //list daftar tagihan
                 $item = $this->db->query("

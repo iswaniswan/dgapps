@@ -220,7 +220,7 @@ var Customer = (function() {
                 } else {
                   swalInit.fire({
                     type: "error",
-                    title: "Change Address Failed"
+                    title: "Latitude dan Longitude Tidak Boleh Ada Tanda Koma"
                   });
                 }
               }
