@@ -14,7 +14,9 @@ class M_user_management extends CI_Model
         $i_company = $this->session->userdata('i_company');
 
         $datatables = new Datatables(new CodeigniterAdapter);
-        $datatables->query("select a.username, a.e_name, b.e_area_name, c.e_role_name, a.username_upline, a.f_active from tbl_user a, tbl_area b, tbl_user_role c
+        /* previous query, tanpa data upline */
+        /*
+        $datatables->query("select a.username, a.e_name, b.e_area_name, c.e_role_name, a.f_active from tbl_user a, tbl_area b, tbl_user_role c
         where
         a.i_area = b.i_area
         and a.i_company = b.i_company
@@ -27,6 +29,36 @@ class M_user_management extends CI_Model
             and a.i_company = '$i_company'
             and a.username = b.username and a.i_company = b.i_company and b.i_role >= '1'
             group by a.username)");
+        */
+        /* query dengan data upline */
+        $sql_user = "select a.username, a.e_name, b.e_area_name, c.e_role_name, a.username_upline, a.f_active 
+                            from tbl_user a, tbl_area b, tbl_user_role c
+                            where a.i_area = b.i_area
+                            and a.i_company = b.i_company
+                            and a.i_role = c.i_role
+                            and a.i_company = c.i_company
+                            and a.i_company = '$i_company'
+                            and a.username in(
+                                select distinct on (a.username) a.username 
+                                from tbl_user_area a, tbl_user b 
+                                where a.i_area in(
+                                    select a.i_area 
+                                    from tbl_user_area a 
+                                    where a.username = '$username' and a.i_company = '$i_company'
+                                )
+                                and a.i_company = '$i_company'
+                                and a.username = b.username and a.i_company = b.i_company and b.i_role >= '1'
+                                group by a.username
+                            )";
+        $sql_upline = "select distinct on (tu.username) tu.username, tu.e_name, tur.e_role_name  from tbl_user tu 
+                            inner join tbl_user_role tur on tur.i_role=tu.i_role 
+                            group by 1, 2, 3";
+        $sql = "select q_user.username, q_user.e_name, q_user.e_area_name, q_user.e_role_name, concat(q_upline.e_name, ' - ', q_upline.e_role_name) as upline, q_user.f_active from (
+                    $sql_user
+                ) AS q_user LEFT JOIN ($sql_upline) AS q_upline ON q_user.username_upline=q_upline.username
+                ORDER BY q_user.username ASC";
+        $datatables->query($sql);
+
         $datatables->edit('f_active', function ($data) {
             $f_active = $data['f_active'];
             if ($f_active == 't') {
