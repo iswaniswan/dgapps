@@ -63,7 +63,8 @@ class User_management extends CI_Controller
                 'data_user' => $this->M_user_management->data_user($id)->row(),
                 'data_area' => $this->M_user_management->data_area(),
                 'data_role' => $this->M_user_management->data_role(),
-
+                'data_upline' => $this->M_user_management->data_upline(),
+                'data_user_area' => $this->M_user_management->get_array_user_area($id)
             );
             $this->Logger->write(null, null, 'Membuka Menu User Management View ' . $id);
             $this->template->load('template', $this->folder . '/view', $data);
@@ -84,10 +85,15 @@ class User_management extends CI_Controller
         $e_name = $this->input->post('e_name', true);
         $phone = $this->input->post('phone', true);
         $email = $this->input->post('email', true);
+        $username_upline = $this->input->post('username_upline', true);
+        $array_area = $this->input->post('array_area', true);
 
         $this->Logger->write(null, null, 'Update User Management ' . $username);
 
-        $this->M_user_management->update($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email);
+        $this->M_user_management->update($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $username_upline);
+
+        /* update ke tbl_user_area */
+        $this->M_user_management->update_user_area($username, $array_area);
 
         $this->session->Set_flashdata('message', '<div class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
 		<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
@@ -110,7 +116,7 @@ class User_management extends CI_Controller
         $data = array(
             'data_area' => $this->M_user_management->data_area(),
             'data_role' => $this->M_user_management->data_role(),
-
+            'data_upline' => $this->M_user_management->data_upline(),
         );
         $this->Logger->write(null, null, 'Membuka Menu Tambah User Management');
         $this->template->load('template', $this->folder . '/add', $data);
@@ -127,6 +133,8 @@ class User_management extends CI_Controller
         $phone = $this->input->post('phone', true);
         $email = $this->input->post('email', true);
         $e_password = $this->input->post('e_password', true);
+        $username_upline = $this->input->post('usename_upline', true);
+        $array_area = $this->input->post('array_area', true);
 
         $username_parts = array_filter(explode(" ", strtolower($e_name))); //explode and lowercase name
         $username_parts = array_slice($username_parts, 0, 2); //return only first two arry part
@@ -148,7 +156,17 @@ class User_management extends CI_Controller
             $username = $username . $cek_user->num_rows();
         }
 
-        $this->M_user_management->simpan($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $e_password);
+        $this->M_user_management->simpan($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $e_password, $username_upline);
+        /* insert ke tbl_user_area */
+        foreach ($array_area as $area) {
+            $_area = [
+                'username' => $username,
+                'i_area' => $area,
+                'i_company' => $i_company
+            ];
+            $this->M_user_management->insert_user_area($_area);
+        }
+
         $this->Logger->write(null, null, 'Tambah User ' . $username);
 
         $this->session->Set_flashdata('message', '<div class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">

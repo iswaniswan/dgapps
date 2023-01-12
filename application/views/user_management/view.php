@@ -81,6 +81,30 @@
 			                      value="<?= $data_user->address; ?>" name="address" required>
 			                  </div>
 			                </div>
+                              <div class="form-group row">
+                                  <label class="col-form-label col-lg-2">Upline</label>
+                                  <div class="col-lg-10">
+                                      <select class="form-control select-search" data-fouc name="username_upline" required>
+                                          <?php foreach ($data_upline as $row) { ?>
+                                                <?= $selected = $row->username == $data_user->username_upline ? 'selected' : '' ?>
+                                              <option value="<?= $row->username ?>" <?= $selected ?>><?= $row->e_name . ' - ' . $row->e_role_name ?></option>
+                                          <?php } ?>
+                                      </select>
+                                  </div>
+                              </div>
+                              <div class="form-group row">
+                                  <label class="col-form-label col-lg-2">Area</label>
+                                  <div class="col-lg-10">
+                                      <select class="form-control select-search" data-fouc name="array_area[]" multiple="multiple" required>
+                                          <?php if($data_area->num_rows() > 0){
+                                              foreach ($data_area->result() as $row) { ?>
+                                                      <?php $selected = in_array($row->i_area, $data_user_area) ? 'selected' : '' ?>
+                                                  <option value="<?= $row->i_area; ?>" <?= $selected ?>><?= $row->e_area_name; ?></option>
+                                              <?php }
+                                          }?>
+                                      </select>
+                                  </div>
+                              </div>
 			              </div>
 			              <div class="col-xl-6">
 			                <div class="form-group row">

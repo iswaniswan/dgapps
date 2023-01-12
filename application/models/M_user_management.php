@@ -96,7 +96,7 @@ class M_user_management extends CI_Model
         //    return $this->db->select('*')->from('tbl_user_role')->where('i_company', $i_company, 'i_role >', $i_role)->order_by('i_role', 'asc')->get();
     }
 
-    public function update($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email)
+    public function update($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $username_upline=null)
     {
         $i_company = $this->session->userdata('i_company');
 
@@ -109,6 +109,7 @@ class M_user_management extends CI_Model
             'phone' => $phone,
             'email' => $email,
             'modifiedat' => current_datetime(),
+            'username_upline' => $username_upline
         );
 
         $this->db->where('username', $username);
@@ -117,12 +118,15 @@ class M_user_management extends CI_Model
 
     }
 
-    public function simpan($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $e_password)
+    public function simpan($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $e_password, $username_upline=null)
     {
         $this->load->library('custom');
         $e_password = $this->custom->password($e_password);
         $i_company = $this->session->userdata('i_company');
-        $username_upline = $this->session->userdata('username');
+
+        if ($username_upline == null) {
+            $username_upline = $this->session->userdata('username');
+        }
 
         $data = array(
             'username' => $username,
@@ -142,6 +146,60 @@ class M_user_management extends CI_Model
 
         $this->db->insert('tbl_user', $data);
 
+    }
+
+    public function data_upline()
+    {
+        $i_company = $this->session->userdata('i_company');
+
+        $sql = "SELECT tu.username, tu.e_name, tur.e_role_name  
+                    FROM tbl_user tu 
+                    INNER JOIN tbl_user_role tur ON tur.i_role=tu.i_role 
+                    WHERE tu.i_company = '$i_company'
+                    GROUP BY 1, 2, 3
+                    ORDER BY 1 ASC";
+        $query = $this->db->query($sql);
+        return $query->result();
+    }
+
+    public function insert_user_area($data)
+    {
+        $this->db->insert('tbl_user_area', $data);
+    }
+
+    public function get_array_user_area($username)
+    {
+        $i_company = $this->session->userdata('i_company');
+        $sql = "select i_area from tbl_user_area where i_company = '$i_company' and username = '$username'";
+        $query = $this->db->query($sql);
+
+        $array = [];
+        foreach ($query->result() as $row) {
+            $array[] = $row->i_area;
+        }
+        return $array;
+    }
+
+    public function update_user_area($username, $array)
+    {
+        /** delete records first */
+        $this->delete_user_area($username);
+
+        $i_company = $this->session->userdata('i_company');
+        foreach ($array as $area) {
+            $_area = [
+                'username' => $username,
+                'i_area' => $area,
+                'i_company' => $i_company
+            ];
+            $this->insert_user_area($_area);
+        }
+    }
+
+    public function delete_user_area($username)
+    {
+        $this->db->where('username', $username);
+        $this->db->delete('tbl_user_area');
     }
 
 }

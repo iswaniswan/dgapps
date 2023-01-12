@@ -70,6 +70,29 @@
 			                    <input type="text" class="form-control" placeholder="Home Address" name="address" required>
 			                  </div>
 			                </div>
+                              <div class="form-group row">
+                                  <label class="col-form-label col-lg-2">Upline</label>
+                                  <div class="col-lg-10">
+                                      <select class="form-control select-search" data-fouc name="username_upline" required>
+                                          <?php foreach ($data_upline as $row) { ?>
+                                              <option value="<?= $row->username ?>"><?= $row->e_name . ' - ' . $row->e_role_name ?></option>
+                                          <?php } ?>
+                                      </select>
+                                  </div>
+                              </div>
+                              <div class="form-group row">
+                                  <label class="col-form-label col-lg-2">Area</label>
+                                  <div class="col-lg-10">
+                                      <select class="form-control select-search" data-fouc name="array_area[]" multiple="multiple" required>
+                                          <?php if($data_area->num_rows() > 0){
+                                              foreach ($data_area->result() as $row) { ?>
+                                                  <option value="<?= $row->i_area; ?>">
+                                                      <?= $row->e_area_name; ?></option>
+                                              <?php }
+                                          }?>
+                                      </select>
+                                  </div>
+                              </div>
 			              </div>
 			              <div class="col-xl-6">
 			                <div class="form-group row">
