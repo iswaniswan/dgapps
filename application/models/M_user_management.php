@@ -14,7 +14,7 @@ class M_user_management extends CI_Model
         $i_company = $this->session->userdata('i_company');
 
         $datatables = new Datatables(new CodeigniterAdapter);
-        $datatables->query("select a.username, a.e_name, b.e_area_name, c.e_role_name, a.f_active from tbl_user a, tbl_area b, tbl_user_role c
+        $datatables->query("select a.username, a.e_name, b.e_area_name, c.e_role_name, a.username_upline, a.f_active from tbl_user a, tbl_area b, tbl_user_role c
         where
         a.i_area = b.i_area
         and a.i_company = b.i_company
@@ -180,7 +180,7 @@ class M_user_management extends CI_Model
         return $array;
     }
 
-    public function update_user_area($username, $array)
+    public function update_user_area($username, $array=[])
     {
         /** delete records first */
         $this->delete_user_area($username);

@@ -38,6 +38,7 @@
 			                <th>Name</th>
 			                <th>Area</th>
 			                <th>Role</th>
+                            <th>Upline</th>
 			                <th>Status</th>
 			                <th>&nbsp;</th>
 			              </tr>

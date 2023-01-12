@@ -86,14 +86,16 @@ class User_management extends CI_Controller
         $phone = $this->input->post('phone', true);
         $email = $this->input->post('email', true);
         $username_upline = $this->input->post('username_upline', true);
-        $array_area = $this->input->post('array_area', true);
+        $coverage_area = $this->input->post('coverage_area', true);
 
         $this->Logger->write(null, null, 'Update User Management ' . $username);
 
         $this->M_user_management->update($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $username_upline);
 
         /* update ke tbl_user_area */
-        $this->M_user_management->update_user_area($username, $array_area);
+        if (@$coverage_area) {
+            $this->M_user_management->update_user_area($username, $coverage_area);
+        }
 
         $this->session->Set_flashdata('message', '<div class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
 		<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
@@ -133,8 +135,8 @@ class User_management extends CI_Controller
         $phone = $this->input->post('phone', true);
         $email = $this->input->post('email', true);
         $e_password = $this->input->post('e_password', true);
-        $username_upline = $this->input->post('usename_upline', true);
-        $array_area = $this->input->post('array_area', true);
+        $username_upline = $this->input->post('username_upline', true);
+        $coverage_area = $this->input->post('coverage_area', true);
 
         $username_parts = array_filter(explode(" ", strtolower($e_name))); //explode and lowercase name
         $username_parts = array_slice($username_parts, 0, 2); //return only first two arry part
@@ -157,14 +159,17 @@ class User_management extends CI_Controller
         }
 
         $this->M_user_management->simpan($i_role, $i_area, $f_active, $address, $username, $i_staff, $e_name, $phone, $email, $e_password, $username_upline);
+
         /* insert ke tbl_user_area */
-        foreach ($array_area as $area) {
-            $_area = [
-                'username' => $username,
-                'i_area' => $area,
-                'i_company' => $i_company
-            ];
-            $this->M_user_management->insert_user_area($_area);
+        if ($f_active == 't') {
+            foreach ($coverage_area as $area) {
+                $_area = [
+                    'username' => $username,
+                    'i_area' => $area,
+                    'i_company' => $i_company
+                ];
+                $this->M_user_management->insert_user_area($_area);
+            }
         }
 
         $this->Logger->write(null, null, 'Tambah User ' . $username);

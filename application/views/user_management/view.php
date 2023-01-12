@@ -84,6 +84,7 @@
                               <div class="form-group row">
                                   <label class="col-form-label col-lg-2">Upline</label>
                                   <div class="col-lg-10">
+                                      <?php $disabled = $data_user->f_active == 'f' ? 'disabled' : ''; ?>
                                       <select class="form-control select-search" data-fouc name="username_upline" required>
                                           <?php foreach ($data_upline as $row) { ?>
                                                 <?= $selected = $row->username == $data_user->username_upline ? 'selected' : '' ?>
@@ -93,9 +94,13 @@
                                   </div>
                               </div>
                               <div class="form-group row">
-                                  <label class="col-form-label col-lg-2">Area</label>
+                                  <label class="col-form-label col-lg-2">Coverage Area</label>
                                   <div class="col-lg-10">
-                                      <select class="form-control select-search" data-fouc name="array_area[]" multiple="multiple" required>
+                                      <div class="div" style="display: flex">
+                                          <span class="mr-2">Pilih Semua</span>
+                                          <input type="checkbox" id="coverage_area_checkbox" class="" style="align-self: center">
+                                      </div>
+                                      <select class="form-control select-search" id="coverage_area_select" data-fouc name="coverage_area[]" multiple="multiple" <?= $disabled ?>  required>
                                           <?php if($data_area->num_rows() > 0){
                                               foreach ($data_area->result() as $row) { ?>
                                                       <?php $selected = in_array($row->i_area, $data_user_area) ? 'selected' : '' ?>

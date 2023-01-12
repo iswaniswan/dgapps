@@ -6,6 +6,16 @@ var Customer = (function() {
       return;
     }
     $(".select-search").select2();
+
+    $("#coverage_area_checkbox").click(function(){
+      const selectAll = $(this).is(':checked');
+      if (selectAll) {
+        $("#coverage_area_select > option").prop("selected","selected");
+      } else {
+        $('#coverage_area_select').val(null).trigger('change');
+      }
+      $("#coverage_area_select").trigger("change");
+    });
   };
 
   var _componentValidation = function() {
@@ -124,3 +134,5 @@ var Customer = (function() {
 document.addEventListener("DOMContentLoaded", function() {
   Customer.init();
 });
+
+
