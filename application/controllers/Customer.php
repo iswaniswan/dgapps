@@ -131,4 +131,39 @@ class Customer extends CI_Controller
         );
         echo json_encode($data);
     }
+
+    public function create_new_location()
+    {
+        $i_customer = $this->input->post('i_customer');
+        $i_company = $this->session->userdata('i_company');
+        $latitude = $this->input->post('latitude');
+        $longitude = $this->input->post('longitude');
+        $keterangan = $this->input->post('keterangan');
+        $username = $this->session->userdata('username');
+
+        $data = [
+            'i_customer' => $i_customer,
+            'i_company' => $i_company,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'keterangan' => $keterangan,
+            'username' => $username
+        ];
+        $this->M_customer->create_new_location($data);
+        redirect($_SERVER['HTTP_REFERER'], 'refresh');
+    }
+
+    public function view_all_location()
+    {
+        $id = $this->uri->segment('3');
+        echo $this->M_customer->view_all_location($id);
+    }
+
+    public function delete_location()
+    {
+        $id = $this->input->post('id');
+        $this->M_customer->delete_location($id);
+        redirect($_SERVER['HTTP_REFERER'], 'refresh');
+    }
+
 }

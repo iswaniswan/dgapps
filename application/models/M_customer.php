@@ -164,6 +164,45 @@ class M_customer extends CI_Model
 
     }
 
+    public function create_new_location($data)
+    {
+        $this->db->insert('tbl_customer_coordinate', $data);
+    }
+
+    public function view_all_location($id)
+    {
+        $datatables = new Datatables(new CodeigniterAdapter);
+        $sql = "SELECT tcc.id, tcc.i_customer, tcc.latitude, tcc.longitude, tcc.keterangan FROM tbl_customer_coordinate tcc WHERE i_customer = '$id' ORDER BY id DESC";
+        $datatables->query($sql);
+        $datatables->hide('id');
+        $datatables->hide('i_customer');
+        $datatables->add('action', function ($_self) {
+            $latitude = $_self['latitude'];
+            $longitude = $_self['longitude'];
+            $actionView = "<button class='btn btn-sm btn-success coordinate-view mr-1' style='padding: .125rem .5rem !important;' 
+                                data-latitude='$latitude' data-longitude='$longitude'>
+                            <i class='fas fa-eye'></i>
+                            </button>";
+
+            $url = site_url('customer/delete_location/');
+            $id = $_self['id'];
+            $actionDelete = "<form method='post' action='$url'>
+                        <input type='hidden' name='id' value='$id'>
+                        <button type='submit' class='btn btn-sm btn-danger' style='padding: .125rem .5rem !important;'><i class='fas fa-trash'></i></button>
+                    </form>";
+            $row = '<div style="display: flex; justify-content: flex-start">'.$actionView.$actionDelete.'</div>';
+            return $row;
+        });
+
+        return $datatables->generate();
+    }
+
+    public function delete_location($id)
+    {
+        $this->db->where('id', $id);
+        $this->db->delete('tbl_customer_coordinate');
+    }
+
 }
 
 /* End of file M_customer.php */

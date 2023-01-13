@@ -27,3 +27,5 @@ $lang['Customer Target'] = 'Target Customer';
 $lang['Banner'] = 'Banner';
 $lang['Information'] = 'Informasi';
 $lang['Informationtype'] = 'Tipe Informasi';
+$lang['location-list'] = 'Daftar Lokasi';
+

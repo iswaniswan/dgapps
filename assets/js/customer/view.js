@@ -259,3 +259,142 @@ document.addEventListener("DOMContentLoaded", function() {
   datatable(controller, column);
   Customer.init();
 });
+
+function initMapLocation() {
+  const BANDUNG = {lat: -6.914864, lng: 107.608238};
+
+  let map = new google.maps.Map(document.getElementById('map-location'), {
+    center: BANDUNG,
+    zoom: 13,
+  });
+
+  let marker = new google.maps.Marker({
+    map: map,
+    anchorPoint: new google.maps.Point(0, -29)
+  });
+
+  /** @type {!HTMLInputElement} */
+  const input = (document.getElementById('pac-input'));
+
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+  const autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.bindTo('bounds', map);
+
+  const showPlaceGeometry = (map, place) => {
+    if (place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    } else {
+      map.setCenter(place.geometry.location);
+      map.setZoom(17);
+    }
+  }
+
+  autocomplete.addListener('place_changed', function() {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) {
+      window.alert("No details available for input: '" + place.name + "'");
+      return;
+    }
+
+    showPlaceGeometry(map, place);
+
+    marker.setPosition(place.geometry.location);
+
+    let lat = place.geometry.location.lat();
+    let lng = place.geometry.location.lng();
+    setInputFormLatLng(lat, lng);
+  });
+
+  /* add marker onclick */
+  map.addListener('click', function(e) {
+    removeMarkers();
+    placeMarker(e.latLng, map);
+  });
+
+  const removeMarkers = () => {
+    marker.setMap(null);
+  }
+
+  const placeMarker = (position, map) => {
+    marker = new google.maps.Marker({
+      position: position,
+      map: map
+    })
+    setInputFormLatLng(marker.position.lat(), marker.position.lng());
+  }
+
+  const setInputFormLatLng = (lat, lng) => {
+    $("input[name='latitude").val(lat);
+    $("input[name='longitude").val(lng);
+  }
+}
+
+
+
+const recreateUrlMapRequest = () => {
+  const allScripts = document.getElementsByTagName( 'script' );
+
+  Array.from(allScripts).forEach((child) => {
+    const src = child.src;
+    if (src.indexOf('maps.googleapis.com/maps/api/js?key=') !== -1) {
+      child.remove();
+    }
+  });
+
+  const script = document.createElement('script');
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyC5Knm3yStpPRpfNkJmbVKSxvexZ0kVezI&libraries=places&callback=initMapLocation";
+  document.head.appendChild(script);
+}
+
+document.addEventListener('load', function() {
+  recreateUrlMapRequest();
+})
+
+function loadTable(table, link, column) {
+  table.DataTable({
+    serverSide: true,
+    autoWidth: false,
+    processing: true,
+    ajax: {
+      url: base_url + link,
+      type: "post",
+      error: function(data, err) {
+        console.log(err);
+      },
+    },
+    jQueryUI: false,
+    autoWidth: false,
+    pagingType: "full_numbers",
+    dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
+    language: {
+      infoPostFix: "",
+      search: "<span>Search:</span> _INPUT_",
+      url: "",
+      paginate: {
+        previous: $("html").attr("dir") == "rtl" ? "&rarr;" : "&larr;",
+        next: $("html").attr("dir") == "rtl" ? "&larr;" : "&rarr;",
+      },
+    },
+  });
+}
+$(document).ready(function () {
+  let recreate = false;
+  $('#add-location').click(function() {
+      if (recreate === false) {
+          // recreateUrlMapRequest();
+          recreate = true;
+      }
+  })
+
+  $('#modal-add-new-location').on('shown.bs.modal', function() {
+    setTimeout(() => {
+      initMapLocation();
+    }, 200)
+  });
+
+  // datatable daftar lokasi
+  const controller = "customer/view_all_location/" + i_customer;
+  const tableLocation = $('#table-location-list');
+  loadTable(tableLocation, controller, 4);
+})
