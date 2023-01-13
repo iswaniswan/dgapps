@@ -93,8 +93,8 @@
 
                     <div class="card-body">
                         <div class="mb-3" style="display: flex">
-                            <a href="#" id="add-location" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#modal-add-new-location">
-                                <span class="fas fa-plus"></span>
+                            <a href="#" id="add-location" class="pull-right btn btn-xs btn-primary" data-toggle="modal" data-target="#modal-add-location">
+                                <i class="icon-plus22"></i> &nbsp; Add Coordinate
                             </a>
                         </div>
                         <table class="table table-striped table-hover table-bordered" id="table-location-list">
@@ -155,7 +155,7 @@
 
 
 <!-- modal tambah lokasi koordinat -->
-<div class="modal fade" id="modal-add-new-location" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modal-add-location" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -166,10 +166,10 @@
             </div>
             <form action="<?= site_url('customer/create_new_location') ?>" method="post">
                 <div class="modal-body">
-                    <div class="col-12">
-                        <input id="pac-input" class="form-control" type="text" style="width:300px !important; margin-top: 10px;">
-                    </div>
-                    <div class="form-row mb-3">
+<!--                    <div class="col-12">-->
+<!--                        <input id="pac-input" class="form-control" type="text" style="width:300px !important; margin-top: 10px;">-->
+<!--                    </div>-->
+                    <div class="form-row mb-3 d-none">
                         <div class="col">
                             <div id="map-location" style="width:100%; height: 400px; position: relative; overflow: hidden"></div>
                         </div>
@@ -198,8 +198,50 @@
     </div>
 </div>
 
+<!-- modal edit lokasi koordinat -->
+<div class="modal fade" id="modal-edit-location" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="">Location</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="<?= site_url('customer/edit_location') ?>" method="post">
+                <div class="modal-body">
+                    <div class="form-row mb-3">
+                        <div class="col">
+                            <input type="text" name="latitude" class="form-control" placeholder="latitude" required>
+                        </div>
+                        <div class="col">
+                            <input type="text" name="longitude" class="form-control" placeholder="longitude" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <textarea name="keterangan" class="form-control" rows="2" placeholder="Tagihan / Order / Kirim barang" required></textarea>
+                        </div>
+                    </div>
+                    <input type="hidden" name="i_customer" value="<?= $data_customer->i_customer ?>">
+                    <input type="hidden" name="id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
     .pac-container {
         z-index: 99999 !important;
     }
+
+    /*#table-location-list_wrapper .datatable-header {*/
+    /*    display: flex;*/
+    /*    justify-content: space-around;*/
+    /*}*/
 </style>

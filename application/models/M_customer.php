@@ -169,26 +169,34 @@ class M_customer extends CI_Model
         $this->db->insert('tbl_customer_coordinate', $data);
     }
 
+    public function update_location($id, $data)
+    {
+        $this->db->where('id', $id);
+        $this->db->update('tbl_customer_coordinate', $data);
+    }
+
     public function view_all_location($id)
     {
         $datatables = new Datatables(new CodeigniterAdapter);
-        $sql = "SELECT tcc.id, tcc.i_customer, tcc.latitude, tcc.longitude, tcc.keterangan FROM tbl_customer_coordinate tcc WHERE i_customer = '$id' ORDER BY id DESC";
+        $sql = "SELECT tcc.id, tcc.i_customer, tcc.latitude, tcc.longitude, tcc.keterangan FROM tbl_customer_coordinate tcc WHERE i_customer = '$id' AND f_active = 'true' ORDER BY id DESC";
         $datatables->query($sql);
         $datatables->hide('id');
         $datatables->hide('i_customer');
         $datatables->add('action', function ($_self) {
+            $id = $_self['id'];
             $latitude = $_self['latitude'];
             $longitude = $_self['longitude'];
-            $actionView = "<button class='btn btn-sm btn-success coordinate-view mr-1' style='padding: .125rem .5rem !important;' 
-                                data-latitude='$latitude' data-longitude='$longitude'>
-                            <i class='fas fa-eye'></i>
+            $actionView = "<button class='btn btn-sm btn-white coordinate-view' style='padding: .125rem .5rem !important;' 
+                                data-id='$id' data-latitude='$latitude' data-longitude='$longitude'>
+                            <i class='text-primary fas fa-edit'></i>
                             </button>";
 
             $url = site_url('customer/delete_location/');
-            $id = $_self['id'];
             $actionDelete = "<form method='post' action='$url'>
                         <input type='hidden' name='id' value='$id'>
-                        <button type='submit' class='btn btn-sm btn-danger' style='padding: .125rem .5rem !important;'><i class='fas fa-trash'></i></button>
+                        <button type='submit' class='btn btn-sm btn-white' style='padding: .125rem .5rem !important;'>
+                            <i class='text-danger fas fa-trash'></i>
+                        </button>
                     </form>";
             $row = '<div style="display: flex; justify-content: flex-start">'.$actionView.$actionDelete.'</div>';
             return $row;
@@ -199,8 +207,13 @@ class M_customer extends CI_Model
 
     public function delete_location($id)
     {
+        $now = current_datetime();
+        $params = [
+            'f_active' => 'false',
+            'd_update' => $now
+        ];
         $this->db->where('id', $id);
-        $this->db->delete('tbl_customer_coordinate');
+        $this->db->update('tbl_customer_coordinate', $params);
     }
 
 }

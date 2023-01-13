@@ -27,8 +27,7 @@
   <!-- Theme JS files -->
   <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBquDodCMZW38EiH_CGLryyRaXvIi6tV3c"></script> -->
   <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbF9O9Ks9_-QNWHi2SFxLqLUBOwrMyzXk"></script> -->
-<!--  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5Knm3yStpPRpfNkJmbVKSxvexZ0kVezI"></script>-->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyCQF0pCkYlvjmjmR-_SksZ2bGW2o7_XU&libraries=places"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5Knm3yStpPRpfNkJmbVKSxvexZ0kVezI"></script>
   <script>
   var base_url = "<?=base_url();?>";
   </script>
