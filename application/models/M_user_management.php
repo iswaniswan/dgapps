@@ -56,7 +56,7 @@ class M_user_management extends CI_Model
         $sql = "select q_user.username, q_user.e_name, q_user.e_area_name, q_user.e_role_name, concat(q_upline.e_name, ' - ', q_upline.e_role_name) as upline, q_user.f_active from (
                     $sql_user
                 ) AS q_user LEFT JOIN ($sql_upline) AS q_upline ON q_user.username_upline=q_upline.username
-                ORDER BY q_user.username ASC";
+                ORDER BY q_user.f_active DESC, q_user.username ASC";
         $datatables->query($sql);
 
         $datatables->edit('f_active', function ($data) {
@@ -202,7 +202,7 @@ class M_user_management extends CI_Model
     public function get_array_user_area($username)
     {
         $i_company = $this->session->userdata('i_company');
-        $sql = "select i_area from tbl_user_area where i_company = '$i_company' and username = '$username'";
+        $sql = "SELECT i_area FROM tbl_user_area WHERE i_company = '$i_company' AND username = '$username'";
         $query = $this->db->query($sql);
 
         $array = [];

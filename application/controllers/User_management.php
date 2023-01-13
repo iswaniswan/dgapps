@@ -21,7 +21,7 @@ class User_management extends CI_Controller
                 'global_assets/js/plugins/notifications/sweet_alert.min.js',
                 'global_assets/js/plugins/forms/styling/uniform.min.js',
                 'global_assets/js/plugins/forms/selects/select2.min.js',
-                'assets/js/user_management/index.js',
+                'assets/js/user_management/index.js?v=1',
             )
         );
         $this->Logger->write(null, null, 'Membuka Menu User Management');
@@ -141,7 +141,7 @@ class User_management extends CI_Controller
         $username_parts = array_filter(explode(" ", strtolower($e_name))); //explode and lowercase name
         $username_parts = array_slice($username_parts, 0, 2); //return only first two arry part
 
-        $part1 = replace((!empty($username_parts[0])) ? substr($username_parts[0], 0, 5) : ""); //cut first name to 8 letters
+        $part1 = replace((!empty($username_parts[0])) ? substr($username_parts[0], 0, 8) : ""); //cut first name to 8 letters
         $part2 = replace((!empty($username_parts[1])) ? substr($username_parts[1], 0, 5) : ""); //cut second name to 5
 
         $part2 = preg_replace('~[aiueo]~', '', $part2);

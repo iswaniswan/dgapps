@@ -98,7 +98,10 @@
                                   <div class="col-lg-10">
                                       <div class="div" style="display: flex">
                                           <span class="mr-2">Pilih Semua</span>
-                                          <input type="checkbox" id="coverage_area_checkbox" class="" style="align-self: center">
+                                            <?php $checked = ''; if (count($data_user_area) == $data_area->num_rows()) {
+                                                $checked = 'checked';
+                                            }?>
+                                          <input type="checkbox" id="coverage_area_checkbox" class="" style="align-self: center" <?= $disabled ?> <?= $checked ?>>
                                       </div>
                                       <select class="form-control select-search" id="coverage_area_select" data-fouc name="coverage_area[]" multiple="multiple" <?= $disabled ?>  required>
                                           <?php if($data_area->num_rows() > 0){
@@ -122,7 +125,7 @@
 			                <div class="form-group row">
 			                  <label class="col-form-label col-lg-2">Staff ID</label>
 			                  <div class="col-lg-10">
-			                    <input type="text" class="form-control" readonly value="<?= $data_user->i_staff; ?>"
+			                    <input type="text" class="form-control" value="<?= $data_user->i_staff; ?>"
 			                      name="i_staff" required>
 			                  </div>
 			                </div>

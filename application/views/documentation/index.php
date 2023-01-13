@@ -53,6 +53,8 @@
 											<thead>
 												<tr>
 													<th>Preview</th>
+                                                    <th>Type</th>
+                                                    <th>Detail</th>
 													<th>Customer Name</th>
 													<th>Staff Name</th>
 													<th>Created Time</th>

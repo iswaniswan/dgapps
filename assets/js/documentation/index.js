@@ -50,6 +50,7 @@ var MediaLibrary = (function () {
           next: $("html").attr("dir") == "rtl" ? "&larr;" : "&rarr;",
         },
       },
+      order: [[5, "DESC"]]
     });
 
     var media_library = $(".media-library2").DataTable({

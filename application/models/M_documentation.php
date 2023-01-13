@@ -14,6 +14,8 @@ class M_documentation extends CI_Model
         $i_company = $this->session->userdata('i_company');
 
         $datatables = new Datatables(new CodeigniterAdapter);
+        /** previous query */
+        /*
         $datatables->query("select a.e_foto, b.e_customer_name, upper(c.e_name) as e_name, a.createdat, '$i_company' as i_company from tbl_customer_dokumentasi a, tbl_customer b, tbl_user c
         where a.i_company = b.i_company
         and a.i_customer = b.i_customer
@@ -29,6 +31,32 @@ class M_documentation extends CI_Model
                 group by a.username
         )
         order by a.createdat desc");
+
+
+        /** query dengan tambahan detail dokumen dan tipe dokumen */
+        $sql_customer = "select a.e_foto, b.e_customer_name, upper(c.e_name) as e_name, a.createdat, '$i_company' as i_company from tbl_customer_dokumentasi a, tbl_customer b, tbl_user c
+                            where a.i_company = b.i_company
+                            and a.i_customer = b.i_customer
+                            and a.i_company = c.i_company
+                            and a.username = c.username
+                            and a.i_company = '$i_company'
+                            and a.username in(
+                                select a.username from tbl_user_area a, tbl_user b where a.i_area in(
+                                    select a.i_area from tbl_user_area a where a.username = '$username' and a.i_company = '$i_company'
+                                    )
+                                    and a.i_company = '$i_company'
+                                    and a.username = b.username and a.i_company = b.i_company and b.i_role >= '3'
+                                    group by a.username
+                            )
+                            order by a.createdat desc";
+        $sql_dokumen = "SELECT tcd.e_foto, tcd.e_detail, tdt.e_dokumentasi_name, tdt.f_active  FROM tbl_customer_dokumentasi tcd 
+                            LEFT JOIN tbl_dokumentasi_type tdt ON tdt.id=tcd.id_dokumentasi_type
+                            WHERE tcd.e_detail IS NOT NULL
+                            AND tcd.id_dokumentasi_type IS NOT NULL ";
+        $sql = "SELECT q_customer.e_foto, q_dokumen.e_dokumentasi_name, q_dokumen.e_detail, q_customer.e_customer_name, q_customer.e_name, q_customer.createdat, q_customer.i_company
+                FROM ($sql_customer) AS q_customer LEFT JOIN ($sql_dokumen) AS q_dokumen ON q_dokumen.e_foto=q_customer.e_foto
+                ORDER BY q_customer.createdat DESC";
+        $datatables->query($sql);
 
         $datatables->hide('i_company');
 
@@ -54,6 +82,11 @@ class M_documentation extends CI_Model
                 <img src="' . $src . '" alt="" class="img-preview rounded">
             </a>'
             ; */
+        });
+
+        $datatables->edit('e_detail', function ($data) {
+           $e_detail = $data['e_detail'];
+           return $e_detail == 'null' ? '' : $e_detail;
         });
 
         return $datatables->generate();
