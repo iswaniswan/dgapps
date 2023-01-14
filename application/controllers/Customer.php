@@ -52,7 +52,7 @@ class Customer extends CI_Controller
                     'global_assets/js/plugins/tables/datatables/datatables.min.js',
                     'global_assets/js/plugins/forms/selects/select2.min.js',
                     'global_assets/js/plugins/notifications/sweet_alert.min.js',
-                    'assets/js/customer/view.js?v=1',
+                    'assets/js/customer/view.js?v=2',
                 )
             );
             $data = array(

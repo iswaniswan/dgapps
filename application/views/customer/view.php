@@ -164,7 +164,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="<?= site_url('customer/create_new_location') ?>" method="post">
+            <form action="<?= site_url('customer/create_new_location') ?>" method="post" id="form-add-location">
                 <div class="modal-body">
 <!--                    <div class="col-12">-->
 <!--                        <input id="pac-input" class="form-control" type="text" style="width:300px !important; margin-top: 10px;">-->
@@ -208,14 +208,14 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="<?= site_url('customer/edit_location') ?>" method="post">
+            <form action="<?= site_url('customer/edit_location') ?>" method="post" id="form-edit-location">
                 <div class="modal-body">
                     <div class="form-row mb-3">
                         <div class="col">
-                            <input type="text" name="latitude" class="form-control" placeholder="latitude" required>
+                            <input type="text" name="latitude" class="form-control" placeholder="latitude" pattern="^[^,]+$" required>
                         </div>
                         <div class="col">
-                            <input type="text" name="longitude" class="form-control" placeholder="longitude" required>
+                            <input type="text" name="longitude" class="form-control" placeholder="longitude" pattern="^[^,]+$" required>
                         </div>
                     </div>
                     <div class="form-row">

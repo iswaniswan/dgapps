@@ -371,8 +371,21 @@ const showModalUpdate = (params) => {
     modal.find('textarea[name="keterangan"]').val(params?.keterangan);
   });
   modal.modal('show');
+}
 
+const isCommaExist = (value) => value.indexOf(',') > -1;
 
+var on_submit_function = function(evt){
+  evt.preventDefault();
+  const latitude = $(this).find('input[name="latitude"]').val();
+  const longitude = $(this).find('input[name="longitude"]').val();
+  if (isCommaExist(latitude) || isCommaExist(longitude)) {
+    alert("Invalid format, tidak boleh ada karakter koma (,)");
+    return false;
+  }
+
+  $(this).off('submit', on_submit_function);
+  $(this).submit();
 }
 
 $(document).ready(function () {
@@ -386,5 +399,7 @@ $(document).ready(function () {
   setTimeout(() => {
     initBtnEditLocation();
   }, 1000)
+
+  $('#form-add-location').on('submit', on_submit_function);
 
 })
