@@ -401,5 +401,5 @@ $(document).ready(function () {
   }, 1000)
 
   $('#form-add-location').on('submit', on_submit_function);
-
+  $('#form-edit-location').on('submit', on_submit_function);
 })
