@@ -542,6 +542,13 @@ class Api extends REST_Controller
                 $i_store = $data_area->i_store;
                 $f_stock = $data_area->f_stock;
                 if ($i_company != '3' || $i_company != 3) {
+
+                    $and2 = '';
+
+                    if ($i_company == '7') {
+                        $and2 = " and case when left('$i_customer',2)::int >= 50 then a.i_product_group = '02' else a.i_product_group = '01' end ";
+                    }
+
                     if ($f_stock == 't') {
                         $query = $this->db->query("
                             SELECT a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity
@@ -549,7 +556,7 @@ class Api extends REST_Controller
                             inner join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
                             left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'
                             where a.i_product_group = '$i_product_group' and trim(b.i_price_group) = '$i_price_group' and a.i_company = '$i_company' and a.f_active = true 
-                            and (a.i_product ilike '%$cari%' or ($and))
+                            and (a.i_product ilike '%$cari%' or ($and)) $and2
                             order by a.e_product_name ASC
                         ");
 
@@ -560,7 +567,7 @@ class Api extends REST_Controller
                             inner join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
                             left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '00'
                             where a.i_product_group = '$i_product_group' and trim(b.i_price_group) = '$i_price_group' and a.i_company = '$i_company' and a.f_active = true 
-                            and (a.i_product ilike '%$cari%' or ($and))
+                            and (a.i_product ilike '%$cari%' or ($and)) $and2
                             order by a.e_product_name ASC
                         ");
                     }
@@ -1133,8 +1140,8 @@ class Api extends REST_Controller
             // // $this->db->or_like('a.e_customer_name', $cari);
 
             $where = '';
-            if ($username == 'admin' && $i_company == '7') {
-                $where = " or i_customer in ('02820', '52548') ";
+            if ($username == 'admin' && $i_company == '6') {
+                $where = " or i_customer in ('02265') ";
             }
 
             // $query = $this->db->get();
@@ -1625,9 +1632,7 @@ class Api extends REST_Controller
             $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
 
             // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
-            if ($i_company == '6' || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') ) {
-
-
+            if (($i_company == '6') || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') || ($i_company == '9' && $username == 'admin')) {
                 $query = array();
                 $key = 0;
                 $cust_info = $this->db->query("
@@ -1745,11 +1750,13 @@ class Api extends REST_Controller
             $query['head']['e_customer_address'] = $customerHead->e_customer_address;
 
             // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin')) {
-            if ($i_company == '6' || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') ) {
+            if ($i_company == '6' || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') || ($i_company == '9' && $username == 'admin')) {
                 $usertoko = $this->db->query("select username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
                 if ($usertoko->num_rows() > 0) {
                     $usertoko = $usertoko->row()->username;
-                    $periode = date('Y');
+                    $periode = $this->db->query("select coalesce(max(i_periode), to_char(current_date, 'yyyy')) as i_periode  from tbl_customer_target where id_company = '$i_company';")->row()->i_periode;
+
+                    //date('Y');
 
                     $data = $this->db->query("
                          select a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode from tbl_user_toko a
@@ -1784,7 +1791,7 @@ class Api extends REST_Controller
                                 v_nota_netto numeric, v_sisa numeric, v_spb numeric
                             )
                         ", FALSE)->row();
-                        $query['head']['i_periode'] = "Tahun ". date('Y');
+                        $query['head']['i_periode'] = "Tahun ". $periode;
                         $query['head']['e_name'] = $data->row()->e_name;
                         $query['head']['e_title'] = "Target Toko ";
                         $query['head']['v_target'] = "Rp. ". number_format($total);
@@ -1995,7 +2002,7 @@ class Api extends REST_Controller
             $query['list'] = null; 
             $key = 0;
 
-            if ($i_company == '6') {
+            if ($i_company == '6' || ($i_company == '9' && $username == 'admin')) {
         
                 //list daftar tagihan
                 $item = $this->db->query("
