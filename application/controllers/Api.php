@@ -1791,7 +1791,8 @@ class Api extends REST_Controller
             $query['head']['e_customer_address'] = $customerHead->e_customer_address;
 
             // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin')) {
-            if ($i_company == '6' || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') || ($i_company == '9' && $username == 'admin')) {
+            // if ($i_company == '6' || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') || ($i_company == '9' && $username == 'admin')) {
+            if ($i_company == '6' || $i_company == '1' || $i_company == '7' || $i_company == '4' || $i_company == '5' || $i_company == '9') {
                 $usertoko = $this->db->query("select username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
                 if ($usertoko->num_rows() > 0) {
                     $usertoko = $usertoko->row()->username;
@@ -1980,10 +1981,154 @@ class Api extends REST_Controller
 
                 // }
 
+            } elseif ($i_company == '2' && $username == 'admin') {
+                $usertoko = $this->db->query("SELECT username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
+                if ($usertoko->num_rows() > 0) {
+                    $usertoko = $usertoko->row()->username;
+                    // $periode = date('Y');
+                    $periode = $this->db->query("select coalesce(max(i_periode), to_char(current_date, 'yyyy')) as i_periode  from tbl_customer_target where id_company = '$i_company';")->row()->i_periode;
+
+                    $data = $this->db->query(
+                        "SELECT a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode 
+                        from tbl_user_toko a
+                        inner join tbl_user_toko_item b on (a.username = b.username)
+                        inner join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
+                        where a.username = '$usertoko' and c.i_periode = '$periode'
+                    ",
+                        FALSE
+                    );
+
+                    $total = 0;
+                    $list_customer = array();
+                    if ($data->num_rows() > 0) {
+                        foreach ($data->result() as $row) {
+                            $total += $row->v_nota_target;
+                            array_push($list_customer, "'" . $row->i_customer . "'");
+                        }
+                        $arrayTxt = implode(',', $list_customer);
+
+                        //list program
+                        $data2 = $this->db->query(
+                            "SELECT v_nota_netto, v_sisa, v_spb 
+                            from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                            $$
+                            select sum(v_nota_netto) as v_nota_netto , sum(v_sisa) as v_sisa , sum(v_spb) as v_spb from (    
+                                select coalesce(sum(v_total_fppn), 0) as v_nota_netto , coalesce(sum(v_total_fppn_sisa), 0) as v_sisa, 0 as v_spb 
+                                from tm_faktur_do_t  a
+                                inner JOIN tr_branch b ON (b.e_initial = a.e_branch_name)
+                                where f_faktur_cancel = false and to_char(d_faktur, 'yyyy') = '$periode' and i_branch_code in ($arrayTxt)    
+                                union all     
+                                SELECT
+                                    0 as v_nota_netto , 0 as v_sisa, COALESCE (round(sum(y.total - (y.diskon1 + y.diskon2 + y.diskon3)),0)) AS v_spb
+                                FROM
+                                    (        
+                                    SELECT
+                                        sum(w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100))) AS total, 
+                                        sum(w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100)) AS diskon1, 
+                                        sum((w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) - w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100))*(w.v_discount1 / 100)) AS diskon2, 
+                                        sum(((w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)))-(w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100))-((w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) - w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100))*(w.v_discount1 / 100))) * (w.v_discount2 / 100)) AS diskon3
+                                    FROM
+                                        tm_spb y
+                                    INNER JOIN tm_spb_item w ON
+                                        w.i_spb = y.i_spb
+                                    LEFT JOIN tr_tax_amount x ON (y.d_spb BETWEEN x.d_start AND x.d_finish)
+                                    WHERE
+                                        to_char(y.d_spb, 'yyyy') = '$periode'
+                                        AND f_spb_cancel = FALSE AND y.i_branch IN ($arrayTxt)
+                                    ) AS y    
+                            ) as x
+                            $$
+                            ) AS nilai (
+                                v_nota_netto numeric, v_sisa numeric, v_spb numeric
+                            )
+                        ",
+                            FALSE
+                        )->row();
+                        $query['head']['i_periode'] = "Tahun " . date('Y');
+                        $query['head']['e_name'] = $data->row()->e_name;
+                        $query['head']['e_title'] = "Target Toko ";
+                        $query['head']['v_target'] = "Rp. " . number_format($total);
+                        $query['head']['v_pencapaian'] = "Rp. " . number_format($data2->v_nota_netto);
+                        $query['head']['v_persentasi'] = number_format($data2->v_nota_netto / $total * 100, 2) . "";
+                        $query['head']['v_sisa'] = "Rp. " . number_format($data2->v_sisa);
+                        //$key++;
+                    }
+                }
+
+                $datanota = $this->db->query(
+                    "SELECT v_nota_netto FROM dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
+                        select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'yyyymm')) as mon
+                    )
+                    select json_agg(coalesce(v_nota_netto,0)) as v_nota_netto  from cte a
+                    left join (
+                        SELECT b.i_branch_code, to_char(d_faktur, 'yyyymm') as mon , sum(v_total_fppn/1000000)::numeric(15,6) as v_nota_netto 
+                        from tm_faktur_do_t a
+                        INNER JOIN tr_branch b ON (b.e_initial = a.e_branch_name)
+                        where b.i_branch_code = '$i_customer' and f_faktur_cancel  = false and d_faktur  between to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date and current_date
+                        group by 1,2
+                        order by 2 asc
+                    ) as b on (a.mon = b.mon)
+                    $$
+                    ) AS datas (
+                        v_nota_netto json
+                    ) 
+                ",
+                    FALSE
+                )->row();
+
+                $labelnota = $this->db->query(
+                    "SELECT json_agg(mon) as mon from (
+                                select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'Mon')) as mon
+                    ) as x"
+                )->row();
+                $query['chart']['labels'] = json_decode($labelnota->mon, TRUE);
+                //$query['chart']['datasets'] =  array(array('data' => array(11,22,33,44,55,66,77,88,99,10,11,12)));
+                $query['chart']['datasets'] = array(
+                    array(
+                        'data' => json_decode($datanota->v_nota_netto, TRUE)
+                    ),
+                );
+
+                $subkategori = $this->db->query(
+                    "SELECT e_product_categoryname, total 
+                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
+                        select to_char(b.d_faktur, 'yyyymm') as periode, e.e_category_name AS e_product_categoryname, sum(a.n_quantity) as total 
+                        from tm_faktur_do_item_t a
+                        inner join tm_faktur_do_t b on (a.i_faktur = b.i_faktur)
+                        INNER JOIN tr_branch br ON (br.e_initial = b.e_branch_name)
+                        inner join tr_product_motif c on (a.i_product = c.i_product_motif)
+                        INNER JOIN tr_product_base bb ON (bb.i_product_base = c.i_product)
+                        inner join tr_categories e on (e.i_category = bb.i_category)
+                        where b.f_faktur_cancel = false and b.d_faktur >= (current_date - interval '6 month')::date and br.i_branch_code in ($i_customer)
+                        group by 1,2
+                        order by 3 desc 
+                    )
+                    select e_product_categoryname, sum(total) as total from cte group by 1 order by 2 DESC
+                    $$
+                    ) AS nilai (
+                        
+                        e_product_categoryname varchar, total numeric
+                    )
+                ",
+                    FALSE
+                );
+
+                if ($subkategori->num_rows() > 0) {
+                    $key = 0;
+                    $max = array_sum(array_column($subkategori->result_array(), 'total'));
+                    foreach ($subkategori->result() as $kat) {
+                        $query['subkategori'][$key]['subkategori'] = $kat->e_product_categoryname;
+                        $query['subkategori'][$key]['max'] = $max;
+                        $query['subkategori'][$key]['total'] = $kat->total;
+                        $query['subkategori'][$key]['progress'] = $kat->total / $max;
+                        $key++;
+                    }
+                }
             }
-
-
-
 
             // echo sizeof($query);
             // die();
