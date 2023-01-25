@@ -542,6 +542,13 @@ class Api extends REST_Controller
                 $i_store = $data_area->i_store;
                 $f_stock = $data_area->f_stock;
                 if ($i_company != '3' || $i_company != 3) {
+
+                    $and2 = '';
+
+                    if ($i_company == '7') {
+                        $and2 = " and case when left('$i_customer',2)::int >= 50 then a.i_product_group = '02' else a.i_product_group = '01' end ";
+                    }
+
                     if ($f_stock == 't') {
                         $query = $this->db->query("
                             SELECT a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity
@@ -549,7 +556,7 @@ class Api extends REST_Controller
                             inner join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
                             left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '$i_store'
                             where a.i_product_group = '$i_product_group' and trim(b.i_price_group) = '$i_price_group' and a.i_company = '$i_company' and a.f_active = true 
-                            and (a.i_product ilike '%$cari%' or ($and))
+                            and (a.i_product ilike '%$cari%' or ($and)) $and2
                             order by a.e_product_name ASC
                         ");
 
@@ -560,7 +567,7 @@ class Api extends REST_Controller
                             inner join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
                             left join tbl_ic c on b.i_product = c.i_product and b.i_company = c.i_company and c.i_store = '00'
                             where a.i_product_group = '$i_product_group' and trim(b.i_price_group) = '$i_price_group' and a.i_company = '$i_company' and a.f_active = true 
-                            and (a.i_product ilike '%$cari%' or ($and))
+                            and (a.i_product ilike '%$cari%' or ($and)) $and2
                             order by a.e_product_name ASC
                         ");
                     }
@@ -1133,8 +1140,8 @@ class Api extends REST_Controller
             // // $this->db->or_like('a.e_customer_name', $cari);
 
             $where = '';
-            if ($username == 'admin' && $i_company == '7') {
-                $where = " or i_customer in ('02820', '52548') ";
+            if ($username == 'admin' && $i_company == '6') {
+                $where = " or i_customer in ('02265') ";
             }
 
             // $query = $this->db->get();
@@ -1625,9 +1632,7 @@ class Api extends REST_Controller
             $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
 
             // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
-            if ($i_company == '6' || $i_company == '1' || $i_company == '7' || $i_company == '4' || $i_company == '5') {
-
-
+            if ($i_company == '6' || $i_company == '1' || $i_company == '7' || $i_company == '4' || $i_company == '5' || $i_company == '9') {
                 $query = array();
                 $key = 0;
                 $cust_info = $this->db->query("
@@ -1669,7 +1674,7 @@ class Api extends REST_Controller
                     $key++;
                 }
 
-            } elseif ($i_company == '2' && $username == 'admin') {
+            } else if ($i_company == '2' && $username == 'admin') {
                 $query = array();
                 $key = 0;
                 $cust_info = $this->db->query(
@@ -1678,17 +1683,19 @@ class Api extends REST_Controller
                     $$
                     with cte as (
                         select array[
-                            a.i_customer ,a.e_customer_name, coalesce(b.e_group_name,'-'), c.e_customer_classname, (d.i_price_code),
+                            bc.i_branch_code, bc.e_branch_name, coalesce(b.e_group_name,'-'), c.e_customer_classname, (d.i_price_code),
                             e.n_customer_discount1::char(5) || '% , ' || e.n_customer_discount2::char(5) || '%',  a.e_customer_contact || ' - ' || a.e_customer_phone ,
-                            to_char(g.v_flapond, 'FMRp 999,999,999,990D00')::text, a.n_customer_top || ' Hari', case when f_customer_pkp = true then 'PKP' else 'Non PKP' end
+                            to_char(g.v_plafond, 'FMRp 999,999,999,990D00')::text, a.n_customer_top || ' Hari', case when f_customer_pkp = true then 'PKP' else 'Non PKP' end
                             ] as e_customer_name from tr_customer a
                         inner join tr_customer_class c on (a.i_customer_class = c.i_customer_class)
                         inner join tr_price_code d on (a.i_price_code = d.i_price_code)
                         inner join tr_customer_discount e on (a.i_customer = e.i_customer)
+                        INNER JOIN tr_branch bc ON (bc.i_customer = e.i_customer)
                         left join tr_group b on (a.i_group_code = b.i_group_code)
                         --left join tr_customer_owner f on (a.i_customer = f.i_customer)
-                        left join tr_customer_groupar g on (a.i_customer = g.i_customer)
-                        where a.i_customer = '$i_customer'
+                        --left join tr_customer_groupar g on (a.i_customer = g.i_customer)
+                        left join tm_plafond g on (a.i_customer = g.i_customer)
+                        where bc.i_branch_code = '$i_customer'
                     )
                     SELECT un1.val::text as i_customer, un2.val::text as e_customer_name
                     FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'Group Pelanggan', 'Tipe', 'Kode Harga', 'Diskon', 'Kontak', 'Plafon', 'TOP', 'Status PKP']) WITH ORDINALITY un1 (val, ord)
@@ -1698,7 +1705,8 @@ class Api extends REST_Controller
                         i_customer text,
                         e_customer_name text
                     ) 
-                ");
+                "
+                );
 
                 foreach ($cust_info->result() as $riw) {
                     $query[$key]['i_customer'] = $riw->i_customer;
@@ -1781,11 +1789,13 @@ class Api extends REST_Controller
             $query['head']['e_customer_address'] = $customerHead->e_customer_address;
 
             // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin')) {
-            if ($i_company == '6' || $i_company == '1' || $i_company == '7' || $i_company == '4' || $i_company == '5') {
+            if ($i_company == '6' || $i_company == '1' || $i_company == '7' || $i_company == '4' || $i_company == '5' || $i_company == '9') {
                 $usertoko = $this->db->query("select username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
                 if ($usertoko->num_rows() > 0) {
                     $usertoko = $usertoko->row()->username;
-                    $periode = date('Y');
+                    $periode = $this->db->query("select coalesce(max(i_periode), to_char(current_date, 'yyyy')) as i_periode  from tbl_customer_target where id_company = '$i_company';")->row()->i_periode;
+
+                    //date('Y');
 
                     $data = $this->db->query("
                          select a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode from tbl_user_toko a
@@ -1820,7 +1830,7 @@ class Api extends REST_Controller
                                 v_nota_netto numeric, v_sisa numeric, v_spb numeric
                             )
                         ", FALSE)->row();
-                        $query['head']['i_periode'] = "Tahun " . date('Y');
+                        $query['head']['i_periode'] = "Tahun " . $periode;
                         $query['head']['e_name'] = $data->row()->e_name;
                         $query['head']['e_title'] = "Target Toko ";
                         $query['head']['v_target'] = "Rp. " . number_format($total);
@@ -1968,11 +1978,12 @@ class Api extends REST_Controller
 
                 // }
 
-            }elseif ($i_company == '2' && $username == 'admin') {
+            } else if ($i_company == '2' && $username == 'admin') {
                 $usertoko = $this->db->query("SELECT username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
                 if ($usertoko->num_rows() > 0) {
                     $usertoko = $usertoko->row()->username;
-                    $periode = date('Y');
+                    // $periode = date('Y');
+                    $periode = $this->db->query("select coalesce(max(i_periode), to_char(current_date, 'yyyy')) as i_periode  from tbl_customer_target where id_company = '$i_company';")->row()->i_periode;
 
                     $data = $this->db->query(
                         "SELECT a.username, a.e_name , b.i_customer, coalesce(c.v_nota_target,0) as v_nota_target, c.i_periode 
@@ -1980,7 +1991,9 @@ class Api extends REST_Controller
                         inner join tbl_user_toko_item b on (a.username = b.username)
                         inner join tbl_customer_target c on (b.i_customer = c.i_customer and b.id_company = c.id_company)
                         where a.username = '$usertoko' and c.i_periode = '$periode'
-                    ", FALSE);
+                    ",
+                        FALSE
+                    );
 
                     $total = 0;
                     $list_customer = array();
@@ -1996,18 +2009,38 @@ class Api extends REST_Controller
                             "SELECT v_nota_netto, v_sisa, v_spb 
                             from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
                             $$
-                            select sum(v_nota_netto) as v_nota_netto , sum(v_sisa) as v_sisa , sum(v_spb) as v_spb from (
-                                select coalesce(sum(v_nota_netto), 0) as v_nota_netto , coalesce(sum(v_sisa), 0) as v_sisa, 0 as v_spb from tm_nota 
-                                where f_nota_cancel = false and to_char(d_nota , 'yyyy') = '$periode' and i_customer in ($arrayTxt)
-                                union all 
-                                select 0 as v_nota_netto , 0 as v_sisa, coalesce(sum(v_spb), 0) as v_spb from tm_spb 
-                                where f_spb_cancel = false and to_char(d_spb , 'yyyy') = '$periode' and i_customer in ($arrayTxt)
-                            ) as x 
+                            select sum(v_nota_netto) as v_nota_netto , sum(v_sisa) as v_sisa , sum(v_spb) as v_spb from (    
+                                select coalesce(sum(v_total_fppn), 0) as v_nota_netto , coalesce(sum(v_total_fppn_sisa), 0) as v_sisa, 0 as v_spb 
+                                from tm_faktur_do_t  a
+                                inner JOIN tr_branch b ON (b.e_initial = a.e_branch_name)
+                                where f_faktur_cancel = false and to_char(d_faktur, 'yyyy') = '$periode' and i_branch_code in ($arrayTxt)    
+                                union all     
+                                SELECT
+                                    0 as v_nota_netto , 0 as v_sisa, COALESCE (round(sum(y.total - (y.diskon1 + y.diskon2 + y.diskon3)),0)) AS v_spb
+                                FROM
+                                    (        
+                                    SELECT
+                                        sum(w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100))) AS total, 
+                                        sum(w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100)) AS diskon1, 
+                                        sum((w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) - w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100))*(w.v_discount1 / 100)) AS diskon2, 
+                                        sum(((w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)))-(w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100))-((w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) - w.n_count * (w.v_unitprice*((x.n_tax + 100) / 100)) * (w.v_discount / 100))*(w.v_discount1 / 100))) * (w.v_discount2 / 100)) AS diskon3
+                                    FROM
+                                        tm_spb y
+                                    INNER JOIN tm_spb_item w ON
+                                        w.i_spb = y.i_spb
+                                    LEFT JOIN tr_tax_amount x ON (y.d_spb BETWEEN x.d_start AND x.d_finish)
+                                    WHERE
+                                        to_char(y.d_spb, 'yyyy') = '$periode'
+                                        AND f_spb_cancel = FALSE AND y.i_branch IN ($arrayTxt)
+                                    ) AS y    
+                            ) as x
                             $$
                             ) AS nilai (
                                 v_nota_netto numeric, v_sisa numeric, v_spb numeric
                             )
-                        ", FALSE)->row();
+                        ",
+                            FALSE
+                        )->row();
                         $query['head']['i_periode'] = "Tahun " . date('Y');
                         $query['head']['e_name'] = $data->row()->e_name;
                         $query['head']['e_title'] = "Target Toko ";
@@ -2019,29 +2052,34 @@ class Api extends REST_Controller
                     }
                 }
 
-                $datanota = $this->db->query("
-                    select v_nota_netto FROM
-                     dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
-                     $$
-                         with cte as (
-                             select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'yyyymm')) as mon
-                           )
-                           select json_agg(coalesce(v_nota_netto,0)) as v_nota_netto  from cte a
-                           left join (
-                               SELECT i_customer, to_char(d_nota, 'yyyymm') as mon , sum(v_nota_netto/1000000)::numeric(15,6) as v_nota_netto  from tm_nota 
-                               where i_customer = '$i_customer' and f_nota_cancel = false and d_nota between to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date and current_date
-                               group by 1,2
-                               order by 2 asc
-                           ) as b on (a.mon = b.mon )
-                     $$
-                     ) AS datas (
-                          v_nota_netto json
-                     ) 
-                ", FALSE)->row();
+                $datanota = $this->db->query(
+                    "SELECT v_nota_netto FROM dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
+                        select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'yyyymm')) as mon
+                    )
+                    select json_agg(coalesce(v_nota_netto,0)) as v_nota_netto  from cte a
+                    left join (
+                        SELECT b.i_branch_code, to_char(d_faktur, 'yyyymm') as mon , sum(v_total_fppn/1000000)::numeric(15,6) as v_nota_netto 
+                        from tm_faktur_do_t a
+                        INNER JOIN tr_branch b ON (b.e_initial = a.e_branch_name)
+                        where b.i_branch_code = '$i_customer' and f_faktur_cancel  = false and d_faktur  between to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date and current_date
+                        group by 1,2
+                        order by 2 asc
+                    ) as b on (a.mon = b.mon)
+                    $$
+                    ) AS datas (
+                        v_nota_netto json
+                    ) 
+                ",
+                    FALSE
+                )->row();
 
-                $labelnota = $this->db->query("select json_agg(mon) as mon from (
+                $labelnota = $this->db->query(
+                    "SELECT json_agg(mon) as mon from (
                                 select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'Mon')) as mon
-                            ) as x")->row();
+                    ) as x"
+                )->row();
                 $query['chart']['labels'] = json_decode($labelnota->mon, TRUE);
                 //$query['chart']['datasets'] =  array(array('data' => array(11,22,33,44,55,66,77,88,99,10,11,12)));
                 $query['chart']['datasets'] = array(
@@ -2050,26 +2088,31 @@ class Api extends REST_Controller
                     ),
                 );
 
-                $subkategori = $this->db->query("
-                    select e_product_categoryname, total 
+                $subkategori = $this->db->query(
+                    "SELECT e_product_categoryname, total 
                     from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
                     $$
-                        with cte as (
-                            select to_char(b.d_nota, 'yyyymm') as periode, e.e_product_categoryname  , sum(a.n_deliver) as total from tm_nota_item a
-                            inner join tm_nota b on (a.i_nota = b.i_nota and a.i_area = b.i_area)
-                            inner join tr_product c on (a.i_product = c.i_product)
-                            inner join tr_product_category e on (c.i_product_category  = e.i_product_category)
-                            where b.f_nota_cancel = false and b.d_nota >= (current_date - interval '6 month')::date and b.i_customer in ('$i_customer')
-                            group by 1,2
-                            order by 3 desc 
-                        )
-                        select e_product_categoryname, sum(total) as total from cte group by 1 order by 2 desc
+                    with cte as (
+                        select to_char(b.d_faktur, 'yyyymm') as periode, e.e_category_name AS e_product_categoryname, sum(a.n_quantity) as total 
+                        from tm_faktur_do_item_t a
+                        inner join tm_faktur_do_t b on (a.i_faktur = b.i_faktur)
+                        INNER JOIN tr_branch br ON (br.e_initial = b.e_branch_name)
+                        inner join tr_product_motif c on (a.i_product = c.i_product_motif)
+                        INNER JOIN tr_product_base bb ON (bb.i_product_base = c.i_product)
+                        inner join tr_categories e on (e.i_category = bb.i_category)
+                        where b.f_faktur_cancel = false and b.d_faktur >= (current_date - interval '6 month')::date and br.i_branch_code in ($i_customer)
+                        group by 1,2
+                        order by 3 desc 
+                    )
+                    select e_product_categoryname, sum(total) as total from cte group by 1 order by 2 DESC
                     $$
                     ) AS nilai (
                         
                         e_product_categoryname varchar, total numeric
                     )
-                ", FALSE);
+                ",
+                    FALSE
+                );
 
                 if ($subkategori->num_rows() > 0) {
                     $key = 0;
@@ -2139,8 +2182,7 @@ class Api extends REST_Controller
             $query['list'] = null;
             $key = 0;
 
-            if ($i_company == '6') {
-
+            if ($i_company == '6' || $i_company == '9') {
                 //list daftar tagihan
                 $item = $this->db->query("
                     select i_nota , e_color, e_icon , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
@@ -2355,6 +2397,111 @@ class Api extends REST_Controller
                         SELECT un1.val::text as e_label, un2.val::text as e_data
                         FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'TOP', 'Jumlah Nota ' || to_char(current_date, 'yyyy'), 'Rata - Rata Keterlambatan', 'TOP Terhadap Rata Rata', 'Plafon', 'Limit']) WITH ORDINALITY un1 (val, ord)
                         FULL JOIN unnest((select e_data from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
+                    ", false);
+
+
+                if ($header->num_rows() > 0) {
+                    $key = 0;
+                    foreach ($header->result() as $row) {
+                        $query['head'][$key]['e_label'] = $row->e_label;
+                        $query['head'][$key]['e_data'] = $row->e_data;
+                        $key++;
+                    }
+                }
+            } else if ($i_company == '2' && $username == 'admin') {
+                //list daftar tagihan
+                $item = $this->db->query(
+                    "SELECT i_nota , e_color, e_icon , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
+                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
+                        SELECT DISTINCT a.i_faktur, b.i_branch_code AS i_customer, a.i_faktur_code AS i_nota, e.i_do_code AS i_sj , d_faktur AS d_nota, d_due_date AS d_jatuh_tempo , 
+                        current_date - d_due_date as selisih,
+                        v_total_fppn AS v_nota_netto , v_total_fppn_sisa AS v_sisa , v_total_fppn - v_total_fppn_sisa as v_bayar 
+                        from tm_faktur_do_t a
+                        INNER JOIN tr_branch b ON (b.e_initial = a.e_branch_name)
+                        INNER JOIN tm_faktur_do_item_t c ON (c.i_faktur = a.i_faktur)
+                        INNER JOIN tm_do_item d ON (d.i_do = c.i_do AND c.i_product = d.i_product)
+                        INNER JOIN tm_do e ON (e.i_do = d.i_do)
+                        where d_faktur is not null and v_total_fppn_sisa > 0 and f_faktur_cancel = FALSE and b.i_branch_code in ($i_customer)
+                        order by d_due_date asc, v_total_fppn_sisa desc
+                    )
+                    select coalesce(a.i_nota,'') || ' / ' || a.i_sj as i_nota, a.d_nota, a.d_jatuh_tempo , 
+                        case 
+                            when v_sisa > 0 and selisih between 1 and 7 then '#279b37'
+                            when v_sisa > 0 and selisih between 8 and 15 then '#ffdd00'
+                            when v_sisa > 0 and selisih > 15 then '#e4002b'
+                            else '#000000'
+                        end as e_color,
+                        case 
+                            when v_sisa > 0 and selisih between 1 and 7 then 'warning'
+                            when v_sisa > 0 and selisih between 8 and 15 then 'warning'
+                            when v_sisa > 0 and selisih > 15 then 'warning'
+                            else 'info'
+                        end as e_icon
+                        ,a.v_nota_netto , a.v_sisa ,a.v_bayar , b.e_remark from cte a
+                    left join (
+                        select distinct on (a.i_nota) a.i_nota , 
+                        coalesce(b.e_description , '') as e_remark from tm_voucher_item a
+                        inner join tm_voucher b on (a.i_voucher  = b.i_voucher)
+                        where a.i_nota in (select i_faktur from cte) and b.f_voucher_cancel = false 
+                        order by a.i_nota , b.d_entry desc
+                    ) as b on a.i_faktur = b.i_nota
+                    order by d_jatuh_tempo ASC
+                    $$
+                    ) AS nilai (
+                        i_nota varchar(100), d_nota date, d_jatuh_tempo date, e_color varchar(20), e_icon varchar(20),v_nota_netto numeric, v_sisa numeric, v_bayar numeric, e_remark varchar(200)
+                    )    
+                ", FALSE);
+
+                $saldo_piutang = 0;
+                foreach ($item->result() as $list) {
+                    $saldo_piutang += $list->v_sisa;
+                    $query['list'][$key]['d_jatuh_tempo'] = "Jatuh Tempo : " . $list->d_jatuh_tempo;
+                    $query['list'][$key]['i_nota'] = $list->i_nota;
+                    $query['list'][$key]['v_sisa'] = number_format($list->v_sisa);
+                    $query['list'][$key]['v_netto'] = number_format($list->v_nota_netto);
+                    $query['list'][$key]['e_color'] = $list->e_color;
+                    $query['list'][$key]['e_icon'] = $list->e_icon;
+                    $query['list'][$key]['e_remark'] = $list->e_remark;
+                    $query['list'][$key]['e_text'] = $list->e_remark;
+                    $key++;
+                }
+
+                $header = $this->db->query(
+                    "WITH cte as (
+                        select array[i_customer, e_customer_name, n_customer_toplength::text || ' Hari', nota_count::text , rata_keterlambatan::text || ' Hari' ,
+                        is_normal, to_char(v_flapond, 'FMRp 999,999,999,990D00')::text, to_char(v_limit ,'FMRp 999,999,999,990D00')::text] as e_data 
+                        from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                        $$
+                        select a.i_customer, a.e_customer_name, a.n_customer_top AS n_customer_toplength, coalesce(c.jumlah_nota,0) as jumlah_nota, coalesce(b.n_rata_telat, 0) as n_ratatelat, 
+                        case
+                            when n_customer_top = 0 then 'Tidak Wajar'
+                            when (n_customer_top >= 30 and n_customer_top <= 35) and coalesce(b.n_rata_telat, 0) <= 15 then 'Wajar'
+                            when n_customer_top = 45 and coalesce(b.n_rata_telat, 0) <= 15 then 'Wajar'
+                            when n_customer_top = 60 and coalesce(b.n_rata_telat, 0) <= 10 then 'Wajar'
+                            else 'Tidak Wajar'
+                        end as is_normal,
+                        coalesce(b.v_plafond, 0) as v_flapond,  coalesce(b.v_plafond_acc, 0) as limit 
+                        from tr_customer a 
+                        INNER JOIN tr_branch h ON (h.i_customer = a.i_customer)
+                        left join tm_plafond b on (a.i_customer = b.i_customer)
+                        left join (
+                            select b.i_branch_code AS i_customer, count(b.i_branch_code) as jumlah_nota  
+                            from tm_faktur_do_t a
+                            INNER JOIN tr_branch  b ON (b.e_initial = a.e_branch_name)    
+                            where f_faktur_cancel = false and b.i_branch_code = '$i_customer' and to_char(d_faktur, 'yyyy') = to_char(current_date, 'yyyy') group by 1
+                        ) as c on (h.i_branch_code = c.i_customer)
+                        where h.i_branch_code = '$i_customer'
+                        $$
+                        ) AS datas (
+                            i_customer varchar(255), e_customer_name varchar(255), n_customer_toplength numeric, nota_count numeric , 
+                            rata_keterlambatan numeric ,is_normal varchar(255), v_flapond numeric, v_limit numeric
+                        ) 
+                    )
+                    SELECT un1.val::text as e_label, un2.val::text as e_data
+                    FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'TOP', 'Jumlah Nota ' || to_char(current_date, 'yyyy'), 'Rata - Rata Keterlambatan', 'TOP Terhadap Rata Rata', 'Plafon', 'Limit']) WITH ORDINALITY un1 (val, ord)
+                    FULL JOIN unnest((select e_data from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
                     ", false);
 
 
