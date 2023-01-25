@@ -2188,7 +2188,7 @@ class Api extends REST_Controller
             $query['list'] = null;
             $key = 0;
 
-            if ($i_company == '6' || ($i_company == '9' && $username == 'admin')) {
+            if ($i_company == '6' || $i_company == '9') {
 
                 //list daftar tagihan
                 $item = $this->db->query("
@@ -2319,7 +2319,8 @@ class Api extends REST_Controller
 
 
                 // } else if ( ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
-            } else if (($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin')) {
+            // } else if (($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin')) {
+            } elseif ($i_company == '1' || $i_company == '7' || $i_company == '4' || $i_company == '5') {
 
                 //list daftar tagihan
                 $item = $this->db->query("
@@ -2404,6 +2405,111 @@ class Api extends REST_Controller
                         SELECT un1.val::text as e_label, un2.val::text as e_data
                         FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'TOP', 'Jumlah Nota ' || to_char(current_date, 'yyyy'), 'Rata - Rata Keterlambatan', 'TOP Terhadap Rata Rata', 'Plafon', 'Limit']) WITH ORDINALITY un1 (val, ord)
                         FULL JOIN unnest((select e_data from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
+                    ", false);
+
+
+                if ($header->num_rows() > 0) {
+                    $key = 0;
+                    foreach ($header->result() as $row) {
+                        $query['head'][$key]['e_label'] = $row->e_label;
+                        $query['head'][$key]['e_data'] = $row->e_data;
+                        $key++;
+                    }
+                }
+            }elseif ($i_company == '2' && $username == 'admin') {
+                //list daftar tagihan
+                $item = $this->db->query(
+                    "SELECT i_nota , e_color, e_icon , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
+                    from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
+                        SELECT DISTINCT a.i_faktur, b.i_branch_code AS i_customer, a.i_faktur_code AS i_nota, e.i_do_code AS i_sj , d_faktur AS d_nota, d_due_date AS d_jatuh_tempo , 
+                        current_date - d_due_date as selisih,
+                        v_total_fppn AS v_nota_netto , v_total_fppn_sisa AS v_sisa , v_total_fppn - v_total_fppn_sisa as v_bayar 
+                        from tm_faktur_do_t a
+                        INNER JOIN tr_branch b ON (b.e_initial = a.e_branch_name)
+                        INNER JOIN tm_faktur_do_item_t c ON (c.i_faktur = a.i_faktur)
+                        INNER JOIN tm_do_item d ON (d.i_do = c.i_do AND c.i_product = d.i_product)
+                        INNER JOIN tm_do e ON (e.i_do = d.i_do)
+                        where d_faktur is not null and v_total_fppn_sisa > 0 and f_faktur_cancel = FALSE and b.i_branch_code in ('$i_customer')
+                        order by d_due_date asc, v_total_fppn_sisa desc
+                    )
+                    select coalesce(a.i_nota,'') || ' / ' || a.i_sj as i_nota, a.d_nota, a.d_jatuh_tempo , 
+                        case 
+                            when v_sisa > 0 and selisih between 1 and 7 then '#279b37'
+                            when v_sisa > 0 and selisih between 8 and 15 then '#ffdd00'
+                            when v_sisa > 0 and selisih > 15 then '#e4002b'
+                            else '#000000'
+                        end as e_color,
+                        case 
+                            when v_sisa > 0 and selisih between 1 and 7 then 'warning'
+                            when v_sisa > 0 and selisih between 8 and 15 then 'warning'
+                            when v_sisa > 0 and selisih > 15 then 'warning'
+                            else 'info'
+                        end as e_icon
+                        ,a.v_nota_netto , a.v_sisa ,a.v_bayar , b.e_remark from cte a
+                    left join (
+                        select distinct on (a.i_nota) a.i_nota , 
+                        coalesce(b.e_description , '') as e_remark from tm_voucher_item a
+                        inner join tm_voucher b on (a.i_voucher  = b.i_voucher)
+                        where a.i_nota in (select i_faktur from cte) and b.f_voucher_cancel = false 
+                        order by a.i_nota , b.d_entry desc
+                    ) as b on a.i_faktur = b.i_nota
+                    order by d_jatuh_tempo ASC
+                    $$
+                    ) AS nilai (
+                        i_nota varchar(100), d_nota date, d_jatuh_tempo date, e_color varchar(20), e_icon varchar(20),v_nota_netto numeric, v_sisa numeric, v_bayar numeric, e_remark varchar(200)
+                    )    
+                ", FALSE);
+
+                $saldo_piutang = 0;
+                foreach ($item->result() as $list) {
+                    $saldo_piutang += $list->v_sisa;
+                    $query['list'][$key]['d_jatuh_tempo'] = "Jatuh Tempo : " . $list->d_jatuh_tempo;
+                    $query['list'][$key]['i_nota'] = $list->i_nota;
+                    $query['list'][$key]['v_sisa'] = number_format($list->v_sisa);
+                    $query['list'][$key]['v_netto'] = number_format($list->v_nota_netto);
+                    $query['list'][$key]['e_color'] = $list->e_color;
+                    $query['list'][$key]['e_icon'] = $list->e_icon;
+                    $query['list'][$key]['e_remark'] = $list->e_remark;
+                    $query['list'][$key]['e_text'] = $list->e_remark;
+                    $key++;
+                }
+
+                $header = $this->db->query(
+                    "WITH cte as (
+                        select array[i_customer, e_customer_name, n_customer_toplength::text || ' Hari', nota_count::text , rata_keterlambatan::text || ' Hari' ,
+                        is_normal, to_char(v_flapond, 'FMRp 999,999,999,990D00')::text, to_char(v_limit ,'FMRp 999,999,999,990D00')::text] as e_data 
+                        from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                        $$
+                        select a.i_customer, a.e_customer_name, a.n_customer_top AS n_customer_toplength, coalesce(c.jumlah_nota,0) as jumlah_nota, coalesce(b.n_rata_telat, 0) as n_ratatelat, 
+                        case
+                            when n_customer_top = 0 then 'Tidak Wajar'
+                            when (n_customer_top >= 30 and n_customer_top <= 35) and coalesce(b.n_rata_telat, 0) <= 15 then 'Wajar'
+                            when n_customer_top = 45 and coalesce(b.n_rata_telat, 0) <= 15 then 'Wajar'
+                            when n_customer_top = 60 and coalesce(b.n_rata_telat, 0) <= 10 then 'Wajar'
+                            else 'Tidak Wajar'
+                        end as is_normal,
+                        coalesce(b.v_plafond, 0) as v_flapond,  coalesce(b.v_plafond_acc, 0) as limit 
+                        from tr_customer a 
+                        INNER JOIN tr_branch h ON (h.i_customer = a.i_customer)
+                        left join tm_plafond b on (a.i_customer = b.i_customer)
+                        left join (
+                            select b.i_branch_code AS i_customer, count(b.i_branch_code) as jumlah_nota  
+                            from tm_faktur_do_t a
+                            INNER JOIN tr_branch  b ON (b.e_initial = a.e_branch_name)    
+                            where f_faktur_cancel = false and b.i_branch_code = '$i_customer' and to_char(d_faktur, 'yyyy') = to_char(current_date, 'yyyy') group by 1
+                        ) as c on (h.i_branch_code = c.i_customer)
+                        where h.i_branch_code = '$i_customer'
+                        $$
+                        ) AS datas (
+                            i_customer varchar(255), e_customer_name varchar(255), n_customer_toplength numeric, nota_count numeric , 
+                            rata_keterlambatan numeric ,is_normal varchar(255), v_flapond numeric, v_limit numeric
+                        ) 
+                    )
+                    SELECT un1.val::text as e_label, un2.val::text as e_data
+                    FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'TOP', 'Jumlah Nota ' || to_char(current_date, 'yyyy'), 'Rata - Rata Keterlambatan', 'TOP Terhadap Rata Rata', 'Plafon', 'Limit']) WITH ORDINALITY un1 (val, ord)
+                    FULL JOIN unnest((select e_data from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
                     ", false);
 
 
