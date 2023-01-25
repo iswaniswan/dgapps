@@ -215,9 +215,9 @@ class Api extends REST_Controller
         $username = $this->post('username');
         $i_area = $this->post('i_area');
 
-        $cek_city=$this->db->query (" dselect a.i_city, a.id_maps from tbl_city a, tbl_area b 
+        $cek_city = $this->db->query(" dselect a.i_city, a.id_maps from tbl_city a, tbl_area b 
                             where a.i_company=b.i_company and a.id_maps=b.id_maps and a.i_company='$i_company' and a.f_active='t' and b.e_area_name='$i_area' ");
-//        $cek_city = $this->db->get();
+        //        $cek_city = $this->db->get();
 
         if ($cek_city->num_rows() > 0) {
 
@@ -257,8 +257,8 @@ class Api extends REST_Controller
         $kodesales = $this->post('kodesales');
         $username = $this->post('username');
 
-        if($i_company=='1'){
-          $DB2 = $this->load->database('dgu', TRUE);
+        if ($i_company == '1') {
+            $DB2 = $this->load->database('dgu', TRUE);
         }
         $this->db->select("i_company");
         $this->db->from("tbl_company");
@@ -417,8 +417,8 @@ class Api extends REST_Controller
         //echo sizeof($pieces). '<br>'; // piece2
 
         $and = ' a.f_active = true ';
-        foreach($cari_detail as $row) {
-            $and .= " AND a.e_product_name ILIKE '%".$row."%' ";
+        foreach ($cari_detail as $row) {
+            $and .= " AND a.e_product_name ILIKE '%" . $row . "%' ";
         }
 
         if ($cek_company->num_rows() > 0) {
@@ -561,7 +561,7 @@ class Api extends REST_Controller
                         ");
 
                     } else {
-                         $query = $this->db->query("
+                        $query = $this->db->query("
                             SELECT a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, 0 as n_quantity
                             from tbl_product a
                             inner join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
@@ -572,7 +572,7 @@ class Api extends REST_Controller
                         ");
                     }
                 } else {
-                    $i_price_group_new = substr($i_price_group,0,2)."00";
+                    $i_price_group_new = substr($i_price_group, 0, 2) . "00";
                     if ($f_stock == 't') {
                         $query = $this->db->query("
                             select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity
@@ -595,7 +595,7 @@ class Api extends REST_Controller
                             and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%'))
                         ");
                     } else {
-                         $query = $this->db->query("
+                        $query = $this->db->query("
                             select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group,  99 as n_quantity 
                             from tbl_product a
                             left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
@@ -614,7 +614,7 @@ class Api extends REST_Controller
                         ");
                     }
                 }
-                
+
 
                 if ($query->num_rows() > 0) {
                     $list = array();
@@ -1353,7 +1353,7 @@ class Api extends REST_Controller
                     where a.i_area = '$i_area' and a.f_active = true and a.i_company = '$i_company' and a.i_customer like '$i_customer'
                 ");
             }
-            
+
             if ($query->num_rows() > 0) {
                 $this->response([
                     'status' => true,
@@ -1432,7 +1432,7 @@ class Api extends REST_Controller
                     $key++;
                 }
 
-                 //list sub kategori
+                //list sub kategori
                 $subkategori = $this->db->query("
                     select e_product_categoryname, rata
                     from dblink('host=192.168.0.93 user=dedy password=g#>m[J2P^^ dbname=bcl port=5432',
@@ -1456,11 +1456,11 @@ class Api extends REST_Controller
                 if ($subkategori->num_rows() > 0) {
                     $single = '';
                     foreach ($subkategori->result() as $sub) {
-                        $single .= $sub->e_product_categoryname . "  (". number_format($sub->rata) . " pcs) \n";
+                        $single .= $sub->e_product_categoryname . "  (" . number_format($sub->rata) . " pcs) \n";
                     }
                     $query[$key]['i_customer'] = $single;
                     $query[$key]['e_customer_name'] = "Rata Order By Sub Category";
-                    $query[$key]['e_customer_address'] = "**data dari nota 6 bulan terakhir" ;
+                    $query[$key]['e_customer_address'] = "**data dari nota 6 bulan terakhir";
                     $key++;
                 }
 
@@ -1481,7 +1481,7 @@ class Api extends REST_Controller
                     if ($data->num_rows() > 0) {
                         foreach ($data->result() as $row) {
                             $total += $row->v_nota_target;
-                            array_push($list_customer, "'".$row->i_customer."'");
+                            array_push($list_customer, "'" . $row->i_customer . "'");
                         }
                         $arrayTxt = implode(',', $list_customer);
 
@@ -1502,16 +1502,16 @@ class Api extends REST_Controller
                                 v_nota_netto numeric, v_sisa numeric, v_spb numeric
                             )
                         ", FALSE)->row();
-                        $query[$key]['i_customer'] = "Tahun ". date('Y');
+                        $query[$key]['i_customer'] = "Tahun " . date('Y');
                         $query[$key]['e_customer_name'] = "Program Semarak 7th Omiland";
-                        $query[$key]['e_customer_address'] = "Target : Rp. ". number_format($total) . "\n" . "Pencapaian : Rp. ".number_format($data2->v_nota_netto). "\n" . "Persentasi : " . number_format($data2->v_nota_netto / $total * 100,2) . " %\n"."Total Sisa Nota Belum Bayar : Rp. " .number_format($data2->v_sisa) ;
+                        $query[$key]['e_customer_address'] = "Target : Rp. " . number_format($total) . "\n" . "Pencapaian : Rp. " . number_format($data2->v_nota_netto) . "\n" . "Persentasi : " . number_format($data2->v_nota_netto / $total * 100, 2) . " %\n" . "Total Sisa Nota Belum Bayar : Rp. " . number_format($data2->v_sisa);
                         // $query[$key]['e_area_name'] = "";
                         // $query[$key]['i_area'] = "";
                         // $query[$key]['latitude'] = "";
                         // $query[$key]['longitude'] = "";
                         $key++;
 
-                        
+
 
 
 
@@ -1549,7 +1549,7 @@ class Api extends REST_Controller
                         ", FALSE);
 
                         foreach ($item->result() as $list) {
-                            $query[$key]['i_customer'] = "Jatuh Tempo ". $list->d_jatuh_tempo;
+                            $query[$key]['i_customer'] = "Jatuh Tempo " . $list->d_jatuh_tempo;
                             $query[$key]['e_customer_name'] = $list->i_nota;
                             $query[$key]['e_customer_address'] = "Sisa Rp. " . number_format($list->v_sisa) . " Dari Total Rp. " . number_format($list->v_nota_netto);
                             $key++;
@@ -1576,7 +1576,7 @@ class Api extends REST_Controller
                     where a.i_area = '$i_area' and a.f_active = true and a.i_company = '$i_company' and a.i_customer like '$i_customer'
                 ")->result_array();
             }
-            
+
             // echo sizeof($query);
             // die();
 
@@ -1600,7 +1600,7 @@ class Api extends REST_Controller
         }
     }
 
-    
+
     //Baru dari sini
     public function customerinformation_post()
     {
@@ -1621,25 +1621,26 @@ class Api extends REST_Controller
 
             $i_company = $i_company;
             $username = $username;
-            $db_host =  $cek_company->row()->db_host;
-            $db_user =  $cek_company->row()->db_user;
-            $db_password =  $cek_company->row()->db_password;
-            $db_name =  $cek_company->row()->db_name;
-            $db_port =  $cek_company->row()->db_port;
+            $db_host = $cek_company->row()->db_host;
+            $db_user = $cek_company->row()->db_user;
+            $db_password = $cek_company->row()->db_password;
+            $db_name = $cek_company->row()->db_name;
+            $db_port = $cek_company->row()->db_port;
             // var_dump($db_host);
             // die();
 
             $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
 
             // if ($i_company == '6' || ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
-            if (($i_company == '6') || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') || ($i_company == '9' && $username == 'admin')) {
+            // if (($i_company == '6') || ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') || ($i_company == '9' && $username == 'admin')) {
+            if ($i_company == '6' || $i_company == '1' || $i_company == '7' || $i_company == '4' || $i_company == '5' || $i_company == '9') {
                 $query = array();
                 $key = 0;
                 $cust_info = $this->db->query("
                     SELECT * FROM
-                     dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
-                     $$
-                     with cte as (
+                    dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
                         select array[
                             a.i_customer ,a.e_customer_name, coalesce(b.e_customer_groupname,'-'), c.e_customer_classname, (d.i_price_group),
                             e.n_customer_discount1::char(5) || '% , ' || e.n_customer_discount2::char(5) || '%',  f.e_customer_ownername || ' - ' || f.e_customer_ownerphone ,
@@ -1654,19 +1655,59 @@ class Api extends REST_Controller
                         where a.i_customer = '$i_customer'
                     )
                     /*SELECT * FROM
-                      unnest(
+                        unnest(
                         ARRAY['Kode Customer', 'Nama Customer'],
                         (select e_customer_name from cte)
-                      ) AS data(i_customer,e_customer_name);*/
+                        ) AS data(i_customer,e_customer_name);*/
                     SELECT un1.val::text as i_customer, un2.val::text as e_customer_name
                     FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'Group Pelanggan', 'Tipe', 'Kode Harga', 'Diskon', 'Kontak', 'Plafon', 'TOP', 'Status PKP']) WITH ORDINALITY un1 (val, ord)
                     FULL JOIN unnest((select e_customer_name from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
-                     $$
-                     ) AS datas (
-                          i_customer text,
-                          e_customer_name text
-                     ) 
+                        $$
+                        ) AS datas (
+                            i_customer text,
+                            e_customer_name text
+                        ) 
                 ");
+
+                foreach ($cust_info->result() as $riw) {
+                    $query[$key]['i_customer'] = $riw->i_customer;
+                    $query[$key]['e_customer_name'] = $riw->e_customer_name;
+                    $key++;
+                }
+
+            } elseif ($i_company == '2' && $username == 'admin') {
+                $query = array();
+                $key = 0;
+                $cust_info = $this->db->query(
+                    "SELECT * FROM
+                    dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
+                    $$
+                    with cte as (
+                        select array[
+                            bc.i_branch_code, bc.e_branch_name, coalesce(b.e_group_name,'-'), c.e_customer_classname, (d.i_price_code),
+                            e.n_customer_discount1::char(5) || '% , ' || e.n_customer_discount2::char(5) || '%',  a.e_customer_contact || ' - ' || a.e_customer_phone ,
+                            to_char(g.v_plafond, 'FMRp 999,999,999,990D00')::text, a.n_customer_top || ' Hari', case when f_customer_pkp = true then 'PKP' else 'Non PKP' end
+                            ] as e_customer_name from tr_customer a
+                        inner join tr_customer_class c on (a.i_customer_class = c.i_customer_class)
+                        inner join tr_price_code d on (a.i_price_code = d.i_price_code)
+                        inner join tr_customer_discount e on (a.i_customer = e.i_customer)
+                        INNER JOIN tr_branch bc ON (bc.i_customer = e.i_customer)
+                        left join tr_group b on (a.i_group_code = b.i_group_code)
+                        --left join tr_customer_owner f on (a.i_customer = f.i_customer)
+                        --left join tr_customer_groupar g on (a.i_customer = g.i_customer)
+                        left join tm_plafond g on (a.i_customer = g.i_customer)
+                        where bc.i_branch_code = '$i_customer'
+                    )
+                    SELECT un1.val::text as i_customer, un2.val::text as e_customer_name
+                    FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'Group Pelanggan', 'Tipe', 'Kode Harga', 'Diskon', 'Kontak', 'Plafon', 'TOP', 'Status PKP']) WITH ORDINALITY un1 (val, ord)
+                    FULL JOIN unnest((select e_customer_name from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
+                    $$
+                    ) AS datas (
+                        i_customer text,
+                        e_customer_name text
+                    ) 
+                "
+                );
 
                 foreach ($cust_info->result() as $riw) {
                     $query[$key]['i_customer'] = $riw->i_customer;
@@ -1687,7 +1728,7 @@ class Api extends REST_Controller
                     where a.i_area = '$i_area' and a.f_active = true and a.i_company = '$i_company' and a.i_customer like '$i_customer'
                 ")->result_array();
             }
-            
+
             // echo sizeof($query);
             // die();
 
@@ -1727,15 +1768,15 @@ class Api extends REST_Controller
         $this->db->where("f_active", 'true');
         $cek_company = $this->db->get();
 
-        if ($cek_company->num_rows() > 0 ) {
+        if ($cek_company->num_rows() > 0) {
 
             $i_company = $i_company;
             $username = $username;
-            $db_host =  $cek_company->row()->db_host;
-            $db_user =  $cek_company->row()->db_user;
-            $db_password =  $cek_company->row()->db_password;
-            $db_name =  $cek_company->row()->db_name;
-            $db_port =  $cek_company->row()->db_port;
+            $db_host = $cek_company->row()->db_host;
+            $db_user = $cek_company->row()->db_user;
+            $db_password = $cek_company->row()->db_password;
+            $db_name = $cek_company->row()->db_name;
+            $db_port = $cek_company->row()->db_port;
             // var_dump($db_host);
             // die();
 
@@ -1770,7 +1811,7 @@ class Api extends REST_Controller
                     if ($data->num_rows() > 0) {
                         foreach ($data->result() as $row) {
                             $total += $row->v_nota_target;
-                            array_push($list_customer, "'".$row->i_customer."'");
+                            array_push($list_customer, "'" . $row->i_customer . "'");
                         }
                         $arrayTxt = implode(',', $list_customer);
 
@@ -1791,13 +1832,13 @@ class Api extends REST_Controller
                                 v_nota_netto numeric, v_sisa numeric, v_spb numeric
                             )
                         ", FALSE)->row();
-                        $query['head']['i_periode'] = "Tahun ". $periode;
+                        $query['head']['i_periode'] = "Tahun " . $periode;
                         $query['head']['e_name'] = $data->row()->e_name;
                         $query['head']['e_title'] = "Target Toko ";
-                        $query['head']['v_target'] = "Rp. ". number_format($total);
-                        $query['head']['v_pencapaian'] = "Rp. ". number_format($data2->v_nota_netto);
-                        $query['head']['v_persentasi'] = number_format($data2->v_nota_netto / $total * 100,2) . "";
-                        $query['head']['v_sisa'] = "Rp. ". number_format($data2->v_sisa);
+                        $query['head']['v_target'] = "Rp. " . number_format($total);
+                        $query['head']['v_pencapaian'] = "Rp. " . number_format($data2->v_nota_netto);
+                        $query['head']['v_persentasi'] = number_format($data2->v_nota_netto / $total * 100, 2) . "";
+                        $query['head']['v_sisa'] = "Rp. " . number_format($data2->v_sisa);
                         //$key++;
                     }
                 }
@@ -1827,13 +1868,13 @@ class Api extends REST_Controller
                 $labelnota = $this->db->query("select json_agg(mon) as mon from (
                                 select (to_char(to_char(current_date - interval '11 Month', 'yyyy-mm-01')::date + (interval '1' month * generate_series(0,11)), 'Mon')) as mon
                             ) as x")->row();
-                $query['chart']['labels'] =  json_decode($labelnota->mon, TRUE);
+                $query['chart']['labels'] = json_decode($labelnota->mon, TRUE);
                 //$query['chart']['datasets'] =  array(array('data' => array(11,22,33,44,55,66,77,88,99,10,11,12)));
-                $query['chart']['datasets'] =  array(
-                                                    array(
-                                                        'data' => json_decode($datanota->v_nota_netto, TRUE)
-                                                    ),
-                                                );
+                $query['chart']['datasets'] = array(
+                    array(
+                        'data' => json_decode($datanota->v_nota_netto, TRUE)
+                    ),
+                );
 
 
                 // $kategori = $this->db->query("
@@ -1869,7 +1910,7 @@ class Api extends REST_Controller
                 //         $query['kategori'][$key]['progress'] = $kat->total/$max;
                 //         $key++;
                 //     }
-                    
+
                 // }
 
                 $subkategori = $this->db->query("
@@ -1894,16 +1935,16 @@ class Api extends REST_Controller
                 ", FALSE);
 
                 if ($subkategori->num_rows() > 0) {
-                    $key=0;
-                    $max = array_sum(array_column($subkategori->result_array(),'total'));
+                    $key = 0;
+                    $max = array_sum(array_column($subkategori->result_array(), 'total'));
                     foreach ($subkategori->result() as $kat) {
                         $query['subkategori'][$key]['subkategori'] = $kat->e_product_categoryname;
                         $query['subkategori'][$key]['max'] = $max;
                         $query['subkategori'][$key]['total'] = $kat->total;
-                        $query['subkategori'][$key]['progress'] = $kat->total/$max;
+                        $query['subkategori'][$key]['progress'] = $kat->total / $max;
                         $key++;
                     }
-                    
+
                 }
 
                 // $seri = $this->db->query("
@@ -1936,14 +1977,14 @@ class Api extends REST_Controller
                 //         $query['seri'][$key]['progress'] = $row->total/$max;
                 //         $key++;
                 //     }
-                    
+
                 // }
 
             }
 
 
-            
-            
+
+
             // echo sizeof($query);
             // die();
 
@@ -1976,7 +2017,7 @@ class Api extends REST_Controller
         $i_area = $this->post('i_area');
         $username = $this->post('username');
 
-         // $i_customer = "02171";
+        // $i_customer = "02171";
         // $i_area = "02";
         $this->db->select("*");
         $this->db->from("tbl_company");
@@ -1988,22 +2029,22 @@ class Api extends REST_Controller
 
             $i_company = $i_company;
             $username = $username;
-            $db_host =  $cek_company->row()->db_host;
-            $db_user =  $cek_company->row()->db_user;
-            $db_password =  $cek_company->row()->db_password;
-            $db_name =  $cek_company->row()->db_name;
-            $db_port =  $cek_company->row()->db_port;
+            $db_host = $cek_company->row()->db_host;
+            $db_user = $cek_company->row()->db_user;
+            $db_password = $cek_company->row()->db_password;
+            $db_name = $cek_company->row()->db_name;
+            $db_port = $cek_company->row()->db_port;
             // var_dump($db_host);
             // die();
             $this->Logger->write($i_company, $username, 'Apps Membuka Informasi Pelanggan :' . $i_customer);
 
             $query = array();
 
-            $query['list'] = null; 
+            $query['list'] = null;
             $key = 0;
 
             if ($i_company == '6' || ($i_company == '9' && $username == 'admin')) {
-        
+
                 //list daftar tagihan
                 $item = $this->db->query("
                     select i_nota , e_color, e_icon , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
@@ -2048,7 +2089,7 @@ class Api extends REST_Controller
                 $saldo_piutang = 0;
                 foreach ($item->result() as $list) {
                     $saldo_piutang += $list->v_sisa;
-                    $query['list'][$key]['d_jatuh_tempo'] = "Jatuh Tempo : ". $list->d_jatuh_tempo;
+                    $query['list'][$key]['d_jatuh_tempo'] = "Jatuh Tempo : " . $list->d_jatuh_tempo;
                     $query['list'][$key]['i_nota'] = $list->i_nota;
                     $query['list'][$key]['v_sisa'] = number_format($list->v_sisa);
                     $query['list'][$key]['v_netto'] = number_format($list->v_nota_netto);
@@ -2120,22 +2161,22 @@ class Api extends REST_Controller
                         FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'TOP', 'Total Keterlambatan', 'Jumlah Nota', 'Rata - Rata Keterlambatan', 'TOP Terhadap Rata Rata', 'Plafon', 'Limit']) WITH ORDINALITY un1 (val, ord)
                         FULL JOIN unnest((select e_data from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
                     ", false);
-                
+
 
                 if ($header->num_rows() > 0) {
                     $key = 0;
-                    foreach($header->result() as $row) {
-                         $query['head'][$key]['e_label'] = $row->e_label;
-                         $query['head'][$key]['e_data'] = $row->e_data;
-                         $key++;
+                    foreach ($header->result() as $row) {
+                        $query['head'][$key]['e_label'] = $row->e_label;
+                        $query['head'][$key]['e_data'] = $row->e_data;
+                        $key++;
                     }
                 }
 
 
-            // } else if ( ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
-            } else if ( ($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin') ) {
+                // } else if ( ($i_company == '1' && $username == 'admin') || ($i_company == '7' && $username == 'admin') ) {
+            } else if (($i_company == '1') || ($i_company == '7') || ($i_company == '4' && $username == 'admin') || ($i_company == '5' && $username == 'admin')) {
 
-                 //list daftar tagihan
+                //list daftar tagihan
                 $item = $this->db->query("
                     select i_nota , e_color, e_icon , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
                     from dblink('host=$db_host user=$db_user password=$db_password dbname=$db_name port=$db_port',
@@ -2178,7 +2219,7 @@ class Api extends REST_Controller
                 $saldo_piutang = 0;
                 foreach ($item->result() as $list) {
                     $saldo_piutang += $list->v_sisa;
-                    $query['list'][$key]['d_jatuh_tempo'] = "Jatuh Tempo : ". $list->d_jatuh_tempo;
+                    $query['list'][$key]['d_jatuh_tempo'] = "Jatuh Tempo : " . $list->d_jatuh_tempo;
                     $query['list'][$key]['i_nota'] = $list->i_nota;
                     $query['list'][$key]['v_sisa'] = number_format($list->v_sisa);
                     $query['list'][$key]['v_netto'] = number_format($list->v_nota_netto);
@@ -2219,18 +2260,18 @@ class Api extends REST_Controller
                         FROM unnest(ARRAY['Kode Customer', 'Nama Customer', 'TOP', 'Jumlah Nota ' || to_char(current_date, 'yyyy'), 'Rata - Rata Keterlambatan', 'TOP Terhadap Rata Rata', 'Plafon', 'Limit']) WITH ORDINALITY un1 (val, ord)
                         FULL JOIN unnest((select e_data from cte)) WITH ORDINALITY un2 (val, ord) ON un2.ord = un1.ord;
                     ", false);
-                
+
 
                 if ($header->num_rows() > 0) {
                     $key = 0;
-                    foreach($header->result() as $row) {
-                         $query['head'][$key]['e_label'] = $row->e_label;
-                         $query['head'][$key]['e_data'] = $row->e_data;
-                         $key++;
+                    foreach ($header->result() as $row) {
+                        $query['head'][$key]['e_label'] = $row->e_label;
+                        $query['head'][$key]['e_data'] = $row->e_data;
+                        $key++;
                     }
                 }
             }
-            
+
             // echo sizeof($query);
             // die();
 
@@ -2280,7 +2321,7 @@ class Api extends REST_Controller
                 inner join tbl_information_type b on (a.id_type = b.id)
                 where a.i_company = '$i_company' and f_active = true and current_date between d_start and d_end 
                 order by d_end asc, a.id asc
-            ",false)->result();
+            ", false)->result();
 
             if (sizeof($query) > 0) {
                 $this->response([
@@ -2450,7 +2491,7 @@ class Api extends REST_Controller
         $i_company = $this->post('i_company');
         $i_customer = $this->post('i_customer');
 
-        $type = $this->post('type') ? $this->post('type') : null ;
+        $type = $this->post('type') ? $this->post('type') : null;
         $detail = $this->post('detail') ? $this->post('detail') : null;
 
         if ($type) {
@@ -2803,7 +2844,7 @@ class Api extends REST_Controller
             $cek_data = $this->db->query("select username, e_saran from tbl_customer_saran where i_company = '$i_company' and i_saran_type = '$i_saran_type' and i_customer = '$i_customer' and d_saran = '$tgl_sekarang'");
 
             if ($cek_data->num_rows() > 0) {
-                $e_saran = $e_saran . " & ". $cek_data->row()->e_saran;
+                $e_saran = $e_saran . " & " . $cek_data->row()->e_saran;
                 $this->db->query("update tbl_customer_saran set e_saran = '$e_saran' where i_company = '$i_company' and i_saran_type = '$i_saran_type' and i_customer = '$i_customer' and d_saran = '$tgl_sekarang' ");
                 $this->response([
                     'status' => true,
@@ -3010,7 +3051,8 @@ class Api extends REST_Controller
 
     public function koordinat_post()
     {
-        echo "string";('kesini');
+        echo "string";
+        ('kesini');
         // $data = $this->db->query("
         //     Select * from tr_customer_tmp limit 2
         // ")->result();
@@ -3044,8 +3086,8 @@ class Api extends REST_Controller
         //echo sizeof($pieces). '<br>'; // piece2
 
         $and = ' a.f_active = true ';
-        foreach($cari_detail as $row) {
-            $and .= " AND a.e_product_name ILIKE '%".$row."%' ";
+        foreach ($cari_detail as $row) {
+            $and .= " AND a.e_product_name ILIKE '%" . $row . "%' ";
         }
 
 
@@ -3183,7 +3225,7 @@ class Api extends REST_Controller
                         ");
 
                     } else {
-                         $query = $this->db->query("
+                        $query = $this->db->query("
                             SELECT a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity
                             from tbl_product a
                             inner join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
@@ -3196,7 +3238,7 @@ class Api extends REST_Controller
 
                     //$query = $this->db->get();
                 } else {
-                    $i_price_group_new = substr($i_price_group,0,2)."00";
+                    $i_price_group_new = substr($i_price_group, 0, 2) . "00";
                     if ($f_stock == 't') {
                         $query = $this->db->query("
                             select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group, coalesce(c.n_quantity,0) as n_quantity
@@ -3219,7 +3261,7 @@ class Api extends REST_Controller
                             and a.i_company = '$i_company' and f_active = 't' and (a.i_product like '%$cari%' or a.e_product_name like '%$cari%'))
                         ");
                     } else {
-                         $query = $this->db->query("
+                        $query = $this->db->query("
                             select a.i_product, a.i_product_group, a.e_product_name, b.v_product_price, b.i_price_group,  99 as n_quantity 
                             from tbl_product a
                             left join tbl_product_price b on a.i_product = b.i_product and a.i_company = b.i_company
@@ -3238,7 +3280,7 @@ class Api extends REST_Controller
                         ");
                     }
                 }
-                
+
 
                 if ($query->num_rows() > 0) {
                     $list = array();
