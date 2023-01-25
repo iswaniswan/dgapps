@@ -2103,7 +2103,7 @@ class Api extends REST_Controller
                         inner join tr_product_motif c on (a.i_product = c.i_product_motif)
                         INNER JOIN tr_product_base bb ON (bb.i_product_base = c.i_product)
                         inner join tr_categories e on (e.i_category = bb.i_category)
-                        where b.f_faktur_cancel = false and b.d_faktur >= (current_date - interval '6 month')::date and br.i_branch_code in ($i_customer)
+                        where b.f_faktur_cancel = false and b.d_faktur >= (current_date - interval '6 month')::date and br.i_branch_code in ('$i_customer')
                         group by 1,2
                         order by 3 desc 
                     )
