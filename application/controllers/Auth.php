@@ -53,4 +53,18 @@ class Auth extends CI_Controller
 
         redirect('auth', 'refresh');
     }
+
+    public function perusahaan () {
+        $filter = [];
+        $cari = str_replace("'", "", $this->input->get('q'));
+        $data = $this->db->query("SELECT i_company, upper(e_company_name) as e_company_name  from tbl_company where f_active = true  and e_company_name ilike '%$cari%' order by e_company_name");
+        foreach ($data->result() as $row) {
+            $filter[] = array(
+                'id'   => $row->i_company,
+                'text' => $row->e_company_name,
+            );
+        }
+        echo json_encode($filter);
+    
+    }
 }

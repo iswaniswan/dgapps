@@ -1675,7 +1675,7 @@ class Api extends REST_Controller
                     $key++;
                 }
 
-            } elseif ($i_company == '2' && $username == 'admin') {
+            } elseif ($i_company == '2' /*&& $username == 'admin'*/) {
                 $query = array();
                 $key = 0;
                 $cust_info = $this->db->query(
@@ -1981,7 +1981,7 @@ class Api extends REST_Controller
 
                 // }
 
-            } elseif ($i_company == '2' && $username == 'admin') {
+            } elseif ($i_company == '2' /*&& $username == 'admin'*/) {
                 $usertoko = $this->db->query("SELECT username from tbl_user_toko_item where i_customer = '$i_customer' and id_company = '$i_company' limit 1");
                 if ($usertoko->num_rows() > 0) {
                     $usertoko = $usertoko->row()->username;
@@ -2416,7 +2416,7 @@ class Api extends REST_Controller
                         $key++;
                     }
                 }
-            }elseif ($i_company == '2' && $username == 'admin') {
+            }elseif ($i_company == '2' /*&& $username == 'admin'*/) {
                 //list daftar tagihan
                 $item = $this->db->query(
                     "SELECT i_nota , e_color, e_icon , d_nota, d_jatuh_tempo, v_nota_netto , v_sisa , v_bayar , e_remark
