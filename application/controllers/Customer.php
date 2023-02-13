@@ -200,7 +200,6 @@ class Customer extends CI_Controller
         redirect($_SERVER['HTTP_REFERER'], 'refresh');
     }
 
-}
     public function export()
     {
         /** Style And Create New Spreedsheet */
