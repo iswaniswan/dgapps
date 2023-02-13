@@ -91,7 +91,7 @@
         <!-- /login form -->
 
       </div>
-      <div class="content d-flex justify-content-center align-items-center hilang">
+      <div class="content d-flex justify-content-center align-items-center">
         <span id="author" style="display: none;">Wahyu Adam Husaeni</span>
       </div>
       <!-- /content area -->
