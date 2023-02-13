@@ -1833,12 +1833,19 @@ class Api extends REST_Controller
                                 v_nota_netto numeric, v_sisa numeric, v_spb numeric
                             )
                         ", FALSE)->row();
+
+                        
+                        if( $total == 0) {
+                            $persen = number_format(0) . "";
+                        } else {
+                            $persen = number_format($data2->v_nota_netto / $total * 100, 2) . "";
+                        }
                         $query['head']['i_periode'] = "Tahun " . $periode;
                         $query['head']['e_name'] = $data->row()->e_name;
                         $query['head']['e_title'] = "Target Toko ";
                         $query['head']['v_target'] = "Rp. " . number_format($total);
                         $query['head']['v_pencapaian'] = "Rp. " . number_format($data2->v_nota_netto);
-                        $query['head']['v_persentasi'] = number_format($data2->v_nota_netto / $total * 100, 2) . "";
+                        $query['head']['v_persentasi'] = $persen;
                         $query['head']['v_sisa'] = "Rp. " . number_format($data2->v_sisa);
                         //$key++;
                     }

@@ -14,6 +14,38 @@ var LoginValidation = (function() {
   // Setup module components
   //
 
+  var _componentSelect2 = function() {
+        if (!$().select2) {
+            console.warn('Warning - select2.min.js is not loaded.');
+            return;
+        }
+
+        // Initialize
+        $(".select-search").select2();
+
+        // $("#i_company").select2({
+        //     width: "100%",
+        //     allowClear: true,
+        //     ajax: {
+        //         url: '../Auth/perusahaan',
+        //         dataType: "json",
+        //         delay: 250,
+        //         data: function(params) {
+        //             var query = {
+        //                 q: params.term,
+        //             };
+        //             return query;
+        //         },
+        //         processResults: function(data) {
+        //             return {
+        //                 results: data,
+        //             };
+        //         },
+        //         cache: false,
+        //     },
+        // });
+  };
+
   // Validation config
   var _componentValidation = function() {
     if (!$().validate) {
@@ -100,6 +132,7 @@ var LoginValidation = (function() {
   return {
     init: function() {
       _componentValidation();
+      _componentSelect2();
     }
   };
 })();
