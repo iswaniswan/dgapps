@@ -140,6 +140,7 @@ class M_user_management extends CI_Model
             'e_name' => $e_name,
             'phone' => $phone,
             'email' => $email,
+            'i_staff' => $i_staff,
             'modifiedat' => current_datetime(),
             'username_upline' => $username_upline
         );
