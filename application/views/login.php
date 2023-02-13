@@ -19,18 +19,19 @@
   <!-- /global stylesheets -->
 
   <!-- Core JS files -->
-  <script src="<?=base_url();?>global_assets/js/main/jquery.min.js"></script>
-  <script src="<?=base_url();?>global_assets/js/main/bootstrap.bundle.min.js"></script>
-  <script src="<?=base_url();?>global_assets/js/plugins/loaders/blockui.min.js"></script>
+  <script src="<?=base_url();?>global_assets/js/main/jquery.min.js?v=1"></script>
+  <script src="<?=base_url();?>global_assets/js/main/bootstrap.bundle.min.js?v=1"></script>
+  <script src="<?=base_url();?>global_assets/js/plugins/loaders/blockui.min.js?v=1"></script>
+  <script src="<?=base_url();?>global_assets/js/plugins/forms/selects/select2.min.js?v=1"></script>
   <!-- /core JS files -->
 
   <!-- Theme JS files -->
-  <script src="<?=base_url();?>assets/js/app.js"></script>
+  <script src="<?=base_url();?>assets/js/app.js?v=1"></script>
 
-  <script src="<?=base_url();?>global_assets/js/plugins/forms/validation/validate.min.js"></script>
-  <script src="<?=base_url();?>global_assets/js/plugins/forms/styling/uniform.min.js"></script>
+  <script src="<?=base_url();?>global_assets/js/plugins/forms/validation/validate.min.js?v=1"></script>
+  <script src="<?=base_url();?>global_assets/js/plugins/forms/styling/uniform.min.js?v=1"></script>
 
-  <script src="<?=base_url();?>assets/js/login/index.js"></script>
+  <script src="<?=base_url();?>assets/js/login/index.js?v=1"></script>
   <!-- /theme JS files -->
 
 </head>
@@ -57,10 +58,19 @@
               </div>
 
               <div class="form-group form-group-feedback form-group-feedback-left">
-                <input type="text" class="form-control" placeholder="Company ID" name="company" required>
+                <!-- <input type="text" class="form-control" placeholder="Company ID" name="company" required> -->
+                
                 <div class="form-control-feedback">
                   <i class="fas fa-building text-muted"></i>
                 </div>
+                <?php $data_company = $this->db->query("select i_company , e_company_name from tbl_company where f_active = true order by e_company_name ;")?>
+                <select class="form-control select-search" data-fouc name="company" required>
+                  <?php if($data_company->num_rows() > 0){
+                foreach ($data_company->result() as $row) { ?>
+                  <option value="<?= $row->i_company; ?>"> <?= $row->e_company_name; ?></option>
+                <?php } 
+                }?>
+                </select>
               </div>
 
               <div class="form-group form-group-feedback form-group-feedback-left">
@@ -91,9 +101,9 @@
         <!-- /login form -->
 
       </div>
-      <div class="content d-flex justify-content-center align-items-center">
+      <!-- <div class="content d-flex justify-content-center align-items-center">
         <span id="author" style="display: none;">Wahyu Adam Husaeni</span>
-      </div>
+      </div> -->
       <!-- /content area -->
 
     </div>
