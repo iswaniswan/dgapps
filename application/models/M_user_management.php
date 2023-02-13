@@ -216,9 +216,11 @@ class M_user_management extends CI_Model
     public function update_user_area($username, $array=[])
     {
         /** delete records first */
-        $this->delete_user_area($username);
+        
 
         $i_company = $this->session->userdata('i_company');
+
+        $this->delete_user_area($username, $i_company);
         foreach ($array as $area) {
             $_area = [
                 'username' => $username,
@@ -229,9 +231,10 @@ class M_user_management extends CI_Model
         }
     }
 
-    public function delete_user_area($username)
+    public function delete_user_area($username, $i_company)
     {
         $this->db->where('username', $username);
+        $this->db->where('i_company', $i_company);
         $this->db->delete('tbl_user_area');
     }
 
