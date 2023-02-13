@@ -124,7 +124,18 @@ class M_user_management extends CI_Model
     {
         $i_company = $this->session->userdata('i_company');
         $i_role = $this->session->userdata('i_role');
-        return $this->db->query("select * from tbl_user_role where i_company = '$i_company' and i_role > '$i_role' order by i_role asc");
+        
+        $where = "where i_company = '$i_company'";
+        $filter_role = " and i_role > '$i_role'";
+        if ($i_role == '1') {
+            $filter_role = "";
+        }
+
+        $where .= $filter_role;
+
+        $sql = "select * from tbl_user_role $where order by i_role asc";
+                
+        return $this->db->query($sql);
         //    return $this->db->select('*')->from('tbl_user_role')->where('i_company', $i_company, 'i_role >', $i_role)->order_by('i_role', 'asc')->get();
     }
 
